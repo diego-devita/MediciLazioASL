@@ -195,11 +195,23 @@ async function handler(req, res) {
     const medici = result.medici;
     const singleQueries = result.singleQueries;
 
-    // Conta assegnabili
-    const assegnabili = medici.filter(m => {
+    // Conta per categoria
+    const assegnabiliLiberi = medici.filter(m => {
       if (!m.assegnabilita) return false;
       const stato = m.assegnabilita.toLowerCase();
-      return stato.includes('assegnazione libera') || stato.includes('deroga');
+      return stato.includes('assegnazione libera');
+    });
+
+    const conDeroga = medici.filter(m => {
+      if (!m.assegnabilita) return false;
+      const stato = m.assegnabilita.toLowerCase();
+      return stato.includes('deroga') && !stato.includes('assegnazione libera');
+    });
+
+    const nonAssegnabili = medici.filter(m => {
+      if (!m.assegnabilita) return true;
+      const stato = m.assegnabilita.toLowerCase();
+      return !stato.includes('assegnazione libera') && !stato.includes('deroga');
     });
 
     // Response
@@ -215,8 +227,12 @@ async function handler(req, res) {
       },
       singleQueries: singleQueries,
       results: medici,
-      count: medici.length,
-      assegnabili: assegnabili.length
+      counters: {
+        totali: medici.length,
+        assegnabili: assegnabiliLiberi.length,
+        conDeroga: conDeroga.length,
+        nonAssegnabili: nonAssegnabili.length
+      }
     });
 
   } catch (error) {

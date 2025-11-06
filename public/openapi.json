@@ -404,13 +404,31 @@
               "$ref": "#/components/schemas/Medico"
             }
           },
-          "count": {
-            "type": "integer",
-            "description": "Numero totale di medici trovati"
-          },
-          "assegnabili": {
-            "type": "integer",
-            "description": "Numero di medici assegnabili (liberi o con deroga)"
+          "counters": {
+            "type": "object",
+            "description": "Contatori per categoria di assegnabilità",
+            "properties": {
+              "totali": {
+                "type": "integer",
+                "description": "Numero totale di medici trovati",
+                "example": 150
+              },
+              "assegnabili": {
+                "type": "integer",
+                "description": "Numero di medici con assegnazione libera",
+                "example": 25
+              },
+              "conDeroga": {
+                "type": "integer",
+                "description": "Numero di medici assegnabili solo con deroga",
+                "example": 10
+              },
+              "nonAssegnabili": {
+                "type": "integer",
+                "description": "Numero di medici non assegnabili",
+                "example": 115
+              }
+            }
           }
         }
       },
