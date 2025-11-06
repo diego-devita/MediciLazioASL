@@ -24,15 +24,8 @@ async function handler(req, res) {
     // GET: parametri da query string
     const { cognomi, asl, tipo, cap, nomi } = req.query;
 
-    if (!cognomi) {
-      return res.status(400).json({
-        success: false,
-        error: 'Missing required parameter: cognomi'
-      });
-    }
-
     params = {
-      cognomi: cognomi.split(',').map(c => c.trim().toUpperCase()),
+      cognomi: cognomi ? cognomi.split(',').map(c => c.trim().toUpperCase()) : [],
       asl: asl || '',
       tipo: tipo || 'MMG',
       cap: cap ? cap.split(',').map(c => c.trim()) : [],
@@ -43,15 +36,12 @@ async function handler(req, res) {
     // POST: parametri da body JSON
     params = req.body;
 
-    if (!params.cognomi || params.cognomi.length === 0) {
-      return res.status(400).json({
-        success: false,
-        error: 'Missing required parameter: cognomi'
-      });
+    // Normalizza cognomi (se presenti)
+    if (params.cognomi && Array.isArray(params.cognomi)) {
+      params.cognomi = params.cognomi.map(c => String(c).trim().toUpperCase());
+    } else {
+      params.cognomi = [];
     }
-
-    // Normalizza cognomi
-    params.cognomi = params.cognomi.map(c => String(c).trim().toUpperCase());
 
     // Normalizza nomi (se è stringa, split; se è array, usa così; altrimenti array vuoto)
     if (typeof params.nomi === 'string') {
@@ -78,6 +68,14 @@ async function handler(req, res) {
     return res.status(405).json({
       success: false,
       error: 'Method not allowed. Use GET or POST.'
+    });
+  }
+
+  // Validazione: almeno uno tra cognomi, cap, nomi deve essere presente
+  if (params.cognomi.length === 0 && params.cap.length === 0 && params.nomi.length === 0) {
+    return res.status(400).json({
+      success: false,
+      error: 'At least one of the following parameters is required: cognomi, cap, nomi'
     });
   }
 

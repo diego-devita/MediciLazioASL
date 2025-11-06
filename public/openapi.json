@@ -63,8 +63,8 @@
           {
             "name": "cognomi",
             "in": "query",
-            "required": true,
-            "description": "Cognomi da cercare, separati da virgola",
+            "required": false,
+            "description": "Cognomi da cercare, separati da virgola (richiesto almeno uno tra cognomi, cap, nomi)",
             "schema": {
               "type": "string",
               "pattern": "^[A-Z',]+$",
@@ -102,10 +102,10 @@
                   "$ref": "#/components/schemas/ErrorResponse"
                 },
                 "examples": {
-                  "missingCognomi": {
+                  "missingParameters": {
                     "value": {
                       "success": false,
-                      "error": "Missing required parameter: cognomi"
+                      "error": "At least one of the following parameters is required: cognomi, cap, nomi"
                     }
                   },
                   "invalidTipo": {
@@ -266,7 +266,7 @@
     "schemas": {
       "SearchRequest": {
         "type": "object",
-        "required": ["cognomi"],
+        "description": "Richiesto almeno uno tra cognomi, cap, nomi",
         "properties": {
           "tipo": {
             "type": "string",
