@@ -72,6 +72,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.10.5/swagger-ui-bundle.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.10.5/swagger-ui-standalone-preset.js"></script>
+  <script src="https://unpkg.com/swagger-ui-plugin-enum-names@1.0.1/dist/plugin.js"></script>
   <script>
     window.onload = function() {
       const ui = SwaggerUIBundle({
@@ -83,7 +84,8 @@
           SwaggerUIStandalonePreset
         ],
         plugins: [
-          SwaggerUIBundle.plugins.DownloadUrl
+          SwaggerUIBundle.plugins.DownloadUrl,
+          SwaggerUIPluginEnumNames
         ],
         layout: "StandaloneLayout",
         persistAuthorization: true,
