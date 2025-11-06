@@ -67,8 +67,8 @@
             "description": "Cognomi da cercare, separati da virgola",
             "schema": {
               "type": "string",
-              "pattern": "^[A-Z',]+$",
-              "example": "ROSSI,BIANCHI"
+              "pattern": "^[A-Z'\\s,]+$",
+              "example": "ROSSI,BIANCHI,DE LUCA"
             }
           },
           {
@@ -78,8 +78,8 @@
             "description": "Nomi da cercare, separati da virgola",
             "schema": {
               "type": "string",
-              "pattern": "^[A-Z',]+$",
-              "example": "MARIO,LUIGI"
+              "pattern": "^[A-Z'\\s,]+$",
+              "example": "MARIO,LUIGI,MARIA ROSA"
             }
           }
         ],
@@ -123,7 +123,7 @@
                   "invalidCognomi": {
                     "value": {
                       "success": false,
-                      "error": "Invalid cognomi: 123. Each cognome must contain only uppercase letters and apostrophes."
+                      "error": "Invalid cognomi: 123. Each cognome must contain only uppercase letters, apostrophes and spaces."
                     }
                   },
                   "invalidCAP": {
@@ -300,20 +300,20 @@
             "type": "array",
             "items": {
               "type": "string",
-              "pattern": "^[A-Z']+$"
+              "pattern": "^[A-Z'\\s]+$"
             },
             "minItems": 1,
-            "description": "Array di cognomi da cercare (solo lettere maiuscole e apostrofi)",
-            "example": ["ROSSI", "BIANCHI"]
+            "description": "Array di cognomi da cercare (solo lettere maiuscole, apostrofi e spazi)",
+            "example": ["ROSSI", "BIANCHI", "DE LUCA"]
           },
           "nomi": {
             "type": "array",
             "items": {
               "type": "string",
-              "pattern": "^[A-Z']+$"
+              "pattern": "^[A-Z'\\s]+$"
             },
-            "description": "Array di nomi da cercare (solo lettere maiuscole e apostrofi)",
-            "example": ["MARIO", "LUIGI"]
+            "description": "Array di nomi da cercare (solo lettere maiuscole, apostrofi e spazi)",
+            "example": ["MARIO", "LUIGI", "MARIA ROSA"]
           }
         }
       },
@@ -354,6 +354,40 @@
                 "type": "array",
                 "items": {
                   "type": "string"
+                }
+              }
+            }
+          },
+          "singleQueries": {
+            "type": "array",
+            "description": "Tutte le query effettive inviate al portale Lazio (prodotto cartesiano di cognomi x nomi x CAP)",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "description": "Tipo di medico (codice interno: MMG o PLS)",
+                  "example": "MMG"
+                },
+                "asl": {
+                  "type": "string",
+                  "description": "Codice ASL interno",
+                  "example": "120201"
+                },
+                "surname": {
+                  "type": "string",
+                  "description": "Cognome cercato",
+                  "example": "ROSSI"
+                },
+                "name": {
+                  "type": "string",
+                  "description": "Nome cercato (può essere vuoto)",
+                  "example": "MARIO"
+                },
+                "zip": {
+                  "type": "string",
+                  "description": "CAP cercato (può essere vuoto)",
+                  "example": "00100"
                 }
               }
             }

@@ -44,13 +44,15 @@ async function handler(req, res) {
         );
 
         // Esegui ricerca
-        const medici = await client.searchBySurnames(
+        const result = await client.searchMedici(
           user.query.cognomi,
           {
             asl: user.query.asl || '',
             type: user.query.tipo || 'MMG'
           }
         );
+
+        const medici = result.medici;
 
         // Conta assegnabili
         const assegnabili = medici.filter(m => {

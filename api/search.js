@@ -25,6 +25,14 @@ const ASL_MAP = {
 const VALID_TIPO = Object.keys(TIPO_MAP);
 const VALID_ASL = Object.keys(ASL_MAP);
 
+// Funzione helper per normalizzare nomi/cognomi
+function normalizeString(str) {
+  return str
+    .trim()                           // Rimuovi spazi iniziali e finali
+    .replace(/\s+/g, ' ')             // Appiattisci spazi multipli in uno solo
+    .toUpperCase();                   // Converti in uppercase
+}
+
 async function handler(req, res) {
   // Permetti sia GET che POST
   let params;
@@ -34,11 +42,11 @@ async function handler(req, res) {
     const { cognomi, asl, tipo, cap, nomi } = req.query;
 
     params = {
-      cognomi: cognomi ? cognomi.split(',').map(c => c.trim().toUpperCase()) : [],
+      cognomi: cognomi ? cognomi.split(',').map(c => normalizeString(c)) : [],
       asl: asl || 'Tutte',
       tipo: tipo || 'Medicina generale',
       cap: cap ? cap.split(',').map(c => c.trim()) : [],
-      nomi: nomi ? nomi.split(',').map(n => n.trim().toUpperCase()) : []
+      nomi: nomi ? nomi.split(',').map(n => normalizeString(n)) : []
     };
 
   } else if (req.method === 'POST') {
@@ -47,16 +55,16 @@ async function handler(req, res) {
 
     // Normalizza cognomi (se presenti)
     if (params.cognomi && Array.isArray(params.cognomi)) {
-      params.cognomi = params.cognomi.map(c => String(c).trim().toUpperCase());
+      params.cognomi = params.cognomi.map(c => normalizeString(String(c)));
     } else {
       params.cognomi = [];
     }
 
     // Normalizza nomi (se è stringa, split; se è array, usa così; altrimenti array vuoto)
     if (typeof params.nomi === 'string') {
-      params.nomi = params.nomi.split(',').map(n => n.trim().toUpperCase());
+      params.nomi = params.nomi.split(',').map(n => normalizeString(n));
     } else if (Array.isArray(params.nomi)) {
-      params.nomi = params.nomi.map(n => String(n).trim().toUpperCase());
+      params.nomi = params.nomi.map(n => normalizeString(String(n)));
     } else {
       params.nomi = [];
     }
@@ -91,22 +99,22 @@ async function handler(req, res) {
     });
   }
 
-  // Validazione cognomi (devono contenere solo lettere maiuscole e apostrofi)
-  const invalidCognomi = params.cognomi.filter(c => !/^[A-Z']+$/.test(c));
+  // Validazione cognomi (devono contenere solo lettere maiuscole, apostrofi e spazi)
+  const invalidCognomi = params.cognomi.filter(c => !/^[A-Z'\s]+$/.test(c));
   if (invalidCognomi.length > 0) {
     return res.status(400).json({
       success: false,
-      error: `Invalid cognomi: ${invalidCognomi.join(', ')}. Each cognome must contain only uppercase letters and apostrophes.`
+      error: `Invalid cognomi: ${invalidCognomi.join(', ')}. Each cognome must contain only uppercase letters, apostrophes and spaces.`
     });
   }
 
   // Validazione nomi (se specificati)
   if (params.nomi && params.nomi.length > 0) {
-    const invalidNomi = params.nomi.filter(n => !/^[A-Z']+$/.test(n));
+    const invalidNomi = params.nomi.filter(n => !/^[A-Z'\s]+$/.test(n));
     if (invalidNomi.length > 0) {
       return res.status(400).json({
         success: false,
-        error: `Invalid nomi: ${invalidNomi.join(', ')}. Each nome must contain only uppercase letters and apostrophes.`
+        error: `Invalid nomi: ${invalidNomi.join(', ')}. Each nome must contain only uppercase letters, apostrophes and spaces.`
       });
     }
   }
@@ -149,7 +157,7 @@ async function handler(req, res) {
       useStaticConfig: false
     });
 
-    const medici = await client.searchBySurnames(
+    const result = await client.searchMedici(
       params.cognomi,
       {
         asl: aslCode,
@@ -158,6 +166,9 @@ async function handler(req, res) {
         name: Array.isArray(params.nomi) ? params.nomi.join(',') : (params.nomi || '')
       }
     );
+
+    const medici = result.medici;
+    const singleQueries = result.singleQueries;
 
     // Conta assegnabili
     const assegnabili = medici.filter(m => {
@@ -177,6 +188,7 @@ async function handler(req, res) {
         cap: params.cap || [],
         nomi: params.nomi || []
       },
+      singleQueries: singleQueries,
       results: medici,
       count: medici.length,
       assegnabili: assegnabili.length
