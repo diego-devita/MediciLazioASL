@@ -4,20 +4,6 @@ export default async function middleware(request) {
   const url = new URL(request.url);
   const { pathname } = url;
 
-  // Route pubbliche (non richiedono autenticazione)
-  const publicRoutes = [
-    '/login',
-    '/login.html',
-    '/api/login',
-    '/api/webhook',
-    '/api/cron'
-  ];
-
-  // Se è una route pubblica, lascia passare
-  if (publicRoutes.some(route => pathname.startsWith(route))) {
-    return new Response(null, { status: 200 });
-  }
-
   // Estrai cookie dall'header
   const cookieHeader = request.headers.get('cookie') || '';
   const cookies = Object.fromEntries(
@@ -39,8 +25,8 @@ export default async function middleware(request) {
     const secret = new TextEncoder().encode(process.env.JWT_SECRET);
     await jwtVerify(token, secret);
 
-    // Token valido → continua
-    return new Response(null, { status: 200 });
+    // Token valido → continua (non ritornare nulla, lascia passare)
+    return;
   } catch (error) {
     // Token invalido → redirect a /login
     return Response.redirect(new URL('/login', request.url));
@@ -51,10 +37,12 @@ export const config = {
   matcher: [
     /*
      * Match tutte le route eccetto:
-     * - _next/static (file statici)
-     * - _next/image (ottimizzazione immagini)
-     * - favicon.ico
+     * - /login e /login.html (pagina di login)
+     * - /api/login (endpoint login)
+     * - /api/webhook (webhook Telegram)
+     * - /api/cron (cron job)
+     * - file statici
      */
-    '/((?!_next/static|_next/image|favicon.ico).*)',
+    '/((?!login|api/login|api/webhook|api/cron|_next/static|_next/image|favicon.ico).*)',
   ],
 };
