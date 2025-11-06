@@ -1,0 +1,24 @@
+{
+  "name": "medici-lazio-asl",
+  "version": "1.0.0",
+  "description": "Sistema completo per ricerca medici ASL Lazio - API REST, Bot Telegram, Web UI",
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "keywords": [
+    "medici",
+    "asl",
+    "lazio",
+    "telegram-bot",
+    "api",
+    "healthcare"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "node-fetch": "^3.3.2",
+    "jsdom": "^23.0.0",
+    "@vercel/kv": "^1.0.1"
+  }
+}

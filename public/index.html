@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ricerca Medici ASL Lazio</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      opacity: 0.9;
+      font-size: 1rem;
+    }
+
+    .content {
+      padding: 30px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #555;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 1rem;
+      transition: border-color 0.3s;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .help-text {
+      font-size: 0.875rem;
+      color: #777;
+      margin-top: 5px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #667eea;
+      font-weight: 600;
+    }
+
+    .loading::after {
+      content: '...';
+      animation: dots 1.5s steps(4, end) infinite;
+    }
+
+    @keyframes dots {
+      0%, 20% { content: '.'; }
+      40% { content: '..'; }
+      60%, 100% { content: '...'; }
+    }
+
+    .error {
+      background: #fee;
+      border-left: 4px solid #c33;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 4px;
+      color: #c33;
+    }
+
+    .success {
+      background: #efe;
+      border-left: 4px solid #3c3;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 4px;
+      color: #2a2;
+    }
+
+    .results {
+      margin-top: 30px;
+    }
+
+    .results-summary {
+      background: #f5f5f5;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-around;
+      text-align: center;
+    }
+
+    .summary-item {
+      flex: 1;
+    }
+
+    .summary-number {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #667eea;
+    }
+
+    .summary-label {
+      font-size: 0.875rem;
+      color: #777;
+    }
+
+    .medico-card {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+      transition: box-shadow 0.3s;
+    }
+
+    .medico-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .medico-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .medico-emoji {
+      font-size: 1.5rem;
+      margin-right: 10px;
+    }
+
+    .medico-name {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .medico-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .medico-detail {
+      font-size: 0.875rem;
+    }
+
+    .detail-label {
+      font-weight: 600;
+      color: #555;
+    }
+
+    .legend {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 6px;
+      margin-top: 20px;
+    }
+
+    .legend-title {
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .legend-item {
+      display: inline-block;
+      margin-right: 20px;
+      font-size: 0.875rem;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 20px;
+      color: #777;
+      font-size: 0.875rem;
+      border-top: 1px solid #e0e0e0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🏥 Ricerca Medici ASL Lazio</h1>
+      <p>Trova medici di medicina generale e pediatri disponibili</p>
+    </div>
+
+    <div class="content">
+      <form id="searchForm">
+        <div class="form-group">
+          <label for="apiKey">API Key *</label>
+          <input type="password" id="apiKey" name="apiKey" required placeholder="Inserisci la tua API key">
+          <p class="help-text">Richiedi una API key all'amministratore del sistema</p>
+        </div>
+
+        <div class="form-group">
+          <label for="cognomi">Cognomi *</label>
+          <input type="text" id="cognomi" name="cognomi" required placeholder="es. ROSSI, BIANCHI, VERDI">
+          <p class="help-text">Inserisci uno o più cognomi separati da virgola</p>
+        </div>
+
+        <div class="form-group">
+          <label for="asl">ASL</label>
+          <select id="asl" name="asl">
+            <option value="">Tutte</option>
+            <option value="120201">Roma 1</option>
+            <option value="120202">Roma 2</option>
+            <option value="120203">Roma 3</option>
+            <option value="120204">Roma 4</option>
+            <option value="120205">Roma 5</option>
+            <option value="120206">Roma 6</option>
+            <option value="120207">Frosinone</option>
+            <option value="120208">Latina</option>
+            <option value="120209">Rieti</option>
+            <option value="120210">Viterbo</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="tipo">Tipo medico</label>
+          <select id="tipo" name="tipo">
+            <option value="MMG">Medicina generale</option>
+            <option value="PLS">Pediatra</option>
+          </select>
+        </div>
+
+        <button type="submit" id="submitBtn">🔍 Cerca</button>
+      </form>
+
+      <div id="loading" style="display: none;" class="loading">
+        Ricerca in corso
+      </div>
+
+      <div id="error" style="display: none;" class="error"></div>
+
+      <div id="results" style="display: none;" class="results">
+        <div class="results-summary">
+          <div class="summary-item">
+            <div class="summary-number" id="totalCount">0</div>
+            <div class="summary-label">Totali</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-number" id="assegnabiliCount">0</div>
+            <div class="summary-label">Assegnabili</div>
+          </div>
+        </div>
+
+        <div id="mediciList"></div>
+
+        <div class="legend">
+          <div class="legend-title">Legenda:</div>
+          <span class="legend-item">🟢 Assegnazione libera</span>
+          <span class="legend-item">🟠 Assegnabile con deroga</span>
+          <span class="legend-item">🔴 Non assegnabile</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>MediciLazioASL - Sistema di ricerca medici disponibili</p>
+      <p>Dati aggiornati dal portale Salute Lazio</p>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('searchForm');
+    const loading = document.getElementById('loading');
+    const error = document.getElementById('error');
+    const results = document.getElementById('results');
+    const submitBtn = document.getElementById('submitBtn');
+
+    function getStatoEmoji(assegnabilita) {
+      const stato = assegnabilita.toLowerCase();
+      if (stato.includes('assegnazione libera')) return '🟢';
+      if (stato.includes('deroga')) return '🟠';
+      if (stato.includes('non assegnabile')) return '🔴';
+      return '⚪';
+    }
+
+    function showError(message) {
+      error.textContent = message;
+      error.style.display = 'block';
+      results.style.display = 'none';
+    }
+
+    function hideError() {
+      error.style.display = 'none';
+    }
+
+    function showLoading() {
+      loading.style.display = 'block';
+      submitBtn.disabled = true;
+      hideError();
+      results.style.display = 'none';
+    }
+
+    function hideLoading() {
+      loading.style.display = 'none';
+      submitBtn.disabled = false;
+    }
+
+    function displayResults(data) {
+      const mediciList = document.getElementById('mediciList');
+      mediciList.innerHTML = '';
+
+      document.getElementById('totalCount').textContent = data.count;
+      document.getElementById('assegnabiliCount').textContent = data.assegnabili;
+
+      if (data.results.length === 0) {
+        mediciList.innerHTML = '<p style="text-align: center; color: #777; padding: 20px;">Nessun medico trovato con i criteri specificati.</p>';
+      } else {
+        data.results.forEach(medico => {
+          const card = document.createElement('div');
+          card.className = 'medico-card';
+
+          const emoji = getStatoEmoji(medico.assegnabilita);
+
+          card.innerHTML = `
+            <div class="medico-header">
+              <span class="medico-emoji">${emoji}</span>
+              <span class="medico-name">${medico.cognome} ${medico.nome}</span>
+            </div>
+            <div class="medico-details">
+              <div class="medico-detail">
+                <span class="detail-label">ASL:</span> ${medico.asl}
+              </div>
+              <div class="medico-detail">
+                <span class="detail-label">Tipo:</span> ${medico.tipo}
+              </div>
+              <div class="medico-detail">
+                <span class="detail-label">Ambito:</span> ${medico.ambito}
+              </div>
+              <div class="medico-detail">
+                <span class="detail-label">Stato:</span> ${medico.assegnabilita}
+              </div>
+            </div>
+          `;
+
+          mediciList.appendChild(card);
+        });
+      }
+
+      results.style.display = 'block';
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const apiKey = document.getElementById('apiKey').value.trim();
+      const cognomi = document.getElementById('cognomi').value
+        .split(',')
+        .map(c => c.trim().toUpperCase())
+        .filter(c => c.length > 0);
+      const asl = document.getElementById('asl').value;
+      const tipo = document.getElementById('tipo').value;
+
+      if (cognomi.length === 0) {
+        showError('Inserisci almeno un cognome.');
+        return;
+      }
+
+      showLoading();
+
+      try {
+        const response = await fetch('/api/search', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-API-Key': apiKey
+          },
+          body: JSON.stringify({
+            cognomi,
+            asl,
+            tipo
+          })
+        });
+
+        const data = await response.json();
+
+        hideLoading();
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            showError('❌ API Key non valida. Verifica la tua chiave.');
+          } else {
+            showError(data.error || 'Errore durante la ricerca.');
+          }
+          return;
+        }
+
+        if (!data.success) {
+          showError(data.error || 'Errore durante la ricerca.');
+          return;
+        }
+
+        displayResults(data);
+      } catch (err) {
+        hideLoading();
+        showError('Errore di connessione. Riprova più tardi.');
+        console.error('Search error:', err);
+      }
+    });
+  </script>
+</body>
+</html>
