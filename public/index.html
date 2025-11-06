@@ -190,7 +190,7 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       border-radius: 8px;
       overflow: visible;
-      table-layout: auto;
+      table-layout: fixed;
     }
 
     #mediciList {
@@ -218,6 +218,7 @@
       cursor: pointer;
       user-select: none;
       position: relative;
+      white-space: nowrap;
     }
 
     .results-table th:hover {
@@ -228,6 +229,7 @@
       content: ' ↕';
       opacity: 0.3;
       font-size: 0.8rem;
+      vertical-align: top;
     }
 
     .results-table th.sort-asc::after {
@@ -238,6 +240,37 @@
     .results-table th.sort-desc::after {
       content: ' ↓';
       opacity: 1;
+    }
+
+    /* Larghezze colonne */
+    .results-table th:nth-child(1),
+    .results-table td:nth-child(1) {
+      width: 50px;
+    }
+
+    .results-table th:nth-child(2),
+    .results-table td:nth-child(2) {
+      width: 150px;
+    }
+
+    .results-table th:nth-child(3),
+    .results-table td:nth-child(3) {
+      width: 150px;
+    }
+
+    .results-table th:nth-child(4),
+    .results-table td:nth-child(4) {
+      width: 120px;
+    }
+
+    .results-table th:nth-child(5),
+    .results-table td:nth-child(5) {
+      width: 150px;
+    }
+
+    .results-table th:nth-child(6),
+    .results-table td:nth-child(6) {
+      width: auto;
     }
 
     .results-table td {
@@ -352,9 +385,11 @@
     <div class="content">
       <form id="searchForm">
         <div class="form-group">
-          <label for="cognomi">Cognomi *</label>
-          <input type="text" id="cognomi" name="cognomi" required placeholder="es. ROSSI, BIANCHI, VERDI">
-          <p class="help-text">Inserisci uno o più cognomi separati da virgola</p>
+          <label for="tipo">Tipo medico</label>
+          <select id="tipo" name="tipo">
+            <option value="MMG">Medicina generale</option>
+            <option value="PLS">Pediatra</option>
+          </select>
         </div>
 
         <div class="form-group">
@@ -375,11 +410,9 @@
         </div>
 
         <div class="form-group">
-          <label for="tipo">Tipo medico</label>
-          <select id="tipo" name="tipo">
-            <option value="MMG">Medicina generale</option>
-            <option value="PLS">Pediatra</option>
-          </select>
+          <label for="cognomi">Cognomi *</label>
+          <input type="text" id="cognomi" name="cognomi" required placeholder="es. ROSSI, BIANCHI, VERDI">
+          <p class="help-text">Inserisci uno o più cognomi separati da virgola</p>
         </div>
 
         <button type="submit" id="submitBtn">🔍 Cerca</button>
@@ -505,7 +538,7 @@
       table.className = 'results-table';
 
       const columns = [
-        { key: '', label: '' },
+        { key: 'assegnabilita', label: '', isEmoji: true },
         { key: 'cognome', label: 'Cognome' },
         { key: 'nome', label: 'Nome' },
         { key: 'asl', label: 'ASL' },
@@ -517,7 +550,6 @@
         <thead>
           <tr>
             ${columns.map(col => {
-              if (!col.key) return '<th></th>';
               const sortClass = sortColumn === col.key ? `sort-${sortDirection}` : '';
               return `<th class="${sortClass}" data-column="${col.key}">${col.label}</th>`;
             }).join('')}
