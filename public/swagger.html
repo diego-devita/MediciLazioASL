@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Documentation - Medici ASL Lazio</title>
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.10.5/swagger-ui.css">
+  <style>
+    html {
+      box-sizing: border-box;
+      overflow: -moz-scrollbars-vertical;
+      overflow-y: scroll;
+    }
+
+    *,
+    *:before,
+    *:after {
+      box-sizing: inherit;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #fafafa;
+    }
+
+    .swagger-ui .topbar {
+      background-color: #667eea;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .swagger-ui .topbar .download-url-wrapper {
+      display: none;
+    }
+
+    .swagger-ui .info {
+      margin: 50px 0;
+    }
+
+    .swagger-ui .info .title {
+      font-size: 36px;
+      color: #3b4151;
+    }
+
+    .back-link {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 9999;
+      background: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      text-decoration: none;
+      color: #667eea;
+      font-weight: 600;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      transition: all 0.2s;
+    }
+
+    .back-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <a href="/cerca" class="back-link">← Torna alla ricerca</a>
+
+  <div id="swagger-ui"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.10.5/swagger-ui-bundle.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.10.5/swagger-ui-standalone-preset.js"></script>
+  <script>
+    window.onload = function() {
+      const ui = SwaggerUIBundle({
+        url: "/openapi.json",
+        dom_id: '#swagger-ui',
+        deepLinking: true,
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIStandalonePreset
+        ],
+        plugins: [
+          SwaggerUIBundle.plugins.DownloadUrl
+        ],
+        layout: "StandaloneLayout",
+        persistAuthorization: true,
+        tryItOutEnabled: true,
+        displayRequestDuration: true,
+        filter: true,
+        syntaxHighlight: {
+          activate: true,
+          theme: "agate"
+        }
+      });
+
+      window.ui = ui;
+    };
+  </script>
+</body>
+</html>

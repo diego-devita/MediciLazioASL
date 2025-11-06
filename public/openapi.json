@@ -1,0 +1,442 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Medici ASL Lazio API",
+    "description": "API per la ricerca di medici di medicina generale e pediatri nelle ASL del Lazio",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://medici-lazio-asl.vercel.app",
+      "description": "Production server"
+    }
+  ],
+  "paths": {
+    "/api/search": {
+      "get": {
+        "summary": "Ricerca medici (GET)",
+        "description": "Ricerca medici per cognome con filtri opzionali. Parametri in query string.",
+        "operationId": "searchMediciGet",
+        "tags": ["Ricerca"],
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "cognomi",
+            "in": "query",
+            "required": true,
+            "description": "Cognomi da cercare, separati da virgola",
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Z',]+$",
+              "example": "ROSSI,BIANCHI"
+            }
+          },
+          {
+            "name": "tipo",
+            "in": "query",
+            "required": false,
+            "description": "Tipo di medico",
+            "schema": {
+              "type": "string",
+              "enum": ["MMG", "PLS"],
+              "default": "MMG"
+            }
+          },
+          {
+            "name": "asl",
+            "in": "query",
+            "required": false,
+            "description": "Codice ASL (stringa vuota = tutte le ASL)",
+            "schema": {
+              "type": "string",
+              "enum": ["", "120201", "120202", "120203", "120204", "120205", "120206", "120207", "120208", "120209", "120210"],
+              "default": ""
+            }
+          },
+          {
+            "name": "cap",
+            "in": "query",
+            "required": false,
+            "description": "CAP da cercare, separati da virgola (ogni CAP deve essere di 5 cifre)",
+            "schema": {
+              "type": "string",
+              "pattern": "^(\\d{5})(,\\d{5})*$",
+              "example": "00100,00118"
+            }
+          },
+          {
+            "name": "nomi",
+            "in": "query",
+            "required": false,
+            "description": "Nomi da cercare, separati da virgola",
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Z',]+$",
+              "example": "MARIO,LUIGI"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ricerca completata con successo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametri non validi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "missingCognomi": {
+                    "value": {
+                      "success": false,
+                      "error": "Missing required parameter: cognomi"
+                    }
+                  },
+                  "invalidTipo": {
+                    "value": {
+                      "success": false,
+                      "error": "Invalid tipo. Must be one of: MMG, PLS"
+                    }
+                  },
+                  "invalidCognomi": {
+                    "value": {
+                      "success": false,
+                      "error": "Invalid cognomi: 123. Each cognome must contain only uppercase letters and apostrophes."
+                    }
+                  },
+                  "invalidCAP": {
+                    "value": {
+                      "success": false,
+                      "error": "Invalid CAP: 123. Each CAP must be exactly 5 digits."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Autenticazione richiesta",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "error": "Authentication required. Provide either a valid session cookie or X-API-Key header."
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Metodo non permesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "error": "Method not allowed. Use GET or POST."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Errore interno del server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Ricerca medici (POST)",
+        "description": "Ricerca medici per cognome con filtri opzionali. Parametri nel body JSON.",
+        "operationId": "searchMediciPost",
+        "tags": ["Ricerca"],
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ricerca completata con successo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametri non validi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Autenticazione richiesta",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Metodo non permesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Errore interno del server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "cookieAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "auth_token",
+        "description": "Cookie JWT per autenticazione browser"
+      },
+      "apiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "API Key per chiamate programmatiche"
+      }
+    },
+    "schemas": {
+      "SearchRequest": {
+        "type": "object",
+        "required": ["cognomi"],
+        "properties": {
+          "cognomi": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Z']+$"
+            },
+            "minItems": 1,
+            "description": "Array di cognomi da cercare (solo lettere maiuscole e apostrofi)",
+            "example": ["ROSSI", "BIANCHI"]
+          },
+          "tipo": {
+            "type": "string",
+            "enum": ["MMG", "PLS"],
+            "default": "MMG",
+            "description": "Tipo di medico"
+          },
+          "asl": {
+            "type": "string",
+            "enum": ["", "120201", "120202", "120203", "120204", "120205", "120206", "120207", "120208", "120209", "120210"],
+            "default": "",
+            "description": "Codice ASL (stringa vuota = tutte)"
+          },
+          "cap": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^\\d{5}$"
+            },
+            "description": "Array di CAP (ogni CAP deve essere di 5 cifre)",
+            "example": ["00100", "00118"]
+          },
+          "nomi": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Z']+$"
+            },
+            "description": "Array di nomi da cercare (solo lettere maiuscole e apostrofi)",
+            "example": ["MARIO", "LUIGI"]
+          }
+        }
+      },
+      "SearchResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-01-06T10:30:00.000Z"
+          },
+          "query": {
+            "type": "object",
+            "properties": {
+              "cognomi": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "asl": {
+                "type": "string"
+              },
+              "tipo": {
+                "type": "string"
+              },
+              "cap": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "nomi": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Medico"
+            }
+          },
+          "count": {
+            "type": "integer",
+            "description": "Numero totale di medici trovati"
+          },
+          "assegnabili": {
+            "type": "integer",
+            "description": "Numero di medici assegnabili (liberi o con deroga)"
+          }
+        }
+      },
+      "Medico": {
+        "type": "object",
+        "properties": {
+          "cognome": {
+            "type": "string",
+            "example": "ROSSI"
+          },
+          "nome": {
+            "type": "string",
+            "example": "MARIO"
+          },
+          "codiceFiscale": {
+            "type": "string",
+            "example": "RSSMRA80A01H501X"
+          },
+          "asl": {
+            "type": "string",
+            "example": "Roma 1"
+          },
+          "tipo": {
+            "type": "string",
+            "example": "Medicina Generale"
+          },
+          "assegnabilita": {
+            "type": "string",
+            "example": "Assegnazione libera"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "indirizzo": {
+            "type": "string",
+            "nullable": true
+          },
+          "luogo": {
+            "type": "string",
+            "nullable": true
+          },
+          "luogoNascita": {
+            "type": "string",
+            "nullable": true
+          },
+          "identificativo": {
+            "type": "string",
+            "nullable": true
+          },
+          "codiceDistretto": {
+            "type": "string",
+            "nullable": true
+          },
+          "descrizioneDistretto": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "error": {
+            "type": "string",
+            "example": "Missing required parameter: cognomi"
+          }
+        }
+      }
+    }
+  }
+}

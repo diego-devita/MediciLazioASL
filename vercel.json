@@ -3,6 +3,7 @@
     { "source": "/login", "destination": "/login.html" },
     { "source": "/cerca", "destination": "/index.html" },
     { "source": "/bot", "destination": "/bot.html" },
+    { "source": "/swagger", "destination": "/swagger.html" },
     { "source": "/", "destination": "/cerca" }
   ],
   "functions": {
