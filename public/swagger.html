@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>API Documentation - Medici ASL Lazio</title>
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.10.5/swagger-ui.css">
-  <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-plugin-enum-names@1.0.1/dist/index.css">
   <style>
     html {
       box-sizing: border-box;
@@ -73,7 +72,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.10.5/swagger-ui-bundle.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.10.5/swagger-ui-standalone-preset.js"></script>
-  <script src="https://unpkg.com/swagger-ui-plugin-enum-names@1.0.1/dist/plugin.js"></script>
   <script>
     window.onload = function() {
       const ui = SwaggerUIBundle({
@@ -85,8 +83,7 @@
           SwaggerUIStandalonePreset
         ],
         plugins: [
-          SwaggerUIBundle.plugins.DownloadUrl,
-          EnumNamesPlugin.EnumNamesPlugin
+          SwaggerUIBundle.plugins.DownloadUrl
         ],
         layout: "StandaloneLayout",
         persistAuthorization: true,

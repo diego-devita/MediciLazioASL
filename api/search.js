@@ -1,20 +1,29 @@
 import { MediciSearchClient } from '../lib/medici/client.js';
 import { requireAuthOrApiKey } from '../lib/auth.js';
 
+// Mappe di conversione da valori leggibili a codici interni
+const TIPO_MAP = {
+  'Medicina generale': 'MMG',
+  'Pediatra': 'PLS'
+};
+
+const ASL_MAP = {
+  'Tutte': '',
+  'Roma 1': '120201',
+  'Roma 2': '120202',
+  'Roma 3': '120203',
+  'Roma 4': '120204',
+  'Roma 5': '120205',
+  'Roma 6': '120206',
+  'Frosinone': '120207',
+  'Latina': '120208',
+  'Rieti': '120209',
+  'Viterbo': '120210'
+};
+
 // Valori validi per i parametri
-const VALID_TIPO = ['MMG', 'PLS'];
-const VALID_ASL = [
-  '120201', // Roma 1
-  '120202', // Roma 2
-  '120203', // Roma 3
-  '120204', // Roma 4
-  '120205', // Roma 5
-  '120206', // Roma 6
-  '120207', // Frosinone
-  '120208', // Latina
-  '120209', // Rieti
-  '120210'  // Viterbo
-];
+const VALID_TIPO = Object.keys(TIPO_MAP);
+const VALID_ASL = Object.keys(ASL_MAP);
 
 async function handler(req, res) {
   // Permetti sia GET che POST
@@ -26,8 +35,8 @@ async function handler(req, res) {
 
     params = {
       cognomi: cognomi ? cognomi.split(',').map(c => c.trim().toUpperCase()) : [],
-      asl: asl || '',
-      tipo: tipo || 'MMG',
+      asl: asl || 'Tutte',
+      tipo: tipo || 'Medicina generale',
       cap: cap ? cap.split(',').map(c => c.trim()) : [],
       nomi: nomi ? nomi.split(',').map(n => n.trim().toUpperCase()) : []
     };
@@ -59,9 +68,12 @@ async function handler(req, res) {
       params.cap = [];
     }
 
-    // Default tipo se non specificato
+    // Default tipo e asl se non specificati
     if (!params.tipo) {
-      params.tipo = 'MMG';
+      params.tipo = 'Medicina generale';
+    }
+    if (!params.asl) {
+      params.asl = 'Tutte';
     }
 
   } else {
@@ -127,6 +139,10 @@ async function handler(req, res) {
   }
 
   try {
+    // Converti valori leggibili in codici per il portale Lazio
+    const tipoCode = TIPO_MAP[params.tipo] || 'MMG';
+    const aslCode = ASL_MAP[params.asl] || '';
+
     // Esegui ricerca
     const client = new MediciSearchClient({
       debug: false,
@@ -136,8 +152,8 @@ async function handler(req, res) {
     const medici = await client.searchBySurnames(
       params.cognomi,
       {
-        asl: params.asl || '',
-        type: params.tipo || 'MMG',
+        asl: aslCode,
+        type: tipoCode,
         zip: Array.isArray(params.cap) ? params.cap.join(',') : (params.cap || ''),
         name: Array.isArray(params.nomi) ? params.nomi.join(',') : (params.nomi || '')
       }
