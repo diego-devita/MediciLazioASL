@@ -127,9 +127,19 @@
                           "message": "Invalid tipo. Must be one of: Medicina generale, Pediatra"
                         },
                         {
+                          "field": "asl",
+                          "value": "Roma 99",
+                          "message": "Invalid asl. Must be one of: Tutte, Roma 1, Roma 2, Roma 3, Roma 4, Roma 5, Roma 6, Frosinone, Latina, Rieti, Viterbo"
+                        },
+                        {
                           "field": "cognomi",
                           "value": "123",
                           "message": "Each cognome must contain only uppercase letters, apostrophes and spaces."
+                        },
+                        {
+                          "field": "nomi",
+                          "value": "mario123",
+                          "message": "Each nome must contain only uppercase letters, apostrophes and spaces."
                         },
                         {
                           "field": "cap",
