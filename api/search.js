@@ -1,5 +1,20 @@
 import { MediciSearchClient } from '../lib/medici/client.js';
-import { requireAuth } from '../lib/auth.js';
+import { requireAuthOrApiKey } from '../lib/auth.js';
+
+// Valori validi per i parametri
+const VALID_TIPO = ['MMG', 'PLS'];
+const VALID_ASL = [
+  '120201', // Roma 1
+  '120202', // Roma 2
+  '120203', // Roma 3
+  '120204', // Roma 4
+  '120205', // Roma 5
+  '120206', // Roma 6
+  '120207', // Frosinone
+  '120208', // Latina
+  '120209', // Rieti
+  '120210'  // Viterbo
+];
 
 async function handler(req, res) {
   // Permetti sia GET che POST
@@ -20,7 +35,7 @@ async function handler(req, res) {
       cognomi: cognomi.split(',').map(c => c.trim().toUpperCase()),
       asl: asl || '',
       tipo: tipo || 'MMG',
-      cap: cap || '',
+      cap: cap ? cap.split(',').map(c => c.trim()) : [],
       nome: nome || ''
     };
 
@@ -38,11 +53,50 @@ async function handler(req, res) {
     // Normalizza cognomi
     params.cognomi = params.cognomi.map(c => String(c).trim().toUpperCase());
 
+    // Normalizza CAP (se è stringa, split; se è array, usa così; altrimenti array vuoto)
+    if (typeof params.cap === 'string') {
+      params.cap = params.cap.split(',').map(c => c.trim());
+    } else if (!Array.isArray(params.cap)) {
+      params.cap = [];
+    }
+
+    // Default tipo se non specificato
+    if (!params.tipo) {
+      params.tipo = 'MMG';
+    }
+
   } else {
     return res.status(405).json({
       success: false,
       error: 'Method not allowed. Use GET or POST.'
     });
+  }
+
+  // Validazione tipo
+  if (!VALID_TIPO.includes(params.tipo)) {
+    return res.status(400).json({
+      success: false,
+      error: `Invalid tipo. Must be one of: ${VALID_TIPO.join(', ')}`
+    });
+  }
+
+  // Validazione ASL (se specificata)
+  if (params.asl && params.asl !== '' && !VALID_ASL.includes(params.asl)) {
+    return res.status(400).json({
+      success: false,
+      error: `Invalid asl. Must be one of: ${VALID_ASL.join(', ')}`
+    });
+  }
+
+  // Validazione CAP (se specificati)
+  if (params.cap && params.cap.length > 0) {
+    const invalidCaps = params.cap.filter(cap => !/^\d{5}$/.test(cap));
+    if (invalidCaps.length > 0) {
+      return res.status(400).json({
+        success: false,
+        error: `Invalid CAP: ${invalidCaps.join(', ')}. Each CAP must be exactly 5 digits.`
+      });
+    }
   }
 
   try {
@@ -57,7 +111,7 @@ async function handler(req, res) {
       {
         asl: params.asl || '',
         type: params.tipo || 'MMG',
-        zip: params.cap || '',
+        zip: Array.isArray(params.cap) ? params.cap.join(',') : (params.cap || ''),
         name: params.nome || ''
       }
     );
@@ -94,5 +148,5 @@ async function handler(req, res) {
   }
 }
 
-// Wrap con autenticazione API key
-export default requireAuth(handler);
+// Wrap con autenticazione ibrida (JWT o API key)
+export default requireAuthOrApiKey(handler);
