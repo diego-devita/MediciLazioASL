@@ -1,5 +1,5 @@
 import { MediciSearchClient } from '../lib/medici/client.js';
-import { requireApiKey } from '../lib/auth.js';
+import { requireAuth } from '../lib/auth.js';
 
 async function handler(req, res) {
   // Permetti sia GET che POST
@@ -95,4 +95,4 @@ async function handler(req, res) {
 }
 
 // Wrap con autenticazione API key
-export default requireApiKey(handler);
+export default requireAuth(handler);

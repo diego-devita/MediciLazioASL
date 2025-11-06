@@ -352,12 +352,6 @@
     <div class="content">
       <form id="searchForm">
         <div class="form-group">
-          <label for="apiKey">API Key *</label>
-          <input type="password" id="apiKey" name="apiKey" required placeholder="Inserisci la tua API key">
-          <p class="help-text">Richiedi una API key all'amministratore del sistema</p>
-        </div>
-
-        <div class="form-group">
           <label for="cognomi">Cognomi *</label>
           <input type="text" id="cognomi" name="cognomi" required placeholder="es. ROSSI, BIANCHI, VERDI">
           <p class="help-text">Inserisci uno o più cognomi separati da virgola</p>
@@ -600,7 +594,6 @@
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const apiKey = document.getElementById('apiKey').value.trim();
       const cognomi = document.getElementById('cognomi').value
         .split(',')
         .map(c => c.trim().toUpperCase())
@@ -619,9 +612,9 @@
         const response = await fetch('/api/search', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            'X-API-Key': apiKey
+            'Content-Type': 'application/json'
           },
+          credentials: 'include',
           body: JSON.stringify({
             cognomi,
             asl,
@@ -635,7 +628,9 @@
 
         if (!response.ok) {
           if (response.status === 401) {
-            showError('❌ API Key non valida. Verifica la tua chiave.');
+            // Non autenticato - redirect a login
+            window.location.href = '/login';
+            return;
           } else {
             showError(data.error || 'Errore durante la ricerca.');
           }
