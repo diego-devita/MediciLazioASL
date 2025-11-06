@@ -22,7 +22,7 @@ async function handler(req, res) {
 
   if (req.method === 'GET') {
     // GET: parametri da query string
-    const { cognomi, asl, tipo, cap, nome } = req.query;
+    const { cognomi, asl, tipo, cap, nomi } = req.query;
 
     if (!cognomi) {
       return res.status(400).json({
@@ -36,7 +36,7 @@ async function handler(req, res) {
       asl: asl || '',
       tipo: tipo || 'MMG',
       cap: cap ? cap.split(',').map(c => c.trim()) : [],
-      nome: nome || ''
+      nomi: nomi ? nomi.split(',').map(n => n.trim().toUpperCase()) : []
     };
 
   } else if (req.method === 'POST') {
@@ -52,6 +52,15 @@ async function handler(req, res) {
 
     // Normalizza cognomi
     params.cognomi = params.cognomi.map(c => String(c).trim().toUpperCase());
+
+    // Normalizza nomi (se è stringa, split; se è array, usa così; altrimenti array vuoto)
+    if (typeof params.nomi === 'string') {
+      params.nomi = params.nomi.split(',').map(n => n.trim().toUpperCase());
+    } else if (Array.isArray(params.nomi)) {
+      params.nomi = params.nomi.map(n => String(n).trim().toUpperCase());
+    } else {
+      params.nomi = [];
+    }
 
     // Normalizza CAP (se è stringa, split; se è array, usa così; altrimenti array vuoto)
     if (typeof params.cap === 'string') {
@@ -70,6 +79,26 @@ async function handler(req, res) {
       success: false,
       error: 'Method not allowed. Use GET or POST.'
     });
+  }
+
+  // Validazione cognomi (devono contenere solo lettere maiuscole e apostrofi)
+  const invalidCognomi = params.cognomi.filter(c => !/^[A-Z']+$/.test(c));
+  if (invalidCognomi.length > 0) {
+    return res.status(400).json({
+      success: false,
+      error: `Invalid cognomi: ${invalidCognomi.join(', ')}. Each cognome must contain only uppercase letters and apostrophes.`
+    });
+  }
+
+  // Validazione nomi (se specificati)
+  if (params.nomi && params.nomi.length > 0) {
+    const invalidNomi = params.nomi.filter(n => !/^[A-Z']+$/.test(n));
+    if (invalidNomi.length > 0) {
+      return res.status(400).json({
+        success: false,
+        error: `Invalid nomi: ${invalidNomi.join(', ')}. Each nome must contain only uppercase letters and apostrophes.`
+      });
+    }
   }
 
   // Validazione tipo
@@ -112,7 +141,7 @@ async function handler(req, res) {
         asl: params.asl || '',
         type: params.tipo || 'MMG',
         zip: Array.isArray(params.cap) ? params.cap.join(',') : (params.cap || ''),
-        name: params.nome || ''
+        name: Array.isArray(params.nomi) ? params.nomi.join(',') : (params.nomi || '')
       }
     );
 
@@ -131,8 +160,8 @@ async function handler(req, res) {
         cognomi: params.cognomi,
         asl: params.asl || '',
         tipo: params.tipo || 'MMG',
-        cap: params.cap || '',
-        nome: params.nome || ''
+        cap: params.cap || [],
+        nomi: params.nomi || []
       },
       results: medici,
       count: medici.length,
