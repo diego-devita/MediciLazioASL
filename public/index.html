@@ -465,9 +465,21 @@
         </div>
 
         <div class="form-group">
+          <label for="cap">CAP</label>
+          <input type="text" id="cap" name="cap" placeholder="es. 00100, 00118, 00185">
+          <p class="help-text">Inserisci uno o più CAP separati da virgola (opzionale)</p>
+        </div>
+
+        <div class="form-group">
           <label for="cognomi">Cognomi *</label>
           <input type="text" id="cognomi" name="cognomi" required placeholder="es. ROSSI, BIANCHI, VERDI">
           <p class="help-text">Inserisci uno o più cognomi separati da virgola</p>
+        </div>
+
+        <div class="form-group">
+          <label for="nomi">Nomi</label>
+          <input type="text" id="nomi" name="nomi" placeholder="es. MARIO, LUIGI, PAOLO">
+          <p class="help-text">Inserisci uno o più nomi separati da virgola (opzionale)</p>
         </div>
 
         <button type="submit" id="submitBtn">🔍 Cerca</button>
@@ -683,6 +695,17 @@
         .split(',')
         .map(c => c.trim().toUpperCase())
         .filter(c => c.length > 0);
+
+      const cap = document.getElementById('cap').value
+        .split(',')
+        .map(c => c.trim())
+        .filter(c => c.length > 0);
+
+      const nomi = document.getElementById('nomi').value
+        .split(',')
+        .map(n => n.trim().toUpperCase())
+        .filter(n => n.length > 0);
+
       const asl = document.getElementById('asl').value;
       const tipo = document.getElementById('tipo').value;
 
@@ -703,7 +726,9 @@
           body: JSON.stringify({
             cognomi,
             asl,
-            tipo
+            tipo,
+            cap,
+            nomi
           })
         });
 
