@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import { createJWT } from '../lib/auth.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -19,11 +19,7 @@ export default async function handler(req, res) {
     }
 
     // Genera JWT token (valido 30 giorni)
-    const token = jwt.sign(
-      { authenticated: true, timestamp: Date.now() },
-      process.env.JWT_SECRET,
-      { expiresIn: '30d' }
-    );
+    const token = await createJWT({ timestamp: Date.now() });
 
     // Setta cookie httpOnly
     res.setHeader('Set-Cookie', [

@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
-import cookie from 'cookie';
+import { jwtVerify } from 'jose';
 
-export function middleware(request) {
+export async function middleware(request) {
   const { pathname } = request.nextUrl;
 
   // Route pubbliche (non richiedono autenticazione)
   const publicRoutes = [
     '/login',
+    '/login.html',
     '/api/login',
     '/api/webhook',
     '/api/cron'
@@ -18,8 +18,15 @@ export function middleware(request) {
     return NextResponse.next();
   }
 
-  // Verifica JWT nel cookie
-  const cookies = cookie.parse(request.headers.get('cookie') || '');
+  // Estrai cookie dall'header
+  const cookieHeader = request.headers.get('cookie') || '';
+  const cookies = Object.fromEntries(
+    cookieHeader.split('; ').map(c => {
+      const [key, ...v] = c.split('=');
+      return [key, v.join('=')];
+    })
+  );
+
   const token = cookies.auth_token;
 
   if (!token) {
@@ -29,7 +36,9 @@ export function middleware(request) {
 
   try {
     // Valida JWT
-    jwt.verify(token, process.env.JWT_SECRET);
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+    await jwtVerify(token, secret);
+
     // Token valido → continua
     return NextResponse.next();
   } catch (error) {
