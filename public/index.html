@@ -177,49 +177,103 @@
       color: #777;
     }
 
-    .medico-card {
-      border: 1px solid #e0e0e0;
+    .results-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .results-table thead {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .results-table th {
       padding: 15px;
-      margin-bottom: 15px;
-      transition: box-shadow 0.3s;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
-    .medico-card:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    .results-table td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #e0e0e0;
+      font-size: 0.9rem;
     }
 
-    .medico-header {
-      display: flex;
-      align-items: center;
-      margin-bottom: 10px;
+    .results-table tbody tr:hover {
+      background: #f9f9f9;
     }
 
-    .medico-emoji {
-      font-size: 1.5rem;
-      margin-right: 10px;
+    .results-table tbody tr:last-child td {
+      border-bottom: none;
     }
 
-    .medico-name {
-      font-size: 1.25rem;
+    .emoji-cell {
+      font-size: 1.2rem;
+      text-align: center;
+      width: 50px;
+    }
+
+    .nome-cell {
       font-weight: 600;
       color: #333;
     }
 
-    .medico-details {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 10px;
-      margin-top: 10px;
+    .results-table tbody tr {
+      position: relative;
+      cursor: pointer;
     }
 
-    .medico-detail {
+    .tooltip {
+      display: none;
+      position: absolute;
+      z-index: 1000;
+      background: white;
+      border: 2px solid #667eea;
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      min-width: 300px;
+      left: 50%;
+      top: 100%;
+      transform: translateX(-50%);
+      margin-top: 5px;
+    }
+
+    .results-table tbody tr:hover .tooltip {
+      display: block;
+    }
+
+    .tooltip-title {
+      font-weight: 600;
+      color: #667eea;
+      margin-bottom: 10px;
+      font-size: 1rem;
+      border-bottom: 2px solid #e0e0e0;
+      padding-bottom: 5px;
+    }
+
+    .tooltip-row {
+      display: flex;
+      padding: 5px 0;
       font-size: 0.875rem;
     }
 
-    .detail-label {
+    .tooltip-label {
       font-weight: 600;
       color: #555;
+      min-width: 140px;
+    }
+
+    .tooltip-value {
+      color: #333;
     }
 
     .legend {
@@ -311,8 +365,16 @@
             <div class="summary-label">Totali</div>
           </div>
           <div class="summary-item">
-            <div class="summary-number" id="assegnabiliCount">0</div>
-            <div class="summary-label">Assegnabili</div>
+            <div class="summary-number" style="color: #22c55e;" id="liberiCount">0</div>
+            <div class="summary-label">Assegnabili liberamente</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-number" style="color: #f59e0b;" id="derogaCount">0</div>
+            <div class="summary-label">Con deroga</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-number" style="color: #94a3b8;" id="altroCount">0</div>
+            <div class="summary-label">Altro</div>
           </div>
         </div>
 
@@ -374,41 +436,69 @@
       const mediciList = document.getElementById('mediciList');
       mediciList.innerHTML = '';
 
+      // Calcola i contatori per categoria
+      const liberi = data.results.filter(m => m.assegnabilita.toLowerCase().includes('assegnazione libera')).length;
+      const deroga = data.results.filter(m => m.assegnabilita.toLowerCase().includes('deroga')).length;
+      const altro = data.count - liberi - deroga;
+
       document.getElementById('totalCount').textContent = data.count;
-      document.getElementById('assegnabiliCount').textContent = data.assegnabili;
+      document.getElementById('liberiCount').textContent = liberi;
+      document.getElementById('derogaCount').textContent = deroga;
+      document.getElementById('altroCount').textContent = altro;
 
       if (data.results.length === 0) {
         mediciList.innerHTML = '<p style="text-align: center; color: #777; padding: 20px;">Nessun medico trovato con i criteri specificati.</p>';
       } else {
-        data.results.forEach(medico => {
-          const card = document.createElement('div');
-          card.className = 'medico-card';
+        const table = document.createElement('table');
+        table.className = 'results-table';
 
-          const emoji = getStatoEmoji(medico.assegnabilita);
+        table.innerHTML = `
+          <thead>
+            <tr>
+              <th></th>
+              <th>Cognome</th>
+              <th>Nome</th>
+              <th>ASL</th>
+              <th>Tipo</th>
+              <th>Stato</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data.results.map(medico => {
+              const emoji = getStatoEmoji(medico.assegnabilita);
 
-          card.innerHTML = `
-            <div class="medico-header">
-              <span class="medico-emoji">${emoji}</span>
-              <span class="medico-name">${medico.cognome} ${medico.nome}</span>
-            </div>
-            <div class="medico-details">
-              <div class="medico-detail">
-                <span class="detail-label">ASL:</span> ${medico.asl}
-              </div>
-              <div class="medico-detail">
-                <span class="detail-label">Tipo:</span> ${medico.tipo}
-              </div>
-              <div class="medico-detail">
-                <span class="detail-label">Ambito:</span> ${medico.ambito}
-              </div>
-              <div class="medico-detail">
-                <span class="detail-label">Stato:</span> ${medico.assegnabilita}
-              </div>
-            </div>
-          `;
+              // Costruisci tooltip con tutti i dati disponibili
+              let tooltipContent = `
+                <div class="tooltip-title">Dettagli completi</div>
+                ${medico.codiceFiscale ? `<div class="tooltip-row"><span class="tooltip-label">Codice Fiscale:</span><span class="tooltip-value">${medico.codiceFiscale}</span></div>` : ''}
+                ${medico.ambito ? `<div class="tooltip-row"><span class="tooltip-label">Ambito:</span><span class="tooltip-value">${medico.ambito}</span></div>` : ''}
+                ${medico.email ? `<div class="tooltip-row"><span class="tooltip-label">Email:</span><span class="tooltip-value">${medico.email}</span></div>` : ''}
+                ${medico.indirizzo ? `<div class="tooltip-row"><span class="tooltip-label">Indirizzo:</span><span class="tooltip-value">${medico.indirizzo}</span></div>` : ''}
+                ${medico.luogo ? `<div class="tooltip-row"><span class="tooltip-label">Luogo:</span><span class="tooltip-value">${medico.luogo}</span></div>` : ''}
+                ${medico.luogoNascita ? `<div class="tooltip-row"><span class="tooltip-label">Luogo Nascita:</span><span class="tooltip-value">${medico.luogoNascita}</span></div>` : ''}
+                ${medico.identificativo ? `<div class="tooltip-row"><span class="tooltip-label">Identificativo:</span><span class="tooltip-value">${medico.identificativo}</span></div>` : ''}
+                ${medico.codiceDistretto ? `<div class="tooltip-row"><span class="tooltip-label">Codice Distretto:</span><span class="tooltip-value">${medico.codiceDistretto}</span></div>` : ''}
+                ${medico.descrizioneDistretto ? `<div class="tooltip-row"><span class="tooltip-label">Distretto:</span><span class="tooltip-value">${medico.descrizioneDistretto}</span></div>` : ''}
+              `;
 
-          mediciList.appendChild(card);
-        });
+              return `
+                <tr>
+                  <td class="emoji-cell">${emoji}</td>
+                  <td class="nome-cell">${medico.cognome}</td>
+                  <td>${medico.nome}</td>
+                  <td>${medico.asl}</td>
+                  <td>${medico.tipo}</td>
+                  <td>${medico.assegnabilita}</td>
+                  <td style="position: relative;">
+                    <div class="tooltip">${tooltipContent}</div>
+                  </td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        `;
+
+        mediciList.appendChild(table);
       }
 
       results.style.display = 'block';
