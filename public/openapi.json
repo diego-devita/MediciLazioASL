@@ -15,7 +15,7 @@
     "/api/search": {
       "get": {
         "summary": "Ricerca medici (GET)",
-        "description": "Ricerca medici per cognome con filtri opzionali. Parametri in query string.",
+        "description": "Ricerca medici per cognome con filtri opzionali. Parametri in query string. NOTA: Richiesto almeno uno tra cognomi, cap, nomi.",
         "operationId": "searchMediciGet",
         "tags": ["Ricerca"],
         "security": [
@@ -64,7 +64,7 @@
             "name": "cognomi",
             "in": "query",
             "required": false,
-            "description": "Cognomi da cercare, separati da virgola (richiesto almeno uno tra cognomi, cap, nomi)",
+            "description": "Cognomi da cercare, separati da virgola",
             "schema": {
               "type": "string",
               "pattern": "^[A-Z',]+$",
@@ -111,7 +111,13 @@
                   "invalidTipo": {
                     "value": {
                       "success": false,
-                      "error": "Invalid tipo. Must be one of: MMG, PLS"
+                      "error": "Invalid tipo. Must be one of: Medicina generale, Pediatra"
+                    }
+                  },
+                  "invalidASL": {
+                    "value": {
+                      "success": false,
+                      "error": "Invalid asl. Must be one of: Tutte, Roma 1, Roma 2, Roma 3, Roma 4, Roma 5, Roma 6, Frosinone, Latina, Rieti, Viterbo"
                     }
                   },
                   "invalidCognomi": {
@@ -172,7 +178,7 @@
       },
       "post": {
         "summary": "Ricerca medici (POST)",
-        "description": "Ricerca medici per cognome con filtri opzionali. Parametri nel body JSON.",
+        "description": "Ricerca medici per cognome con filtri opzionali. Parametri nel body JSON. NOTA: Richiesto almeno uno tra cognomi, cap, nomi.",
         "operationId": "searchMediciPost",
         "tags": ["Ricerca"],
         "security": [
