@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.3",
+  "openapi": "3.1.0",
   "info": {
     "title": "Medici ASL Lazio API",
     "description": "API per la ricerca di medici di medicina generale e pediatri nelle ASL del Lazio",
@@ -33,7 +33,6 @@
             "required": true,
             "description": "Tipo di medico",
             "schema": {
-              "type": "string",
               "oneOf": [
                 { "const": "MMG", "title": "Medicina generale ('MMG')" },
                 { "const": "PLS", "title": "Pediatra ('PLS')" }
@@ -47,7 +46,6 @@
             "required": true,
             "description": "Codice ASL (stringa vuota = tutte le ASL)",
             "schema": {
-              "type": "string",
               "oneOf": [
                 { "const": "", "title": "Tutte (stringa vuota)" },
                 { "const": "120201", "title": "Roma 1 ('120201')" },
@@ -285,7 +283,6 @@
         "description": "Tipo e ASL obbligatori. Richiesto almeno uno tra cognomi, cap, nomi",
         "properties": {
           "tipo": {
-            "type": "string",
             "oneOf": [
               { "const": "MMG", "title": "Medicina generale ('MMG')" },
               { "const": "PLS", "title": "Pediatra ('PLS')" }
@@ -294,7 +291,6 @@
             "description": "Tipo di medico"
           },
           "asl": {
-            "type": "string",
             "oneOf": [
               { "const": "", "title": "Tutte (stringa vuota)" },
               { "const": "120201", "title": "Roma 1 ('120201')" },
