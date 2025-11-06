@@ -30,7 +30,7 @@
           {
             "name": "tipo",
             "in": "query",
-            "required": false,
+            "required": true,
             "description": "Tipo di medico",
             "schema": {
               "type": "string",
@@ -41,7 +41,7 @@
           {
             "name": "asl",
             "in": "query",
-            "required": false,
+            "required": true,
             "description": "Codice ASL (stringa vuota = tutte le ASL)",
             "schema": {
               "type": "string",
@@ -266,7 +266,8 @@
     "schemas": {
       "SearchRequest": {
         "type": "object",
-        "description": "Richiesto almeno uno tra cognomi, cap, nomi",
+        "required": ["tipo", "asl"],
+        "description": "Tipo e ASL obbligatori. Richiesto almeno uno tra cognomi, cap, nomi",
         "properties": {
           "tipo": {
             "type": "string",
