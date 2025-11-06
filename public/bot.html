@@ -148,18 +148,24 @@
     }
 
     .back-link {
-      text-align: center;
-      margin-top: 30px;
-    }
-
-    .back-link a {
-      color: #667eea;
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      background: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
       text-decoration: none;
+      color: #667eea;
       font-weight: 600;
+      transition: all 0.2s;
     }
 
-    .back-link a:hover {
-      text-decoration: underline;
+    .back-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+      text-decoration: none;
     }
 
     .highlight {
@@ -172,6 +178,8 @@
   </style>
 </head>
 <body>
+  <a href="/cerca" class="back-link">← Torna alla ricerca</a>
+
   <div class="container">
     <div class="header">
       <h1>
@@ -245,9 +253,6 @@
         </a>
       </div>
 
-      <div class="back-link">
-        <a href="/cerca">← Torna alla ricerca</a>
-      </div>
     </div>
   </div>
 </body>
