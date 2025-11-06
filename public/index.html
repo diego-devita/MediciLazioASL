@@ -208,6 +208,29 @@
       font-size: 0.875rem;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+    }
+
+    .results-table th:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .results-table th::after {
+      content: ' ↕';
+      opacity: 0.3;
+      font-size: 0.8rem;
+    }
+
+    .results-table th.sort-asc::after {
+      content: ' ↑';
+      opacity: 1;
+    }
+
+    .results-table th.sort-desc::after {
+      content: ' ↓';
+      opacity: 1;
     }
 
     .results-table td {
@@ -411,6 +434,10 @@
     const results = document.getElementById('results');
     const submitBtn = document.getElementById('submitBtn');
 
+    let currentData = null;
+    let sortColumn = null;
+    let sortDirection = 'asc';
+
     function getStatoEmoji(assegnabilita) {
       const stato = assegnabilita.toLowerCase();
       if (stato.includes('assegnazione libera')) return '🟢';
@@ -441,38 +468,61 @@
       submitBtn.disabled = false;
     }
 
-    function displayResults(data) {
+    function sortData(column) {
+      if (!currentData) return;
+
+      if (sortColumn === column) {
+        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+      } else {
+        sortColumn = column;
+        sortDirection = 'asc';
+      }
+
+      currentData.results.sort((a, b) => {
+        let aVal = a[column] || '';
+        let bVal = b[column] || '';
+
+        // Conversione a lowercase per stringhe
+        if (typeof aVal === 'string') aVal = aVal.toLowerCase();
+        if (typeof bVal === 'string') bVal = bVal.toLowerCase();
+
+        if (sortDirection === 'asc') {
+          return aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
+        } else {
+          return aVal < bVal ? 1 : aVal > bVal ? -1 : 0;
+        }
+      });
+
+      renderTable(currentData);
+    }
+
+    function renderTable(data) {
       const mediciList = document.getElementById('mediciList');
       mediciList.innerHTML = '';
 
-      // Calcola i contatori per categoria
-      const liberi = data.results.filter(m => m.assegnabilita.toLowerCase().includes('assegnazione libera')).length;
-      const deroga = data.results.filter(m => m.assegnabilita.toLowerCase().includes('deroga')).length;
-      const altro = data.count - liberi - deroga;
+      const table = document.createElement('table');
+      table.className = 'results-table';
 
-      document.getElementById('totalCount').textContent = data.count;
-      document.getElementById('liberiCount').textContent = liberi;
-      document.getElementById('derogaCount').textContent = deroga;
-      document.getElementById('altroCount').textContent = altro;
+      const columns = [
+        { key: '', label: '' },
+        { key: 'cognome', label: 'Cognome' },
+        { key: 'nome', label: 'Nome' },
+        { key: 'asl', label: 'ASL' },
+        { key: 'tipo', label: 'Tipo' },
+        { key: 'assegnabilita', label: 'Stato' }
+      ];
 
-      if (data.results.length === 0) {
-        mediciList.innerHTML = '<p style="text-align: center; color: #777; padding: 20px;">Nessun medico trovato con i criteri specificati.</p>';
-      } else {
-        const table = document.createElement('table');
-        table.className = 'results-table';
-
-        table.innerHTML = `
-          <thead>
-            <tr>
-              <th></th>
-              <th>Cognome</th>
-              <th>Nome</th>
-              <th>ASL</th>
-              <th>Tipo</th>
-              <th>Stato</th>
-            </tr>
-          </thead>
-          <tbody>
+      table.innerHTML = `
+        <thead>
+          <tr>
+            ${columns.map(col => {
+              if (!col.key) return '<th></th>';
+              const sortClass = sortColumn === col.key ? `sort-${sortDirection}` : '';
+              return `<th class="${sortClass}" data-column="${col.key}">${col.label}</th>`;
+            }).join('')}
+          </tr>
+        </thead>
+        <tbody>
             ${data.results.map(medico => {
               const emoji = getStatoEmoji(medico.assegnabilita);
 
@@ -480,7 +530,6 @@
               let tooltipContent = `
                 <div class="tooltip-title">Dettagli completi</div>
                 ${medico.codiceFiscale ? `<div class="tooltip-row"><span class="tooltip-label">Codice Fiscale:</span><span class="tooltip-value">${medico.codiceFiscale}</span></div>` : ''}
-                ${medico.ambito ? `<div class="tooltip-row"><span class="tooltip-label">Ambito:</span><span class="tooltip-value">${medico.ambito}</span></div>` : ''}
                 ${medico.email ? `<div class="tooltip-row"><span class="tooltip-label">Email:</span><span class="tooltip-value">${medico.email}</span></div>` : ''}
                 ${medico.indirizzo ? `<div class="tooltip-row"><span class="tooltip-label">Indirizzo:</span><span class="tooltip-value">${medico.indirizzo}</span></div>` : ''}
                 ${medico.luogo ? `<div class="tooltip-row"><span class="tooltip-label">Luogo:</span><span class="tooltip-value">${medico.luogo}</span></div>` : ''}
@@ -507,7 +556,35 @@
           </tbody>
         `;
 
-        mediciList.appendChild(table);
+      mediciList.appendChild(table);
+
+      // Aggiungi event listener per il sorting
+      table.querySelectorAll('th[data-column]').forEach(th => {
+        th.addEventListener('click', () => {
+          sortData(th.dataset.column);
+        });
+      });
+    }
+
+    function displayResults(data) {
+      currentData = data;
+      sortColumn = null;
+      sortDirection = 'asc';
+
+      // Calcola i contatori per categoria
+      const liberi = data.results.filter(m => m.assegnabilita.toLowerCase().includes('assegnazione libera')).length;
+      const deroga = data.results.filter(m => m.assegnabilita.toLowerCase().includes('deroga')).length;
+      const altro = data.count - liberi - deroga;
+
+      document.getElementById('totalCount').textContent = data.count;
+      document.getElementById('liberiCount').textContent = liberi;
+      document.getElementById('derogaCount').textContent = deroga;
+      document.getElementById('altroCount').textContent = altro;
+
+      if (data.results.length === 0) {
+        document.getElementById('mediciList').innerHTML = '<p style="text-align: center; color: #777; padding: 20px;">Nessun medico trovato con i criteri specificati.</p>';
+      } else {
+        renderTable(data);
       }
 
       results.style.display = 'block';
