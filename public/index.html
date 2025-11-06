@@ -54,6 +54,17 @@
       width: 100%;
     }
 
+    .form-row {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .form-row .form-group {
+      flex: 1;
+      margin-bottom: 0;
+    }
+
     .form-group {
       margin-bottom: 20px;
     }
@@ -378,35 +389,36 @@
 <body>
   <div class="container">
     <div class="header">
-      <h1>🏥 Ricerca Medici ASL Lazio</h1>
-      <p>Trova medici di medicina generale e pediatri disponibili</p>
+      <h1>🩺 Ricerca Medici ASL Lazio</h1>
     </div>
 
     <div class="content">
       <form id="searchForm">
-        <div class="form-group">
-          <label for="tipo">Tipo medico</label>
-          <select id="tipo" name="tipo">
-            <option value="MMG">Medicina generale</option>
-            <option value="PLS">Pediatra</option>
-          </select>
-        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="tipo">Tipo medico</label>
+            <select id="tipo" name="tipo" disabled>
+              <option value="MMG">Medicina generale</option>
+              <option value="PLS">Pediatra</option>
+            </select>
+          </div>
 
-        <div class="form-group">
-          <label for="asl">ASL</label>
-          <select id="asl" name="asl">
-            <option value="">Tutte</option>
-            <option value="120201">Roma 1</option>
-            <option value="120202">Roma 2</option>
-            <option value="120203">Roma 3</option>
-            <option value="120204">Roma 4</option>
-            <option value="120205">Roma 5</option>
-            <option value="120206">Roma 6</option>
-            <option value="120207">Frosinone</option>
-            <option value="120208">Latina</option>
-            <option value="120209">Rieti</option>
-            <option value="120210">Viterbo</option>
-          </select>
+          <div class="form-group">
+            <label for="asl">ASL</label>
+            <select id="asl" name="asl">
+              <option value="">Tutte</option>
+              <option value="120201">Roma 1</option>
+              <option value="120202">Roma 2</option>
+              <option value="120203">Roma 3</option>
+              <option value="120204">Roma 4</option>
+              <option value="120205">Roma 5</option>
+              <option value="120206">Roma 6</option>
+              <option value="120207">Frosinone</option>
+              <option value="120208">Latina</option>
+              <option value="120209">Rieti</option>
+              <option value="120210">Viterbo</option>
+            </select>
+          </div>
         </div>
 
         <div class="form-group">
