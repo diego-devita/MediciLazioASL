@@ -30,7 +30,7 @@
           {
             "name": "tipo",
             "in": "query",
-            "required": true,
+            "required": false,
             "description": "Tipo di medico",
             "schema": {
               "type": "string",
@@ -41,7 +41,7 @@
           {
             "name": "asl",
             "in": "query",
-            "required": true,
+            "required": false,
             "description": "ASL del Lazio",
             "schema": {
               "type": "string",
@@ -99,37 +99,44 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
                 },
                 "examples": {
-                  "missingParameters": {
+                  "singleError": {
+                    "summary": "Singolo errore di validazione",
                     "value": {
                       "success": false,
-                      "error": "At least one of the following parameters is required: cognomi, cap, nomi"
+                      "error": "Validation failed",
+                      "errors": [
+                        {
+                          "field": "cognomi/cap/nomi",
+                          "message": "At least one of the following parameters is required: cognomi, cap, nomi"
+                        }
+                      ]
                     }
                   },
-                  "invalidTipo": {
+                  "multipleErrors": {
+                    "summary": "Errori multipli di validazione",
                     "value": {
                       "success": false,
-                      "error": "Invalid tipo. Must be one of: Medicina generale, Pediatra"
-                    }
-                  },
-                  "invalidASL": {
-                    "value": {
-                      "success": false,
-                      "error": "Invalid asl. Must be one of: Tutte, Roma 1, Roma 2, Roma 3, Roma 4, Roma 5, Roma 6, Frosinone, Latina, Rieti, Viterbo"
-                    }
-                  },
-                  "invalidCognomi": {
-                    "value": {
-                      "success": false,
-                      "error": "Invalid cognomi: 123. Each cognome must contain only uppercase letters, apostrophes and spaces."
-                    }
-                  },
-                  "invalidCAP": {
-                    "value": {
-                      "success": false,
-                      "error": "Invalid CAP: 123. Each CAP must be exactly 5 digits."
+                      "error": "Validation failed",
+                      "errors": [
+                        {
+                          "field": "tipo",
+                          "value": "invalid",
+                          "message": "Invalid tipo. Must be one of: Medicina generale, Pediatra"
+                        },
+                        {
+                          "field": "cognomi",
+                          "value": "123",
+                          "message": "Each cognome must contain only uppercase letters, apostrophes and spaces."
+                        },
+                        {
+                          "field": "cap",
+                          "value": "123",
+                          "message": "Each CAP must be exactly 5 digits."
+                        }
+                      ]
                     }
                   }
                 }
@@ -215,7 +222,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
                 }
               }
             }
@@ -272,8 +279,7 @@
     "schemas": {
       "SearchRequest": {
         "type": "object",
-        "required": ["tipo", "asl"],
-        "description": "Tipo e ASL obbligatori. Richiesto almeno uno tra cognomi, cap, nomi",
+        "description": "Richiesto almeno uno tra cognomi, cap, nomi. Tipo e ASL sono opzionali con valori di default.",
         "properties": {
           "tipo": {
             "type": "string",
@@ -462,6 +468,44 @@
           "descrizioneDistretto": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "ValidationErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "error": {
+            "type": "string",
+            "example": "Validation failed"
+          },
+          "errors": {
+            "type": "array",
+            "description": "Array di errori di validazione",
+            "items": {
+              "type": "object",
+              "properties": {
+                "field": {
+                  "type": "string",
+                  "description": "Nome del campo che ha fallito la validazione",
+                  "example": "cognomi"
+                },
+                "value": {
+                  "type": "string",
+                  "description": "Valore non valido (opzionale)",
+                  "example": "123"
+                },
+                "message": {
+                  "type": "string",
+                  "description": "Messaggio di errore descrittivo",
+                  "example": "Each cognome must contain only uppercase letters, apostrophes and spaces."
+                }
+              },
+              "required": ["field", "message"]
+            }
           }
         }
       },

@@ -91,20 +91,44 @@ async function handler(req, res) {
     });
   }
 
+  // Accumula tutti gli errori di validazione
+  const validationErrors = [];
+
   // Validazione: almeno uno tra cognomi, cap, nomi deve essere presente
   if (params.cognomi.length === 0 && params.cap.length === 0 && params.nomi.length === 0) {
-    return res.status(400).json({
-      success: false,
-      error: 'At least one of the following parameters is required: cognomi, cap, nomi'
+    validationErrors.push({
+      field: 'cognomi/cap/nomi',
+      message: 'At least one of the following parameters is required: cognomi, cap, nomi'
+    });
+  }
+
+  // Validazione tipo
+  if (!VALID_TIPO.includes(params.tipo)) {
+    validationErrors.push({
+      field: 'tipo',
+      value: params.tipo,
+      message: `Invalid tipo. Must be one of: ${VALID_TIPO.join(', ')}`
+    });
+  }
+
+  // Validazione ASL
+  if (params.asl && params.asl !== '' && !VALID_ASL.includes(params.asl)) {
+    validationErrors.push({
+      field: 'asl',
+      value: params.asl,
+      message: `Invalid asl. Must be one of: ${VALID_ASL.join(', ')}`
     });
   }
 
   // Validazione cognomi (devono contenere solo lettere maiuscole, apostrofi e spazi)
   const invalidCognomi = params.cognomi.filter(c => !/^[A-Z'\s]+$/.test(c));
   if (invalidCognomi.length > 0) {
-    return res.status(400).json({
-      success: false,
-      error: `Invalid cognomi: ${invalidCognomi.join(', ')}. Each cognome must contain only uppercase letters, apostrophes and spaces.`
+    invalidCognomi.forEach(cognome => {
+      validationErrors.push({
+        field: 'cognomi',
+        value: cognome,
+        message: 'Each cognome must contain only uppercase letters, apostrophes and spaces.'
+      });
     });
   }
 
@@ -112,38 +136,37 @@ async function handler(req, res) {
   if (params.nomi && params.nomi.length > 0) {
     const invalidNomi = params.nomi.filter(n => !/^[A-Z'\s]+$/.test(n));
     if (invalidNomi.length > 0) {
-      return res.status(400).json({
-        success: false,
-        error: `Invalid nomi: ${invalidNomi.join(', ')}. Each nome must contain only uppercase letters, apostrophes and spaces.`
+      invalidNomi.forEach(nome => {
+        validationErrors.push({
+          field: 'nomi',
+          value: nome,
+          message: 'Each nome must contain only uppercase letters, apostrophes and spaces.'
+        });
       });
     }
-  }
-
-  // Validazione tipo
-  if (!VALID_TIPO.includes(params.tipo)) {
-    return res.status(400).json({
-      success: false,
-      error: `Invalid tipo. Must be one of: ${VALID_TIPO.join(', ')}`
-    });
-  }
-
-  // Validazione ASL (se specificata)
-  if (params.asl && params.asl !== '' && !VALID_ASL.includes(params.asl)) {
-    return res.status(400).json({
-      success: false,
-      error: `Invalid asl. Must be one of: ${VALID_ASL.join(', ')}`
-    });
   }
 
   // Validazione CAP (se specificati)
   if (params.cap && params.cap.length > 0) {
     const invalidCaps = params.cap.filter(cap => !/^\d{5}$/.test(cap));
     if (invalidCaps.length > 0) {
-      return res.status(400).json({
-        success: false,
-        error: `Invalid CAP: ${invalidCaps.join(', ')}. Each CAP must be exactly 5 digits.`
+      invalidCaps.forEach(cap => {
+        validationErrors.push({
+          field: 'cap',
+          value: cap,
+          message: 'Each CAP must be exactly 5 digits.'
+        });
       });
     }
+  }
+
+  // Se ci sono errori di validazione, restituiscili tutti
+  if (validationErrors.length > 0) {
+    return res.status(400).json({
+      success: false,
+      error: 'Validation failed',
+      errors: validationErrors
+    });
   }
 
   try {
