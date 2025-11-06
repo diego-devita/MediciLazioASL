@@ -338,19 +338,19 @@
           "query": {
             "type": "object",
             "properties": {
-              "cognomi": {
+              "tipo": {
+                "type": "string"
+              },
+              "asl": {
+                "type": "string"
+              },
+              "cap": {
                 "type": "array",
                 "items": {
                   "type": "string"
                 }
               },
-              "asl": {
-                "type": "string"
-              },
-              "tipo": {
-                "type": "string"
-              },
-              "cap": {
+              "cognomi": {
                 "type": "array",
                 "items": {
                   "type": "string"
@@ -380,6 +380,11 @@
                   "description": "Codice ASL interno",
                   "example": "120201"
                 },
+                "zip": {
+                  "type": "string",
+                  "description": "CAP cercato (può essere vuoto)",
+                  "example": "00100"
+                },
                 "surname": {
                   "type": "string",
                   "description": "Cognome cercato",
@@ -389,11 +394,6 @@
                   "type": "string",
                   "description": "Nome cercato (può essere vuoto)",
                   "example": "MARIO"
-                },
-                "zip": {
-                  "type": "string",
-                  "description": "CAP cercato (può essere vuoto)",
-                  "example": "00100"
                 }
               }
             }

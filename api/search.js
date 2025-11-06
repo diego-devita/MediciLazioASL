@@ -72,7 +72,9 @@ async function handler(req, res) {
     // Normalizza CAP (se è stringa, split; se è array, usa così; altrimenti array vuoto)
     if (typeof params.cap === 'string') {
       params.cap = params.cap.split(',').map(c => c.trim());
-    } else if (!Array.isArray(params.cap)) {
+    } else if (Array.isArray(params.cap)) {
+      params.cap = params.cap.map(c => String(c).trim());
+    } else {
       params.cap = [];
     }
 
@@ -205,10 +207,10 @@ async function handler(req, res) {
       success: true,
       timestamp: new Date().toISOString(),
       query: {
-        cognomi: params.cognomi,
-        asl: params.asl || '',
         tipo: params.tipo || 'MMG',
+        asl: params.asl || '',
         cap: params.cap || [],
+        cognomi: params.cognomi,
         nomi: params.nomi || []
       },
       singleQueries: singleQueries,
