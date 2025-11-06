@@ -140,9 +140,9 @@
 
       <form id="loginForm">
         <div class="form-group">
-          <label for="apiKey">API Key</label>
-          <input type="password" id="apiKey" name="apiKey" required placeholder="Inserisci la tua API key" autocomplete="off">
-          <p class="help-text">Richiedi una API key all'amministratore del sistema</p>
+          <label for="apiKey">Chiave</label>
+          <input type="password" id="apiKey" name="apiKey" required placeholder="Inserisci la tua chiave" autocomplete="off">
+          <p class="help-text">Richiedi una chiave all'amministratore del sistema</p>
         </div>
 
         <button type="submit" id="submitBtn">Accedi</button>
@@ -186,7 +186,7 @@
       const apiKey = document.getElementById('apiKey').value.trim();
 
       if (!apiKey) {
-        showError('Inserisci una API key valida.');
+        showError('Inserisci una chiave valida.');
         return;
       }
 
