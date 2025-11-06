@@ -1,14 +1,12 @@
 import { getAllSubscribedUsers, saveResults } from '../lib/database.js';
 import { sendNotification } from '../lib/telegram.js';
 import { MediciSearchClient } from '../lib/medici/client.js';
+import { requireApiKey } from '../lib/auth.js';
 
-export default async function handler(req, res) {
-  // Verifica che sia chiamato da Vercel Cron
-  const authHeader = req.headers['authorization'];
-  const cronSecret = process.env.CRON_SECRET;
-
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-    return res.status(401).json({ error: 'Unauthorized' });
+async function handler(req, res) {
+  // Solo metodo POST o GET
+  if (req.method !== 'POST' && req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   console.log('🕐 Cron job started:', new Date().toISOString());
@@ -110,3 +108,6 @@ Usa /medici per vedere i dettagli.
     });
   }
 }
+
+// Wrap con autenticazione API key
+export default requireApiKey(handler);
