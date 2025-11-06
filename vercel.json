@@ -1,7 +1,9 @@
 {
   "rewrites": [
     { "source": "/login", "destination": "/login.html" },
-    { "source": "/", "destination": "/index.html" }
+    { "source": "/cerca", "destination": "/index.html" },
+    { "source": "/bot", "destination": "/bot.html" },
+    { "source": "/", "destination": "/cerca" }
   ],
   "crons": [
     {

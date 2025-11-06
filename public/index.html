@@ -22,7 +22,7 @@
     }
 
     .container {
-      max-width: 1200px;
+      max-width: 900px;
       min-width: 800px;
       margin: 0 auto;
       background: white;
@@ -40,12 +40,31 @@
 
     .header h1 {
       font-size: 2rem;
-      margin-bottom: 10px;
+      margin-bottom: 15px;
     }
 
     .header p {
       opacity: 0.9;
       font-size: 1rem;
+    }
+
+    .bot-link {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: background 0.3s, transform 0.2s;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .bot-link:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
     }
 
     .content {
@@ -261,12 +280,12 @@
 
     .results-table th:nth-child(2),
     .results-table td:nth-child(2) {
-      width: 150px;
+      width: 25%;
     }
 
     .results-table th:nth-child(3),
     .results-table td:nth-child(3) {
-      width: 150px;
+      width: 25%;
     }
 
     .results-table th:nth-child(4),
@@ -276,11 +295,6 @@
 
     .results-table th:nth-child(5),
     .results-table td:nth-child(5) {
-      width: 150px;
-    }
-
-    .results-table th:nth-child(6),
-    .results-table td:nth-child(6) {
       width: auto;
     }
 
@@ -390,6 +404,7 @@
   <div class="container">
     <div class="header">
       <h1>🩺 Ricerca Medici ASL Lazio</h1>
+      <a href="/bot" class="bot-link">📱 Ricevi notifiche con Telegram Bot</a>
     </div>
 
     <div class="content">
@@ -554,7 +569,6 @@
         { key: 'cognome', label: 'Cognome' },
         { key: 'nome', label: 'Nome' },
         { key: 'asl', label: 'ASL' },
-        { key: 'tipo', label: 'Tipo' },
         { key: 'assegnabilita', label: 'Stato' }
       ];
 
@@ -590,7 +604,6 @@
                   <td class="nome-cell">${medico.cognome}</td>
                   <td>${medico.nome}</td>
                   <td>${medico.asl}</td>
-                  <td>${medico.tipo}</td>
                   <td>${medico.assegnabilita}</td>
                   <td style="position: relative;">
                     <div class="tooltip">${tooltipContent}</div>
