@@ -474,7 +474,7 @@
           },
           "error": {
             "type": "string",
-            "example": "Missing required parameter: cognomi"
+            "example": "Internal server error"
           }
         }
       }
