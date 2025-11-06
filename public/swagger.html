@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>API Documentation - Medici ASL Lazio</title>
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.10.5/swagger-ui.css">
+  <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-plugin-enum-names@1.0.1/dist/index.css">
   <style>
     html {
       box-sizing: border-box;
@@ -85,7 +86,7 @@
         ],
         plugins: [
           SwaggerUIBundle.plugins.DownloadUrl,
-          SwaggerUIPluginEnumNames
+          EnumNamesPlugin.EnumNamesPlugin
         ],
         layout: "StandaloneLayout",
         persistAuthorization: true,
