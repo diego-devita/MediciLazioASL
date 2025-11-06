@@ -28,17 +28,6 @@
         ],
         "parameters": [
           {
-            "name": "cognomi",
-            "in": "query",
-            "required": true,
-            "description": "Cognomi da cercare, separati da virgola",
-            "schema": {
-              "type": "string",
-              "pattern": "^[A-Z',]+$",
-              "example": "ROSSI,BIANCHI"
-            }
-          },
-          {
             "name": "tipo",
             "in": "query",
             "required": false,
@@ -69,6 +58,17 @@
               "type": "string",
               "pattern": "^(\\d{5})(,\\d{5})*$",
               "example": "00100,00118"
+            }
+          },
+          {
+            "name": "cognomi",
+            "in": "query",
+            "required": true,
+            "description": "Cognomi da cercare, separati da virgola",
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Z',]+$",
+              "example": "ROSSI,BIANCHI"
             }
           },
           {
@@ -268,16 +268,6 @@
         "type": "object",
         "required": ["cognomi"],
         "properties": {
-          "cognomi": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "pattern": "^[A-Z']+$"
-            },
-            "minItems": 1,
-            "description": "Array di cognomi da cercare (solo lettere maiuscole e apostrofi)",
-            "example": ["ROSSI", "BIANCHI"]
-          },
           "tipo": {
             "type": "string",
             "enum": ["MMG", "PLS"],
@@ -298,6 +288,16 @@
             },
             "description": "Array di CAP (ogni CAP deve essere di 5 cifre)",
             "example": ["00100", "00118"]
+          },
+          "cognomi": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Z']+$"
+            },
+            "minItems": 1,
+            "description": "Array di cognomi da cercare (solo lettere maiuscole e apostrofi)",
+            "example": ["ROSSI", "BIANCHI"]
           },
           "nomi": {
             "type": "array",
