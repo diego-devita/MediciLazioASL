@@ -18,6 +18,16 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // Validate Telegram secret token
+  const secretToken = process.env.TELEGRAM_SECRET_TOKEN;
+  if (secretToken) {
+    const telegramToken = req.headers['x-telegram-bot-api-secret-token'];
+    if (telegramToken !== secretToken) {
+      console.warn('Invalid Telegram secret token');
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+  }
+
   try {
     const update = req.body;
 

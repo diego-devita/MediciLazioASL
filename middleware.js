@@ -40,8 +40,9 @@ export const config = {
      * - /login e /login.html (pagina di login)
      * - /api/login (endpoint login)
      * - /api/webhook (webhook Telegram)
+     * - /api/cron (usa autenticazione API key, non JWT)
      * - file statici
      */
-    '/((?!login|api/login|api/webhook|_next/static|_next/image|favicon.ico).*)',
+    '/((?!login|api/login|api/webhook|api/cron|_next/static|_next/image|favicon.ico).*)',
   ],
 };
