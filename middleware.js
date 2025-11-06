@@ -1,8 +1,8 @@
-import { NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 
 export async function middleware(request) {
-  const { pathname } = request.nextUrl;
+  const url = new URL(request.url);
+  const { pathname } = url;
 
   // Route pubbliche (non richiedono autenticazione)
   const publicRoutes = [
@@ -15,7 +15,7 @@ export async function middleware(request) {
 
   // Se è una route pubblica, lascia passare
   if (publicRoutes.some(route => pathname.startsWith(route))) {
-    return NextResponse.next();
+    return new Response(null, { status: 200 });
   }
 
   // Estrai cookie dall'header
@@ -31,7 +31,7 @@ export async function middleware(request) {
 
   if (!token) {
     // Non autenticato → redirect a /login
-    return NextResponse.redirect(new URL('/login', request.url));
+    return Response.redirect(new URL('/login', request.url));
   }
 
   try {
@@ -40,10 +40,10 @@ export async function middleware(request) {
     await jwtVerify(token, secret);
 
     // Token valido → continua
-    return NextResponse.next();
+    return new Response(null, { status: 200 });
   } catch (error) {
     // Token invalido → redirect a /login
-    return NextResponse.redirect(new URL('/login', request.url));
+    return Response.redirect(new URL('/login', request.url));
   }
 }
 
