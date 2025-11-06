@@ -41,8 +41,9 @@ export const config = {
      * - /api/login (endpoint login)
      * - /api/webhook (webhook Telegram)
      * - /api/cron (usa autenticazione API key, non JWT)
+     * - /openapi.json (spec pubblica per validator)
      * - file statici
      */
-    '/((?!login|api/login|api/webhook|api/cron|_next/static|_next/image|favicon.ico).*)',
+    '/((?!login|api/login|api/webhook|api/cron|openapi.json|_next/static|_next/image|favicon.ico).*)',
   ],
 };
