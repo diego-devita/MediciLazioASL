@@ -34,7 +34,10 @@
             "description": "Tipo di medico",
             "schema": {
               "type": "string",
-              "enum": ["MMG", "PLS"],
+              "oneOf": [
+                { "const": "MMG", "title": "Medicina generale ('MMG')" },
+                { "const": "PLS", "title": "Pediatra ('PLS')" }
+              ],
               "default": "MMG"
             }
           },
@@ -45,7 +48,19 @@
             "description": "Codice ASL (stringa vuota = tutte le ASL)",
             "schema": {
               "type": "string",
-              "enum": ["", "120201", "120202", "120203", "120204", "120205", "120206", "120207", "120208", "120209", "120210"],
+              "oneOf": [
+                { "const": "", "title": "Tutte (stringa vuota)" },
+                { "const": "120201", "title": "Roma 1 ('120201')" },
+                { "const": "120202", "title": "Roma 2 ('120202')" },
+                { "const": "120203", "title": "Roma 3 ('120203')" },
+                { "const": "120204", "title": "Roma 4 ('120204')" },
+                { "const": "120205", "title": "Roma 5 ('120205')" },
+                { "const": "120206", "title": "Roma 6 ('120206')" },
+                { "const": "120207", "title": "Frosinone ('120207')" },
+                { "const": "120208", "title": "Latina ('120208')" },
+                { "const": "120209", "title": "Rieti ('120209')" },
+                { "const": "120210", "title": "Viterbo ('120210')" }
+              ],
               "default": ""
             }
           },
@@ -271,13 +286,28 @@
         "properties": {
           "tipo": {
             "type": "string",
-            "enum": ["MMG", "PLS"],
+            "oneOf": [
+              { "const": "MMG", "title": "Medicina generale ('MMG')" },
+              { "const": "PLS", "title": "Pediatra ('PLS')" }
+            ],
             "default": "MMG",
             "description": "Tipo di medico"
           },
           "asl": {
             "type": "string",
-            "enum": ["", "120201", "120202", "120203", "120204", "120205", "120206", "120207", "120208", "120209", "120210"],
+            "oneOf": [
+              { "const": "", "title": "Tutte (stringa vuota)" },
+              { "const": "120201", "title": "Roma 1 ('120201')" },
+              { "const": "120202", "title": "Roma 2 ('120202')" },
+              { "const": "120203", "title": "Roma 3 ('120203')" },
+              { "const": "120204", "title": "Roma 4 ('120204')" },
+              { "const": "120205", "title": "Roma 5 ('120205')" },
+              { "const": "120206", "title": "Roma 6 ('120206')" },
+              { "const": "120207", "title": "Frosinone ('120207')" },
+              { "const": "120208", "title": "Latina ('120208')" },
+              { "const": "120209", "title": "Rieti ('120209')" },
+              { "const": "120210", "title": "Viterbo ('120210')" }
+            ],
             "default": "",
             "description": "Codice ASL (stringa vuota = tutte)"
           },
