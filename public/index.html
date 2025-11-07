@@ -673,14 +673,11 @@
       sortDirection = 'asc';
 
       // Calcola i contatori per categoria
-      const liberi = data.results.filter(m => m.assegnabilita.toLowerCase().includes('assegnazione libera')).length;
-      const deroga = data.results.filter(m => m.assegnabilita.toLowerCase().includes('deroga')).length;
-      const altro = data.count - liberi - deroga;
-
-      document.getElementById('totalCount').textContent = data.count;
-      document.getElementById('liberiCount').textContent = liberi;
-      document.getElementById('derogaCount').textContent = deroga;
-      document.getElementById('altroCount').textContent = altro;
+      // Usa i contatori dall'API
+      document.getElementById('totalCount').textContent = data.counters.totali;
+      document.getElementById('liberiCount').textContent = data.counters.assegnabili;
+      document.getElementById('derogaCount').textContent = data.counters.conDeroga;
+      document.getElementById('altroCount').textContent = data.counters.nonAssegnabili;
 
       if (data.results.length === 0) {
         document.getElementById('mediciList').innerHTML = '<p style="text-align: center; color: #777; padding: 20px;">Nessun medico trovato con i criteri specificati.</p>';
