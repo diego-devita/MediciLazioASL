@@ -233,6 +233,55 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ValidationErrorResponse"
+                },
+                "examples": {
+                  "singleError": {
+                    "summary": "Singolo errore di validazione",
+                    "value": {
+                      "success": false,
+                      "error": "Validation failed",
+                      "errors": [
+                        {
+                          "field": "cognomi/cap/nomi",
+                          "message": "At least one of the following parameters is required: cognomi, cap, nomi"
+                        }
+                      ]
+                    }
+                  },
+                  "multipleErrors": {
+                    "summary": "Errori multipli di validazione",
+                    "value": {
+                      "success": false,
+                      "error": "Validation failed",
+                      "errors": [
+                        {
+                          "field": "tipo",
+                          "value": "invalid",
+                          "message": "Invalid tipo. Must be one of: Medicina generale, Pediatra"
+                        },
+                        {
+                          "field": "asl",
+                          "value": "Roma 99",
+                          "message": "Invalid asl. Must be one of: Tutte, Roma 1, Roma 2, Roma 3, Roma 4, Roma 5, Roma 6, Frosinone, Latina, Rieti, Viterbo"
+                        },
+                        {
+                          "field": "cognomi",
+                          "value": "123",
+                          "message": "Each cognome must contain only uppercase letters, apostrophes and spaces."
+                        },
+                        {
+                          "field": "nomi",
+                          "value": "mario123",
+                          "message": "Each nome must contain only uppercase letters, apostrophes and spaces."
+                        },
+                        {
+                          "field": "cap",
+                          "value": "123",
+                          "message": "Each CAP must be exactly 5 digits."
+                        }
+                      ]
+                    }
+                  }
                 }
               }
             }
@@ -243,6 +292,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "error": "Authentication required. Provide either a valid session cookie or X-API-Key header."
                 }
               }
             }
@@ -253,6 +306,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "error": "Method not allowed. Use GET or POST."
                 }
               }
             }
