@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Admin Panel - Medici ASL Lazio</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      opacity: 0.9;
+      font-size: 1rem;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      transition: background 0.3s;
+    }
+
+    .back-link:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .content {
+      padding: 30px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      border-bottom: 2px solid #e0e0e0;
+      margin-bottom: 30px;
+    }
+
+    .tab-button {
+      padding: 12px 24px;
+      background: none;
+      border: none;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #666;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s;
+    }
+
+    .tab-button:hover {
+      color: #667eea;
+    }
+
+    .tab-button.active {
+      color: #667eea;
+      border-bottom-color: #667eea;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-card h3 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      opacity: 0.9;
+      margin-bottom: 10px;
+    }
+
+    .stat-card .value {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .stat-card .subtitle {
+      font-size: 0.85rem;
+      opacity: 0.8;
+    }
+
+    .section {
+      margin-bottom: 40px;
+    }
+
+    .section h2 {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .controls {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .controls select,
+    .controls input {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+
+    .controls button {
+      padding: 8px 16px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .controls button:hover {
+      background: #5568d3;
+    }
+
+    .controls button.danger {
+      background: #dc3545;
+    }
+
+    .controls button.danger:hover {
+      background: #c82333;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    thead {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    th {
+      padding: 15px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+    }
+
+    td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #e0e0e0;
+      font-size: 0.9rem;
+    }
+
+    tbody tr:hover {
+      background: #f9f9f9;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .badge.success {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .badge.danger {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .badge.warning {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .badge.info {
+      background: #d1ecf1;
+      color: #0c5460;
+    }
+
+    .pagination {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .pagination button {
+      padding: 8px 12px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .pagination button:hover:not(:disabled) {
+      background: #5568d3;
+    }
+
+    .pagination button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .pagination span {
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 40px;
+      color: #999;
+      font-style: italic;
+    }
+
+    .action-btn {
+      padding: 6px 12px;
+      background: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .action-btn:hover {
+      background: #c82333;
+    }
+
+    .chart-container {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
+    }
+
+    .chart-bar {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .chart-label {
+      width: 120px;
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    .chart-bar-bg {
+      flex: 1;
+      height: 30px;
+      background: #f0f0f0;
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .chart-bar-fill {
+      height: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 10px;
+      color: white;
+      font-size: 0.8rem;
+      font-weight: 600;
+      transition: width 0.5s ease;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .info-card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .info-card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 15px;
+      color: #667eea;
+    }
+
+    .info-card .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .info-card .info-row:last-child {
+      border-bottom: none;
+    }
+
+    .info-card .info-label {
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .info-card .info-value {
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🔧 Admin Panel</h1>
+      <p>Sistema di amministrazione - Medici ASL Lazio</p>
+      <a href="/" class="back-link">← Torna alla ricerca</a>
+    </div>
+
+    <div class="content">
+      <div class="tabs">
+        <button class="tab-button active" data-tab="overview">📈 Overview</button>
+        <button class="tab-button" data-tab="users">👥 Utenti Bot</button>
+        <button class="tab-button" data-tab="login-attempts">🔐 Login Attempts</button>
+        <button class="tab-button" data-tab="system">⚙️ System Info</button>
+      </div>
+
+      <!-- Tab Overview -->
+      <div id="tab-overview" class="tab-content active">
+        <div id="overviewLoading" class="loading">Caricamento statistiche...</div>
+        <div id="overviewError" class="error" style="display: none;"></div>
+        <div id="overviewContent" style="display: none;">
+          <div class="stats-grid" id="statsGrid"></div>
+
+          <div class="section">
+            <h2>📊 Login Attempts - Ultimi 7 giorni</h2>
+            <div class="chart-container" id="loginsByDayChart"></div>
+          </div>
+
+          <div class="section">
+            <h2>🚫 Top IP con tentativi falliti</h2>
+            <div class="chart-container" id="topFailedIPsChart"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Utenti -->
+      <div id="tab-users" class="tab-content">
+        <div class="section">
+          <div class="controls">
+            <select id="usersSubscribedFilter">
+              <option value="">Tutti gli utenti</option>
+              <option value="true">Solo subscribed</option>
+              <option value="false">Solo unsubscribed</option>
+            </select>
+            <button onclick="loadUsers()">Applica filtri</button>
+            <button onclick="loadUsers()" style="margin-left: auto;">🔄 Aggiorna</button>
+          </div>
+
+          <div id="usersLoading" class="loading">Caricamento utenti...</div>
+          <div id="usersError" class="error" style="display: none;"></div>
+          <div id="usersContent" style="display: none;">
+            <table id="usersTable">
+              <thead>
+                <tr>
+                  <th>Chat ID</th>
+                  <th>Username</th>
+                  <th>Subscribed</th>
+                  <th>Query</th>
+                  <th>Creato</th>
+                  <th>Ultimo Check</th>
+                  <th>Azioni</th>
+                </tr>
+              </thead>
+              <tbody id="usersTableBody"></tbody>
+            </table>
+
+            <div class="pagination" id="usersPagination"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Login Attempts -->
+      <div id="tab-login-attempts" class="tab-content">
+        <div class="section">
+          <div class="controls">
+            <select id="attemptsSuccessFilter">
+              <option value="">Tutti</option>
+              <option value="false">Solo falliti</option>
+              <option value="true">Solo riusciti</option>
+            </select>
+            <select id="attemptsBlockedFilter">
+              <option value="">Tutti</option>
+              <option value="true">Solo bloccati</option>
+            </select>
+            <select id="attemptsDaysFilter">
+              <option value="7">Ultimi 7 giorni</option>
+              <option value="30" selected>Ultimi 30 giorni</option>
+              <option value="90">Ultimi 90 giorni</option>
+            </select>
+            <input type="text" id="attemptsIpFilter" placeholder="Filtra per IP">
+            <button onclick="loadLoginAttempts()">Applica filtri</button>
+            <button onclick="loadLoginAttempts()" style="margin-left: auto;">🔄 Aggiorna</button>
+            <button class="danger" onclick="cleanupOldAttempts()">🗑️ Pulisci vecchi log</button>
+          </div>
+
+          <div id="attemptsLoading" class="loading">Caricamento tentativi...</div>
+          <div id="attemptsError" class="error" style="display: none;"></div>
+          <div id="attemptsContent" style="display: none;">
+            <table id="attemptsTable">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>IP</th>
+                  <th>Success</th>
+                  <th>Blocked</th>
+                  <th>API Key</th>
+                  <th>User Agent</th>
+                </tr>
+              </thead>
+              <tbody id="attemptsTableBody"></tbody>
+            </table>
+
+            <div class="pagination" id="attemptsPagination"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab System Info -->
+      <div id="tab-system" class="tab-content">
+        <div id="systemLoading" class="loading">Caricamento informazioni sistema...</div>
+        <div id="systemError" class="error" style="display: none;"></div>
+        <div id="systemContent" style="display: none;">
+          <div class="info-grid" id="systemInfoGrid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State
+    let statsData = null;
+    let usersPage = 1;
+    let attemptsPage = 1;
+
+    // Tab switching
+    document.querySelectorAll('.tab-button').forEach(button => {
+      button.addEventListener('click', () => {
+        const tabName = button.getAttribute('data-tab');
+
+        // Update buttons
+        document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+        button.classList.add('active');
+
+        // Update content
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        document.getElementById(`tab-${tabName}`).classList.add('active');
+
+        // Load data for tab
+        if (tabName === 'users' && !document.getElementById('usersContent').style.display === 'none') {
+          loadUsers();
+        } else if (tabName === 'login-attempts' && !document.getElementById('attemptsContent').style.display === 'none') {
+          loadLoginAttempts();
+        }
+      });
+    });
+
+    // Load overview stats
+    async function loadOverview() {
+      const loading = document.getElementById('overviewLoading');
+      const error = document.getElementById('overviewError');
+      const content = document.getElementById('overviewContent');
+
+      loading.style.display = 'block';
+      error.style.display = 'none';
+      content.style.display = 'none';
+
+      try {
+        const response = await fetch('/api/admin/stats', {
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        statsData = await response.json();
+
+        loading.style.display = 'none';
+        content.style.display = 'block';
+
+        renderStats();
+        renderLoginsByDay();
+        renderTopFailedIPs();
+
+      } catch (err) {
+        loading.style.display = 'none';
+        error.style.display = 'block';
+        error.textContent = `Errore caricamento stats: ${err.message}`;
+      }
+    }
+
+    function renderStats() {
+      const grid = document.getElementById('statsGrid');
+      const { users, loginAttempts } = statsData;
+
+      grid.innerHTML = `
+        <div class="stat-card">
+          <h3>👥 Utenti Totali</h3>
+          <div class="value">${users.total}</div>
+          <div class="subtitle">${users.subscribed} subscribed, ${users.unsubscribed} unsubscribed</div>
+        </div>
+        <div class="stat-card">
+          <h3>📈 Nuovi Utenti (7g)</h3>
+          <div class="value">${users.recentNew}</div>
+          <div class="subtitle">Ultimi 7 giorni</div>
+        </div>
+        <div class="stat-card">
+          <h3>🔐 Login Attempts (30g)</h3>
+          <div class="value">${loginAttempts.total}</div>
+          <div class="subtitle">${loginAttempts.successful} riusciti, ${loginAttempts.failed} falliti</div>
+        </div>
+        <div class="stat-card">
+          <h3>🚫 Tentativi Bloccati</h3>
+          <div class="value">${loginAttempts.blocked}</div>
+          <div class="subtitle">Ultimi 30 giorni</div>
+        </div>
+      `;
+    }
+
+    function renderLoginsByDay() {
+      const container = document.getElementById('loginsByDayChart');
+      const { byDay } = statsData.loginAttempts;
+
+      if (!byDay || byDay.length === 0) {
+        container.innerHTML = '<div class="empty">Nessun dato disponibile</div>';
+        return;
+      }
+
+      const maxValue = Math.max(...byDay.map(d => d.total));
+
+      container.innerHTML = byDay.map(day => {
+        const percentage = (day.total / maxValue) * 100;
+        return `
+          <div class="chart-bar">
+            <div class="chart-label">${day.date}</div>
+            <div class="chart-bar-bg">
+              <div class="chart-bar-fill" style="width: ${percentage}%">
+                ${day.total} (✓${day.successful} ✗${day.failed})
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderTopFailedIPs() {
+      const container = document.getElementById('topFailedIPsChart');
+      const { topFailedIPs } = statsData.loginAttempts;
+
+      if (!topFailedIPs || topFailedIPs.length === 0) {
+        container.innerHTML = '<div class="empty">Nessun IP con tentativi falliti</div>';
+        return;
+      }
+
+      const maxValue = Math.max(...topFailedIPs.map(ip => ip.count));
+
+      container.innerHTML = topFailedIPs.map(ip => {
+        const percentage = (ip.count / maxValue) * 100;
+        const lastAttempt = new Date(ip.lastAttempt).toLocaleString('it-IT');
+        return `
+          <div class="chart-bar">
+            <div class="chart-label">${ip.ip}</div>
+            <div class="chart-bar-bg">
+              <div class="chart-bar-fill" style="width: ${percentage}%">
+                ${ip.count} tentativi
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Load users
+    async function loadUsers(page = 1) {
+      usersPage = page;
+
+      const loading = document.getElementById('usersLoading');
+      const error = document.getElementById('usersError');
+      const content = document.getElementById('usersContent');
+
+      loading.style.display = 'block';
+      error.style.display = 'none';
+      content.style.display = 'none';
+
+      const subscribed = document.getElementById('usersSubscribedFilter').value;
+
+      const params = new URLSearchParams({
+        page: usersPage,
+        limit: 50
+      });
+
+      if (subscribed) params.append('subscribed', subscribed);
+
+      try {
+        const response = await fetch(`/api/admin/users?${params}`, {
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        loading.style.display = 'none';
+        content.style.display = 'block';
+
+        renderUsersTable(data);
+
+      } catch (err) {
+        loading.style.display = 'none';
+        error.style.display = 'block';
+        error.textContent = `Errore caricamento utenti: ${err.message}`;
+      }
+    }
+
+    function renderUsersTable(data) {
+      const tbody = document.getElementById('usersTableBody');
+      const { users, pagination } = data;
+
+      if (users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="empty">Nessun utente trovato</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = users.map(user => {
+        const createdAt = new Date(user.createdAt).toLocaleString('it-IT');
+        const lastCheck = user.lastCheck ? new Date(user.lastCheck).toLocaleString('it-IT') : 'Mai';
+        const query = `${user.query.cognomi.join(', ')} - ${user.query.tipo}`;
+
+        return `
+          <tr>
+            <td>${user.chatId}</td>
+            <td>${user.username || '-'}</td>
+            <td>
+              <span class="badge ${user.subscribed ? 'success' : 'danger'}">
+                ${user.subscribed ? 'Sì' : 'No'}
+              </span>
+            </td>
+            <td style="font-size: 0.8rem;">${query}</td>
+            <td>${createdAt}</td>
+            <td>${lastCheck}</td>
+            <td>
+              <button class="action-btn" onclick="deleteUser('${user.chatId}')">🗑️ Elimina</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      renderPagination('users', pagination);
+    }
+
+    async function deleteUser(chatId) {
+      if (!confirm(`Sei sicuro di voler eliminare l'utente ${chatId}?`)) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/admin/users?chatId=${chatId}`, {
+          method: 'DELETE',
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        alert('Utente eliminato con successo');
+        loadUsers(usersPage);
+
+      } catch (err) {
+        alert(`Errore eliminazione utente: ${err.message}`);
+      }
+    }
+
+    // Load login attempts
+    async function loadLoginAttempts(page = 1) {
+      attemptsPage = page;
+
+      const loading = document.getElementById('attemptsLoading');
+      const error = document.getElementById('attemptsError');
+      const content = document.getElementById('attemptsContent');
+
+      loading.style.display = 'block';
+      error.style.display = 'none';
+      content.style.display = 'none';
+
+      const success = document.getElementById('attemptsSuccessFilter').value;
+      const blocked = document.getElementById('attemptsBlockedFilter').value;
+      const days = document.getElementById('attemptsDaysFilter').value;
+      const ip = document.getElementById('attemptsIpFilter').value.trim();
+
+      const params = new URLSearchParams({
+        page: attemptsPage,
+        limit: 100,
+        days
+      });
+
+      if (success) params.append('success', success);
+      if (blocked) params.append('blocked', blocked);
+      if (ip) params.append('ip', ip);
+
+      try {
+        const response = await fetch(`/api/admin/login-attempts?${params}`, {
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        loading.style.display = 'none';
+        content.style.display = 'block';
+
+        renderAttemptsTable(data);
+
+      } catch (err) {
+        loading.style.display = 'none';
+        error.style.display = 'block';
+        error.textContent = `Errore caricamento tentativi: ${err.message}`;
+      }
+    }
+
+    function renderAttemptsTable(data) {
+      const tbody = document.getElementById('attemptsTableBody');
+      const { attempts, pagination } = data;
+
+      if (attempts.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty">Nessun tentativo trovato</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = attempts.map(attempt => {
+        const timestamp = new Date(attempt.timestamp).toLocaleString('it-IT');
+        const userAgent = attempt.userAgent ? attempt.userAgent.substring(0, 50) + '...' : '-';
+
+        return `
+          <tr>
+            <td>${timestamp}</td>
+            <td>${attempt.ip}</td>
+            <td>
+              <span class="badge ${attempt.success ? 'success' : 'danger'}">
+                ${attempt.success ? '✓ Sì' : '✗ No'}
+              </span>
+            </td>
+            <td>
+              <span class="badge ${attempt.blocked ? 'danger' : 'info'}">
+                ${attempt.blocked ? '🚫 Sì' : '-'}
+              </span>
+            </td>
+            <td>${attempt.apiKeyPartial || '-'}</td>
+            <td style="font-size: 0.75rem;">${userAgent}</td>
+          </tr>
+        `;
+      }).join('');
+
+      renderPagination('attempts', pagination);
+    }
+
+    async function cleanupOldAttempts() {
+      if (!confirm('Sei sicuro di voler eliminare tutti i log più vecchi di 90 giorni?')) {
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/admin/login-attempts', {
+          method: 'DELETE',
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const result = await response.json();
+        alert(`Eliminati ${result.deletedCount} tentativi vecchi`);
+        loadLoginAttempts(attemptsPage);
+
+      } catch (err) {
+        alert(`Errore pulizia log: ${err.message}`);
+      }
+    }
+
+    // Pagination
+    function renderPagination(type, pagination) {
+      const container = document.getElementById(`${type}Pagination`);
+      const { page, totalPages } = pagination;
+
+      const prevDisabled = page <= 1;
+      const nextDisabled = page >= totalPages;
+
+      container.innerHTML = `
+        <button ${prevDisabled ? 'disabled' : ''} onclick="${type === 'users' ? 'loadUsers' : 'loadLoginAttempts'}(${page - 1})">
+          ← Precedente
+        </button>
+        <span>Pagina ${page} di ${totalPages}</span>
+        <button ${nextDisabled ? 'disabled' : ''} onclick="${type === 'users' ? 'loadUsers' : 'loadLoginAttempts'}(${page + 1})">
+          Successiva →
+        </button>
+      `;
+    }
+
+    // Load system info from stats
+    async function loadSystemInfo() {
+      const loading = document.getElementById('systemLoading');
+      const error = document.getElementById('systemError');
+      const content = document.getElementById('systemContent');
+
+      if (!statsData) {
+        await loadOverview();
+      }
+
+      loading.style.display = 'none';
+      content.style.display = 'block';
+
+      renderSystemInfo();
+    }
+
+    function renderSystemInfo() {
+      const grid = document.getElementById('systemInfoGrid');
+      const { database, environment } = statsData;
+
+      const formatBytes = (bytes) => {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+      };
+
+      grid.innerHTML = `
+        <div class="info-card">
+          <h3>🗄️ Database</h3>
+          <div class="info-row">
+            <span class="info-label">Nome:</span>
+            <span class="info-value">${database.name}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Dimensione:</span>
+            <span class="info-value">${formatBytes(database.size)}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Collections:</span>
+            <span class="info-value">${database.collections.length}</span>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <h3>☁️ Vercel</h3>
+          <div class="info-row">
+            <span class="info-label">Region:</span>
+            <span class="info-value">${environment.region}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Environment:</span>
+            <span class="info-value">${environment.env}</span>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <h3>📋 Collections</h3>
+          ${database.collections.map(c => `
+            <div class="info-row">
+              <span class="info-label">${c.name}</span>
+              <span class="info-value">${c.type}</span>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    // Initial load
+    document.addEventListener('DOMContentLoaded', () => {
+      loadOverview();
+    });
+
+    // Tab change handlers
+    document.querySelectorAll('.tab-button').forEach(button => {
+      button.addEventListener('click', () => {
+        const tabName = button.getAttribute('data-tab');
+        if (tabName === 'users') loadUsers();
+        if (tabName === 'login-attempts') loadLoginAttempts();
+        if (tabName === 'system') loadSystemInfo();
+      });
+    });
+  </script>
+</body>
+</html>
