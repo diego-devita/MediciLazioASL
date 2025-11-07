@@ -61,20 +61,86 @@ async function handler(req, res) {
           return stato.includes('assegnazione libera') || stato.includes('deroga');
         });
 
+        // === DIFF CON RISULTATI PRECEDENTI ===
+        const oldResults = user.lastResults || [];
+
+        // Mappa vecchi risultati per codiceFiscale
+        const oldMap = new Map();
+        oldResults.forEach(m => {
+          if (m.codiceFiscale) {
+            oldMap.set(m.codiceFiscale, m);
+          }
+        });
+
+        // Trova nuovi medici
+        const nuoviMedici = medici.filter(m => {
+          return m.codiceFiscale && !oldMap.has(m.codiceFiscale);
+        });
+
+        // Trova medici con stato cambiato
+        const medicinCambiati = medici.filter(m => {
+          if (!m.codiceFiscale) return false;
+          const old = oldMap.get(m.codiceFiscale);
+          if (!old) return false; // Nuovo, già contato sopra
+          return old.assegnabilita !== m.assegnabilita;
+        });
+
         // Salva risultati
         await saveResults(user.chatId, medici);
 
-        // Notifica fine
+        // Notifica fine ricerca
         const message = `
-✅ *Ricerca terminata!*
+✅ Ricerca terminata!
 
-Trovati *${medici.length}* medici totali
-Di cui *${assegnabili.length}* assegnabili (🟢🟠)
+Trovati ${medici.length} medici totali
+Di cui ${assegnabili.length} assegnabili (🟢🟠)
 
 Usa /medici per vedere i dettagli.
         `.trim();
 
         await sendNotification(user.chatId, message);
+
+        // === NOTIFICHE DIFF ===
+
+        // Notifica nuovi medici
+        if (nuoviMedici.length > 0) {
+          const getEmoji = (assegnabilita) => {
+            if (!assegnabilita) return '🔴';
+            const stato = assegnabilita.toLowerCase();
+            if (stato.includes('assegnazione libera')) return '🟢';
+            if (stato.includes('deroga')) return '🟠';
+            return '🔴';
+          };
+
+          let nuoviMsg = `🆕 Nuovi medici trovati (${nuoviMedici.length}):\n\n`;
+          nuoviMedici.forEach(m => {
+            const emoji = getEmoji(m.assegnabilita);
+            nuoviMsg += `${emoji} ${m.cognome} ${m.nome}\n`;
+          });
+
+          await sendNotification(user.chatId, nuoviMsg.trim());
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+
+        // Notifica medici cambiati
+        if (medicinCambiati.length > 0) {
+          const getEmoji = (assegnabilita) => {
+            if (!assegnabilita) return '🔴';
+            const stato = assegnabilita.toLowerCase();
+            if (stato.includes('assegnazione libera')) return '🟢';
+            if (stato.includes('deroga')) return '🟠';
+            return '🔴';
+          };
+
+          let cambiatoMsg = `🔄 Medici che hanno cambiato stato (${medicinCambiati.length}):\n\n`;
+          medicinCambiati.forEach(m => {
+            const emoji = getEmoji(m.assegnabilita);
+            cambiatoMsg += `${emoji} ${m.cognome} ${m.nome}\n`;
+          });
+
+          await sendNotification(user.chatId, cambiatoMsg.trim());
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
 
         successCount++;
 
