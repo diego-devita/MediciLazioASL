@@ -1,14 +1,8 @@
-import { validateJWT } from '../../lib/auth.js';
+import { requireAdmin } from '../../lib/auth.js';
 import { connectToDatabase } from '../../lib/database.js';
 import { DATABASE } from '../../lib/config.js';
 
-export default async function handler(req, res) {
-  // Verifica JWT
-  const authResult = await validateJWT(req);
-  if (!authResult.valid) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
+async function handler(req, res) {
   if (req.method === 'GET') {
     return handleGetUsers(req, res);
   } else if (req.method === 'DELETE') {
@@ -102,3 +96,5 @@ async function handleDeleteUser(req, res) {
     });
   }
 }
+
+export default requireAdmin(handler);

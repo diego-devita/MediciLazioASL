@@ -26,7 +26,7 @@
       border-radius: 12px;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
       width: 100%;
-      max-width: 400px;
+      max-width: 450px;
       overflow: hidden;
     }
 
@@ -51,6 +51,31 @@
       padding: 30px;
     }
 
+    .info-box {
+      background: #e3f2fd;
+      border-left: 4px solid #2196f3;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    .info-box strong {
+      color: #1976d2;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .info-box ol {
+      margin-left: 20px;
+      margin-top: 10px;
+    }
+
+    .info-box li {
+      margin-bottom: 5px;
+    }
+
     .form-group {
       margin-bottom: 20px;
     }
@@ -62,12 +87,13 @@
       color: #555;
     }
 
-    input[type="password"] {
+    input[type="text"] {
       width: 100%;
       padding: 12px;
       border: 2px solid #e0e0e0;
       border-radius: 6px;
       font-size: 1rem;
+      font-family: 'Courier New', monospace;
       transition: border-color 0.3s;
     }
 
@@ -126,23 +152,46 @@
       font-weight: 600;
       margin-top: 10px;
     }
+
+    .telegram-icon {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
   </style>
 </head>
 <body>
   <div class="login-container">
     <div class="login-header">
-      <h1>🩺 Login</h1>
+      <h1>🔑 Login</h1>
       <p>Medici ASL Lazio</p>
     </div>
 
     <div class="login-content">
+      <div class="info-box">
+        <strong>
+          <svg class="telegram-icon" role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" fill="#2196f3"/>
+          </svg>
+          Come ottenere il token di accesso:
+        </strong>
+        <ol>
+          <li>Apri il bot Telegram</li>
+          <li>Invia il comando <code>/token</code></li>
+          <li>Copia il token ricevuto</li>
+          <li>Incollalo qui sotto</li>
+        </ol>
+      </div>
+
       <div id="error" style="display: none;" class="error"></div>
 
       <form id="loginForm">
         <div class="form-group">
-          <label for="apiKey">Chiave</label>
-          <input type="password" id="apiKey" name="apiKey" required placeholder="Inserisci la tua chiave" autocomplete="off">
-          <p class="help-text">Richiedi una chiave all'amministratore del sistema</p>
+          <label for="token">Token di accesso</label>
+          <input type="text" id="token" name="token" required placeholder="es: a1b2c3d4e5f6..." autocomplete="off">
+          <p class="help-text">Il token è valido per 24 ore e può essere usato una sola volta</p>
         </div>
 
         <button type="submit" id="submitBtn">Accedi</button>
@@ -183,10 +232,10 @@
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const apiKey = document.getElementById('apiKey').value.trim();
+      const token = document.getElementById('token').value.trim();
 
-      if (!apiKey) {
-        showError('Inserisci una chiave valida.');
+      if (!token) {
+        showError('Inserisci un token valido.');
         return;
       }
 
@@ -198,7 +247,7 @@
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ apiKey })
+          body: JSON.stringify({ token })
         });
 
         const data = await response.json();
@@ -206,7 +255,7 @@
         hideLoading();
 
         if (!response.ok) {
-          showError(data.error || 'Errore durante il login.');
+          showError(data.message || data.error || 'Errore durante il login.');
           return;
         }
 
