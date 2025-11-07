@@ -88,12 +88,20 @@ async function handler(req, res) {
         // Salva risultati
         await saveResults(user.chatId, medici);
 
+        // Controlla se ci sono variazioni
+        const ciSonoVariazioni = nuoviMedici.length > 0 || medicinCambiati.length > 0;
+        const variazioniMsg = ciSonoVariazioni
+          ? 'Ci sono state variazioni.'
+          : 'Non ci sono state variazioni.';
+
         // Notifica fine ricerca
         const message = `
 ✅ Ricerca terminata!
 
 Trovati ${medici.length} medici totali
 Di cui ${assegnabili.length} assegnabili (🟢🟠)
+
+${variazioniMsg}
 
 Usa /medici per vedere i dettagli.
         `.trim();
