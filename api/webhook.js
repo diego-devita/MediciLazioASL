@@ -3,6 +3,7 @@ import { handleStart } from '../lib/commands/start.js';
 import { handleAdd } from '../lib/commands/add.js';
 import { handleRemove } from '../lib/commands/remove.js';
 import { handleCognomi } from '../lib/commands/cognomi.js';
+import { handleMedici } from '../lib/commands/medici.js';
 import { handleHelp } from '../lib/commands/help.js';
 
 export default async function handler(req, res) {
@@ -58,6 +59,10 @@ export default async function handler(req, res) {
 
       case '/cognomi':
         await handleCognomi(bot, chatId);
+        break;
+
+      case '/medici':
+        await handleMedici(bot, chatId);
         break;
 
       case '/help':
