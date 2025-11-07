@@ -1,7 +1,6 @@
 import { getAllUsers, saveResults, markSuccessfulContact, markFailedContact } from '../lib/database.js';
 import { sendNotification } from '../lib/telegram.js';
 import { MediciSearchClient } from '../lib/medici/client.js';
-import { requireApiKey } from '../lib/auth.js';
 
 // Helper per inviare notifiche con gestione 403
 async function sendNotificationSafe(chatId, message) {
@@ -22,6 +21,26 @@ async function sendNotificationSafe(chatId, message) {
 }
 
 async function handler(req, res) {
+  // Verifica CRON_SECRET_KEY
+  const cronKey = req.headers['x-cron-key'];
+  const validCronKey = process.env.CRON_SECRET_KEY;
+
+  if (!validCronKey) {
+    console.error('CRON_SECRET_KEY not configured');
+    return res.status(500).json({
+      success: false,
+      error: 'Cron authentication not configured'
+    });
+  }
+
+  if (!cronKey || cronKey !== validCronKey) {
+    console.warn('Invalid or missing X-Cron-Key header');
+    return res.status(401).json({
+      success: false,
+      error: 'Unauthorized. Provide valid X-Cron-Key header.'
+    });
+  }
+
   // Solo metodo POST o GET
   if (req.method !== 'POST' && req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -209,5 +228,4 @@ Usa /medici per vedere i dettagli.
   }
 }
 
-// Wrap con autenticazione API key
-export default requireApiKey(handler);
+export default handler;
