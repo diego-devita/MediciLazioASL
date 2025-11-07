@@ -90,6 +90,49 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SearchResponse"
+                },
+                "example": {
+                  "success": true,
+                  "timestamp": "2025-11-07T00:23:00.341Z",
+                  "query": {
+                    "tipo": "Medicina generale",
+                    "asl": "Tutte",
+                    "cap": ["00173"],
+                    "cognomi": [],
+                    "nomi": []
+                  },
+                  "singleQueries": [
+                    {
+                      "type": "MMG",
+                      "asl": "",
+                      "zip": "00173",
+                      "surname": "",
+                      "name": ""
+                    }
+                  ],
+                  "counters": {
+                    "totali": 28,
+                    "assegnabili": 14,
+                    "conDeroga": 13,
+                    "nonAssegnabili": 1
+                  },
+                  "results": [
+                    {
+                      "nome": "GIOVANNI",
+                      "cognome": "BONGIOVANNI",
+                      "asl": "ROMA2",
+                      "assegnabilita": "Assegnazione libera",
+                      "tipo": "MMG",
+                      "codiceFiscale": "BNGGNN56R01F158T",
+                      "email": "giovannibongio@tiscalinet.it",
+                      "indirizzo": "VIA DELLE AVOCETTE 5",
+                      "luogo": "ROMA",
+                      "identificativo": "598219",
+                      "luogoNascita": "MESSINA",
+                      "codiceDistretto": "607",
+                      "descrizioneDistretto": "RM2-7"
+                    }
+                  ]
                 }
               }
             }
@@ -223,6 +266,49 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SearchResponse"
+                },
+                "example": {
+                  "success": true,
+                  "timestamp": "2025-11-07T00:23:00.341Z",
+                  "query": {
+                    "tipo": "Medicina generale",
+                    "asl": "Tutte",
+                    "cap": ["00173"],
+                    "cognomi": [],
+                    "nomi": []
+                  },
+                  "singleQueries": [
+                    {
+                      "type": "MMG",
+                      "asl": "",
+                      "zip": "00173",
+                      "surname": "",
+                      "name": ""
+                    }
+                  ],
+                  "counters": {
+                    "totali": 28,
+                    "assegnabili": 14,
+                    "conDeroga": 13,
+                    "nonAssegnabili": 1
+                  },
+                  "results": [
+                    {
+                      "nome": "GIOVANNI",
+                      "cognome": "BONGIOVANNI",
+                      "asl": "ROMA2",
+                      "assegnabilita": "Assegnazione libera",
+                      "tipo": "MMG",
+                      "codiceFiscale": "BNGGNN56R01F158T",
+                      "email": "giovannibongio@tiscalinet.it",
+                      "indirizzo": "VIA DELLE AVOCETTE 5",
+                      "luogo": "ROMA",
+                      "identificativo": "598219",
+                      "luogoNascita": "MESSINA",
+                      "codiceDistretto": "607",
+                      "descrizioneDistretto": "RM2-7"
+                    }
+                  ]
                 }
               }
             }
@@ -375,7 +461,6 @@
               "type": "string",
               "pattern": "^[A-Z'\\s]+$"
             },
-            "minItems": 1,
             "description": "Array di cognomi da cercare (ogni cognome può contenere solo lettere, spazi o apostrofi - gli spazi prima e dopo saranno trimmati, quelli in mezzo se multipli verranno appiattiti e le minuscole rese maiuscole)",
             "example": ["ROSSI", "BIANCHI", "DE LUCA"]
           },
@@ -404,30 +489,41 @@
           },
           "query": {
             "type": "object",
+            "description": "Echo dei parametri di ricerca normalizzati",
             "properties": {
               "tipo": {
-                "type": "string"
+                "type": "string",
+                "description": "Tipo di medico utilizzato nella ricerca",
+                "example": "Medicina generale"
               },
               "asl": {
-                "type": "string"
+                "type": "string",
+                "description": "ASL utilizzata nella ricerca",
+                "example": "Tutte"
               },
               "cap": {
                 "type": "array",
+                "description": "Array di CAP utilizzati nella ricerca",
                 "items": {
                   "type": "string"
-                }
+                },
+                "example": ["00173"]
               },
               "cognomi": {
                 "type": "array",
+                "description": "Array di cognomi utilizzati nella ricerca (normalizzati in uppercase)",
                 "items": {
                   "type": "string"
-                }
+                },
+                "example": []
               },
               "nomi": {
                 "type": "array",
+                "description": "Array di nomi utilizzati nella ricerca (normalizzati in uppercase)",
                 "items": {
                   "type": "string"
-                }
+                },
+                "example": []
               }
             }
           },
@@ -501,58 +597,79 @@
       },
       "Medico": {
         "type": "object",
+        "description": "Informazioni su un medico di medicina generale o pediatra",
         "properties": {
-          "cognome": {
-            "type": "string",
-            "example": "ROSSI"
-          },
           "nome": {
             "type": "string",
-            "example": "MARIO"
+            "description": "Nome del medico",
+            "example": "GIOVANNI"
+          },
+          "cognome": {
+            "type": "string",
+            "description": "Cognome del medico",
+            "example": "BONGIOVANNI"
           },
           "codiceFiscale": {
             "type": "string",
-            "example": "RSSMRA80A01H501X"
+            "description": "Codice fiscale del medico",
+            "example": "BNGGNN56R01F158T"
           },
           "asl": {
             "type": "string",
-            "example": "Roma 1"
+            "description": "ASL di appartenenza",
+            "example": "ROMA2"
           },
           "tipo": {
             "type": "string",
-            "example": "Medicina Generale"
+            "description": "Tipo di medico (MMG = Medicina Generale, PLS = Pediatra)",
+            "example": "MMG"
           },
           "assegnabilita": {
             "type": "string",
+            "description": "Stato di assegnabilità del medico",
             "example": "Assegnazione libera"
           },
           "email": {
             "type": "string",
-            "nullable": true
+            "description": "Indirizzo email del medico (se disponibile)",
+            "nullable": true,
+            "example": "giovannibongio@tiscalinet.it"
           },
           "indirizzo": {
             "type": "string",
-            "nullable": true
+            "description": "Indirizzo dello studio medico (se disponibile)",
+            "nullable": true,
+            "example": "VIA DELLE AVOCETTE 5"
           },
           "luogo": {
             "type": "string",
-            "nullable": true
+            "description": "Città dello studio medico (se disponibile)",
+            "nullable": true,
+            "example": "ROMA"
           },
           "luogoNascita": {
             "type": "string",
-            "nullable": true
+            "description": "Luogo di nascita del medico (se disponibile)",
+            "nullable": true,
+            "example": "MESSINA"
           },
           "identificativo": {
             "type": "string",
-            "nullable": true
+            "description": "Codice identificativo interno del medico (se disponibile)",
+            "nullable": true,
+            "example": "598219"
           },
           "codiceDistretto": {
             "type": "string",
-            "nullable": true
+            "description": "Codice del distretto sanitario (se disponibile)",
+            "nullable": true,
+            "example": "607"
           },
           "descrizioneDistretto": {
             "type": "string",
-            "nullable": true
+            "description": "Descrizione del distretto sanitario (se disponibile)",
+            "nullable": true,
+            "example": "RM2-7"
           }
         }
       },
