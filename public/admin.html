@@ -442,13 +442,7 @@
       <div id="tab-users" class="tab-content">
         <div class="section">
           <div class="controls">
-            <select id="usersSubscribedFilter">
-              <option value="">Tutti gli utenti</option>
-              <option value="true">Solo subscribed</option>
-              <option value="false">Solo unsubscribed</option>
-            </select>
-            <button onclick="loadUsers()">Applica filtri</button>
-            <button onclick="loadUsers()" style="margin-left: auto;">🔄 Aggiorna</button>
+            <button onclick="loadUsers()">🔄 Aggiorna</button>
           </div>
 
           <div id="usersLoading" class="loading">Caricamento utenti...</div>
@@ -459,8 +453,7 @@
                 <tr>
                   <th>Chat ID</th>
                   <th>Username</th>
-                  <th>Subscribed</th>
-                  <th>Query</th>
+                  <th>Cognomi</th>
                   <th>Creato</th>
                   <th>Ultimo Check</th>
                   <th>Azioni</th>
@@ -602,7 +595,7 @@
         <div class="stat-card">
           <h3>👥 Utenti Totali</h3>
           <div class="value">${users.total}</div>
-          <div class="subtitle">${users.subscribed} subscribed, ${users.unsubscribed} unsubscribed</div>
+          <div class="subtitle">Utenti bot Telegram</div>
         </div>
         <div class="stat-card">
           <h3>📈 Nuovi Utenti (7g)</h3>
@@ -687,14 +680,10 @@
       error.style.display = 'none';
       content.style.display = 'none';
 
-      const subscribed = document.getElementById('usersSubscribedFilter').value;
-
       const params = new URLSearchParams({
         page: usersPage,
         limit: 50
       });
-
-      if (subscribed) params.append('subscribed', subscribed);
 
       try {
         const response = await fetch(`/api/admin/users?${params}`, {
@@ -731,18 +720,13 @@
       tbody.innerHTML = users.map(user => {
         const createdAt = new Date(user.createdAt).toLocaleString('it-IT');
         const lastCheck = user.lastCheck ? new Date(user.lastCheck).toLocaleString('it-IT') : 'Mai';
-        const query = `${user.query.cognomi.join(', ')} - ${user.query.tipo}`;
+        const cognomi = user.query.cognomi.length > 0 ? user.query.cognomi.join(', ') : '-';
 
         return `
           <tr>
             <td>${user.chatId}</td>
             <td>${user.username || '-'}</td>
-            <td>
-              <span class="badge ${user.subscribed ? 'success' : 'danger'}">
-                ${user.subscribed ? 'Sì' : 'No'}
-              </span>
-            </td>
-            <td style="font-size: 0.8rem;">${query}</td>
+            <td style="font-size: 0.8rem;">${cognomi}</td>
             <td>${createdAt}</td>
             <td>${lastCheck}</td>
             <td>

@@ -28,13 +28,8 @@ async function handleGetUsers(req, res) {
     const limit = parseInt(req.query.limit) || 50;
     const skip = (page - 1) * limit;
 
-    // Filtri opzionali
+    // Filtri opzionali (nessuno per ora)
     const filter = {};
-    if (req.query.subscribed === 'true') {
-      filter.subscribed = true;
-    } else if (req.query.subscribed === 'false') {
-      filter.subscribed = false;
-    }
 
     // Sort (default: più recenti prima)
     const sortField = req.query.sortBy || 'createdAt';

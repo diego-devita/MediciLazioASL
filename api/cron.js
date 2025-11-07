@@ -1,4 +1,4 @@
-import { getAllSubscribedUsers, saveResults } from '../lib/database.js';
+import { getAllUsers, saveResults } from '../lib/database.js';
 import { sendNotification } from '../lib/telegram.js';
 import { MediciSearchClient } from '../lib/medici/client.js';
 import { requireApiKey } from '../lib/auth.js';
@@ -12,14 +12,14 @@ async function handler(req, res) {
   console.log('🕐 Cron job started:', new Date().toISOString());
 
   try {
-    // Ottieni tutti gli utenti iscritti
-    const users = await getAllSubscribedUsers();
-    console.log(`Found ${users.length} subscribed users`);
+    // Ottieni tutti gli utenti
+    const users = await getAllUsers();
+    console.log(`Found ${users.length} users`);
 
     if (users.length === 0) {
       return res.status(200).json({
         success: true,
-        message: 'No subscribed users',
+        message: 'No users',
         checked: 0
       });
     }
@@ -37,18 +37,12 @@ async function handler(req, res) {
       try {
         console.log(`Checking user ${user.chatId}...`);
 
-        // Notifica inizio
-        await sendNotification(
-          user.chatId,
-          '🔄 Ricerca automatica in corso...'
-        );
-
-        // Esegui ricerca
+        // Esegui ricerca (ASL = Tutte, tipo = MMG)
         const result = await client.searchMedici(
           user.query.cognomi,
           {
-            asl: user.query.asl || '',
-            type: user.query.tipo || 'MMG'
+            asl: '',  // Tutte le ASL
+            type: 'MMG'
           }
         );
 

@@ -22,8 +22,6 @@ export default async function handler(req, res) {
 
     // Users stats
     const totalUsers = await usersCollection.countDocuments();
-    const subscribedUsers = await usersCollection.countDocuments({ subscribed: true });
-    const unsubscribedUsers = totalUsers - subscribedUsers;
 
     // Recent users (last 7 days)
     const sevenDaysAgo = new Date();
@@ -130,8 +128,6 @@ export default async function handler(req, res) {
       timestamp: new Date().toISOString(),
       users: {
         total: totalUsers,
-        subscribed: subscribedUsers,
-        unsubscribed: unsubscribedUsers,
         recentNew: recentUsers
       },
       loginAttempts: {
