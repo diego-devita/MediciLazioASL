@@ -118,14 +118,14 @@
                   },
                   "results": [
                     {
-                      "nome": "GIOVANNI",
-                      "cognome": "BONGIOVANNI",
+                      "nome": "MARIO",
+                      "cognome": "ROSSI",
                       "asl": "ROMA2",
                       "assegnabilita": "Assegnazione libera",
                       "tipo": "MMG",
-                      "codiceFiscale": "BNGGNN56R01F158T",
-                      "email": "giovannibongio@tiscalinet.it",
-                      "indirizzo": "VIA DELLE AVOCETTE 5",
+                      "codiceFiscale": "RSSMRA80A01H501X",
+                      "email": "mario.rossi@example.com",
+                      "indirizzo": "VIA ROMA 123",
                       "luogo": "ROMA",
                       "identificativo": "598219",
                       "luogoNascita": "MESSINA",
@@ -294,14 +294,14 @@
                   },
                   "results": [
                     {
-                      "nome": "GIOVANNI",
-                      "cognome": "BONGIOVANNI",
+                      "nome": "MARIO",
+                      "cognome": "ROSSI",
                       "asl": "ROMA2",
                       "assegnabilita": "Assegnazione libera",
                       "tipo": "MMG",
-                      "codiceFiscale": "BNGGNN56R01F158T",
-                      "email": "giovannibongio@tiscalinet.it",
-                      "indirizzo": "VIA DELLE AVOCETTE 5",
+                      "codiceFiscale": "RSSMRA80A01H501X",
+                      "email": "mario.rossi@example.com",
+                      "indirizzo": "VIA ROMA 123",
                       "luogo": "ROMA",
                       "identificativo": "598219",
                       "luogoNascita": "MESSINA",
@@ -602,17 +602,17 @@
           "nome": {
             "type": "string",
             "description": "Nome del medico",
-            "example": "GIOVANNI"
+            "example": "MARIO"
           },
           "cognome": {
             "type": "string",
             "description": "Cognome del medico",
-            "example": "BONGIOVANNI"
+            "example": "ROSSI"
           },
           "codiceFiscale": {
             "type": "string",
             "description": "Codice fiscale del medico",
-            "example": "BNGGNN56R01F158T"
+            "example": "RSSMRA80A01H501X"
           },
           "asl": {
             "type": "string",
@@ -633,13 +633,13 @@
             "type": "string",
             "description": "Indirizzo email del medico (se disponibile)",
             "nullable": true,
-            "example": "giovannibongio@tiscalinet.it"
+            "example": "mario.rossi@example.com"
           },
           "indirizzo": {
             "type": "string",
             "description": "Indirizzo dello studio medico (se disponibile)",
             "nullable": true,
-            "example": "VIA DELLE AVOCETTE 5"
+            "example": "VIA ROMA 123"
           },
           "luogo": {
             "type": "string",

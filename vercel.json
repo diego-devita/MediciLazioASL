@@ -6,6 +6,17 @@
     { "source": "/swagger", "destination": "/swagger.html" },
     { "source": "/", "destination": "/cerca" }
   ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    }
+  ],
   "functions": {
     "api/**/*.js": {
       "maxDuration": 60
