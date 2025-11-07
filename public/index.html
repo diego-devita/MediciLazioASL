@@ -134,6 +134,42 @@
       margin-top: 5px;
     }
 
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    .tab-button {
+      padding: 10px 20px;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #666;
+      transition: all 0.3s;
+    }
+
+    .tab-button:hover {
+      color: #667eea;
+    }
+
+    .tab-button.active {
+      color: #667eea;
+      border-bottom-color: #667eea;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
     button {
       width: 100%;
       padding: 14px;
@@ -465,25 +501,40 @@
           </div>
         </div>
 
-        <div class="form-group">
-          <label for="cap">CAP</label>
-          <input type="text" id="cap" name="cap" placeholder="es. 00100, 00118, 00185">
-          <p class="help-text">Inserisci uno o più CAP separati da virgola</p>
+        <div class="tabs">
+          <button type="button" class="tab-button active" data-tab="base">Base</button>
+          <button type="button" class="tab-button" data-tab="avanzate">Avanzate</button>
         </div>
 
-        <div class="form-group">
-          <label for="cognomi">Cognomi</label>
-          <input type="text" id="cognomi" name="cognomi" placeholder="es. ROSSI, BIANCHI, VERDI">
-          <p class="help-text">Inserisci uno o più cognomi separati da virgola</p>
+        <div id="tab-base" class="tab-content active">
+          <div class="form-group">
+            <label for="cognomi-base">Cognomi *</label>
+            <input type="text" id="cognomi-base" name="cognomi-base" placeholder="es. ROSSI, BIANCHI, VERDI" required>
+            <p class="help-text">Inserisci uno o più cognomi separati da virgola</p>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label for="nomi">Nomi</label>
-          <input type="text" id="nomi" name="nomi" placeholder="es. MARIO, LUIGI, PAOLO">
-          <p class="help-text">Inserisci uno o più nomi separati da virgola</p>
-        </div>
+        <div id="tab-avanzate" class="tab-content">
+          <div class="form-group">
+            <label for="cap">CAP</label>
+            <input type="text" id="cap" name="cap" placeholder="es. 00100, 00118, 00185">
+            <p class="help-text">Inserisci uno o più CAP separati da virgola</p>
+          </div>
 
-        <p class="help-text" style="margin-top: -10px; margin-bottom: 20px; color: #f59e0b; font-weight: 600;">* Richiesto almeno uno tra CAP, Cognomi o Nomi</p>
+          <div class="form-group">
+            <label for="cognomi">Cognomi</label>
+            <input type="text" id="cognomi" name="cognomi" placeholder="es. ROSSI, BIANCHI, VERDI">
+            <p class="help-text">Inserisci uno o più cognomi separati da virgola</p>
+          </div>
+
+          <div class="form-group">
+            <label for="nomi">Nomi</label>
+            <input type="text" id="nomi" name="nomi" placeholder="es. MARIO, LUIGI, PAOLO">
+            <p class="help-text">Inserisci uno o più nomi separati da virgola</p>
+          </div>
+
+          <p class="help-text" style="margin-top: -10px; margin-bottom: 20px; color: #f59e0b; font-weight: 600;">* Richiesto almeno uno tra CAP, Cognomi o Nomi</p>
+        </div>
 
         <button type="submit" id="submitBtn">🔍 Cerca</button>
       </form>
@@ -541,6 +592,42 @@
     let currentData = null;
     let sortColumn = null;
     let sortDirection = 'asc';
+
+    // Gestione tab
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const targetTab = button.dataset.tab;
+
+        // Rimuovi active da tutti i button e content
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        tabContents.forEach(content => content.classList.remove('active'));
+
+        // Aggiungi active al button cliccato e al suo content
+        button.classList.add('active');
+        document.getElementById(`tab-${targetTab}`).classList.add('active');
+
+        // Gestisci required fields
+        const cognomiBase = document.getElementById('cognomi-base');
+        const cognomiAvanzate = document.getElementById('cognomi');
+        const cap = document.getElementById('cap');
+        const nomi = document.getElementById('nomi');
+
+        if (targetTab === 'base') {
+          cognomiBase.required = true;
+          cognomiAvanzate.required = false;
+          cap.required = false;
+          nomi.required = false;
+        } else {
+          cognomiBase.required = false;
+          cognomiAvanzate.required = false;
+          cap.required = false;
+          nomi.required = false;
+        }
+      });
+    });
 
     function getStatoEmoji(assegnabilita) {
       const stato = assegnabilita.toLowerCase();
@@ -691,28 +778,50 @@
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const cognomi = document.getElementById('cognomi').value
-        .split(',')
-        .map(c => c.trim().toUpperCase())
-        .filter(c => c.length > 0);
+      // Determina quale tab è attivo
+      const activeTab = document.querySelector('.tab-button.active').dataset.tab;
 
-      const cap = document.getElementById('cap').value
-        .split(',')
-        .map(c => c.trim())
-        .filter(c => c.length > 0);
+      let cognomi, cap, nomi;
 
-      const nomi = document.getElementById('nomi').value
-        .split(',')
-        .map(n => n.trim().toUpperCase())
-        .filter(n => n.length > 0);
+      if (activeTab === 'base') {
+        // Tab Base: solo cognomi (obbligatorio)
+        cognomi = document.getElementById('cognomi-base').value
+          .split(',')
+          .map(c => c.trim().toUpperCase())
+          .filter(c => c.length > 0);
+
+        cap = [];
+        nomi = [];
+
+        if (cognomi.length === 0) {
+          showError('Il campo Cognomi è obbligatorio.');
+          return;
+        }
+      } else {
+        // Tab Avanzate: cap, cognomi, nomi (almeno uno richiesto)
+        cognomi = document.getElementById('cognomi').value
+          .split(',')
+          .map(c => c.trim().toUpperCase())
+          .filter(c => c.length > 0);
+
+        cap = document.getElementById('cap').value
+          .split(',')
+          .map(c => c.trim())
+          .filter(c => c.length > 0);
+
+        nomi = document.getElementById('nomi').value
+          .split(',')
+          .map(n => n.trim().toUpperCase())
+          .filter(n => n.length > 0);
+
+        if (cognomi.length === 0 && cap.length === 0 && nomi.length === 0) {
+          showError('Inserisci almeno uno tra CAP, Cognomi o Nomi.');
+          return;
+        }
+      }
 
       const asl = document.getElementById('asl').value;
       const tipo = document.getElementById('tipo').value;
-
-      if (cognomi.length === 0 && cap.length === 0 && nomi.length === 0) {
-        showError('Inserisci almeno uno tra CAP, Cognomi o Nomi.');
-        return;
-      }
 
       showLoading();
 
