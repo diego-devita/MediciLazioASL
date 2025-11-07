@@ -35,7 +35,13 @@ async function handler(req, res) {
     // Processa ogni utente
     for (const user of users) {
       try {
-        console.log(`Checking user ${user.chatId}...`);
+        // Skip se non ha cognomi configurati
+        if (!user.query.cognomi || user.query.cognomi.length === 0) {
+          console.log(`Skipping user ${user.chatId} - no cognomi configured`);
+          continue;
+        }
+
+        console.log(`Checking user ${user.chatId} with ${user.query.cognomi.length} cognomi...`);
 
         // Esegui ricerca (ASL = Tutte, tipo = MMG)
         const result = await client.searchMedici(
@@ -82,7 +88,7 @@ Usa /medici per vedere i dettagli.
         // Notifica errore all'utente
         await sendNotification(
           user.chatId,
-          `❌ Errore durante la ricerca automatica.\n\nRiprova con /check`
+          `❌ Errore durante la ricerca automatica`
         );
       }
     }
