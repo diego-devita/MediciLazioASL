@@ -35,15 +35,14 @@ export default async function middleware(request) {
 
 export const config = {
   matcher: [
-    /*
-     * Match tutte le route eccetto:
-     * - /login e /login.html (pagina di login)
-     * - /api/login (endpoint login)
-     * - /api/webhook (webhook Telegram)
-     * - /api/cron (usa autenticazione API key, non JWT)
-     * - /openapi.json (spec pubblica per validator)
-     * - file statici
-     */
-    '/((?!login|api/login|api/webhook|api/cron|openapi.json|_next/static|_next/image|favicon.ico).*)',
+    // Proteggi tutto tranne route pubbliche
+    '/',
+    '/cerca',
+    '/admin',
+    '/bot',
+    '/swagger',
+    '/api/search',
+    '/api/search_simple',
+    '/api/admin/:path*',
   ],
 };
