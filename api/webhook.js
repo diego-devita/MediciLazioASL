@@ -1,15 +1,8 @@
 import { TelegramBot } from '../lib/telegram.js';
 import { handleStart } from '../lib/commands/start.js';
-import { handleSubscribe } from '../lib/commands/subscribe.js';
-import { handleUnsubscribe } from '../lib/commands/unsubscribe.js';
 import { handleAdd } from '../lib/commands/add.js';
 import { handleRemove } from '../lib/commands/remove.js';
-import { handleList } from '../lib/commands/list.js';
-import { handleAsl } from '../lib/commands/asl.js';
-import { handleTipo } from '../lib/commands/tipo.js';
-import { handleCheck } from '../lib/commands/check.js';
-import { handleMedici } from '../lib/commands/medici.js';
-import { handleStatus } from '../lib/commands/status.js';
+import { handleCognomi } from '../lib/commands/cognomi.js';
 import { handleHelp } from '../lib/commands/help.js';
 
 export default async function handler(req, res) {
@@ -55,14 +48,6 @@ export default async function handler(req, res) {
         await handleStart(bot, chatId, username);
         break;
 
-      case '/subscribe':
-        await handleSubscribe(bot, chatId);
-        break;
-
-      case '/unsubscribe':
-        await handleUnsubscribe(bot, chatId);
-        break;
-
       case '/add':
         await handleAdd(bot, chatId, args);
         break;
@@ -71,28 +56,8 @@ export default async function handler(req, res) {
         await handleRemove(bot, chatId, args);
         break;
 
-      case '/list':
-        await handleList(bot, chatId);
-        break;
-
-      case '/asl':
-        await handleAsl(bot, chatId, args);
-        break;
-
-      case '/tipo':
-        await handleTipo(bot, chatId, args);
-        break;
-
-      case '/check':
-        await handleCheck(bot, chatId);
-        break;
-
-      case '/medici':
-        await handleMedici(bot, chatId);
-        break;
-
-      case '/status':
-        await handleStatus(bot, chatId);
+      case '/cognomi':
+        await handleCognomi(bot, chatId);
         break;
 
       case '/help':
@@ -102,7 +67,7 @@ export default async function handler(req, res) {
       default:
         await bot.sendMessage(
           chatId,
-          '❌ Comando non riconosciuto.\n\nUsa /help per vedere tutti i comandi disponibili.'
+          '❌ Comando non riconosciuto. Usa /help'
         );
     }
 
