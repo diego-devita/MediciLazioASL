@@ -230,6 +230,179 @@
       font-weight: 500;
     }
 
+    .search-mode-toggle {
+      background: #f8f9fa;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+
+    .search-mode-toggle h3 {
+      margin: 0 0 10px 0;
+      font-size: 1rem;
+      color: #555;
+    }
+
+    .toggle-options {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 10px;
+    }
+
+    .toggle-option {
+      flex: 1;
+      position: relative;
+    }
+
+    .toggle-option input[type="radio"] {
+      display: none;
+    }
+
+    .toggle-option label {
+      display: block;
+      padding: 12px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: center;
+      font-weight: 500;
+      background: white;
+    }
+
+    .toggle-option input[type="radio"]:checked + label {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+      font-weight: 600;
+    }
+
+    .toggle-option label:hover {
+      border-color: #667eea;
+      transform: translateY(-2px);
+    }
+
+    .toggle-hint {
+      font-size: 0.85rem;
+      color: #777;
+      margin-top: 8px;
+    }
+
+    .batch-progress {
+      background: white;
+      border: 2px solid #667eea;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .batch-progress h3 {
+      margin: 0 0 15px 0;
+      color: #667eea;
+      font-size: 1.1rem;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 35px;
+      background: #e0e0e0;
+      border-radius: 17px;
+      overflow: hidden;
+      margin: 15px 0;
+      position: relative;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      transition: width 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 0.95rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .progress-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 15px;
+      text-align: left;
+    }
+
+    .progress-stat {
+      padding: 10px;
+      background: #f5f5f5;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .progress-stat strong {
+      color: #667eea;
+    }
+
+    .cancel-btn {
+      margin-top: 15px;
+      padding: 10px 20px;
+      background: #ef4444;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .cancel-btn:hover {
+      background: #dc2626;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+    }
+
+    .batch-info {
+      background: #e3f2fd;
+      border-left: 4px solid #2196f3;
+      padding: 15px;
+      margin-top: 15px;
+      border-radius: 4px;
+    }
+
+    .batch-info h4 {
+      margin: 0 0 10px 0;
+      color: #1976d2;
+      font-size: 1rem;
+    }
+
+    .batch-info ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .batch-info li {
+      padding: 5px 0;
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    .warning-box {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      color: #856404;
+    }
+
     .error {
       background: #fee;
       border-left: 4px solid #c33;
@@ -487,6 +660,26 @@
     </div>
 
     <div class="content">
+      <!-- Search Mode Toggle -->
+      <div class="search-mode-toggle">
+        <h3>⚙️ Modalità ricerca</h3>
+        <div class="toggle-options">
+          <div class="toggle-option">
+            <input type="radio" id="mode-standard" name="searchMode" value="standard" checked>
+            <label for="mode-standard">🚀 Standard<br><small>Veloce</small></label>
+          </div>
+          <div class="toggle-option">
+            <input type="radio" id="mode-batch" name="searchMode" value="batch">
+            <label for="mode-batch">🔄 Batch<br><small>No timeout</small></label>
+          </div>
+        </div>
+        <div class="toggle-hint">
+          <strong>Standard:</strong> Veloce ma può andare in timeout con molti parametri (>10 combinazioni)<br>
+          <strong>Batch:</strong> Divide in più chiamate parallele, ideale per ricerche complesse
+        </div>
+        <div id="warningBox" class="warning-box" style="display: none;"></div>
+      </div>
+
       <form id="searchForm">
         <div class="form-row">
           <div class="form-group">
@@ -558,6 +751,33 @@
         <div class="loading-timer" id="loadingTimer">0.0s</div>
       </div>
 
+      <!-- Batch Progress Bar -->
+      <div id="batchProgress" style="display: none;" class="batch-progress">
+        <h3>🔄 Ricerca batch in corso...</h3>
+        <div class="progress-bar-container">
+          <div id="progressBarFill" class="progress-bar-fill" style="width: 0%;">0%</div>
+        </div>
+        <div class="progress-stats">
+          <div class="progress-stat">
+            <span>📊 Progresso:</span>
+            <strong id="progressQueries">0/0 query</strong>
+          </div>
+          <div class="progress-stat">
+            <span>⏱️ Tempo:</span>
+            <strong id="progressTime">0.0s</strong>
+          </div>
+          <div class="progress-stat">
+            <span>✅ Risultati:</span>
+            <strong id="progressResults">0 medici</strong>
+          </div>
+          <div class="progress-stat">
+            <span>⚠️ Errori:</span>
+            <strong id="progressErrors">0</strong>
+          </div>
+        </div>
+        <button type="button" id="cancelBtn" class="cancel-btn">❌ Annulla ricerca</button>
+      </div>
+
       <div id="error" style="display: none;" class="error"></div>
 
       <div id="results" style="display: none;" class="results">
@@ -581,6 +801,12 @@
           </div>
         </div>
 
+        <!-- Batch Info Box (solo per ricerche batch) -->
+        <div id="batchInfo" style="display: none;" class="batch-info">
+          <h4>ℹ️ Dettagli ricerca batch</h4>
+          <ul id="batchInfoList"></ul>
+        </div>
+
         <div id="mediciList"></div>
 
         <div class="legend">
@@ -598,20 +824,27 @@
     </div>
   </div>
 
-  <script>
+  <script type="module">
+    import { BatchSearchClient } from '/lib/batch-search-client.js';
+
     const form = document.getElementById('searchForm');
     const loading = document.getElementById('loading');
+    const batchProgress = document.getElementById('batchProgress');
     const error = document.getElementById('error');
     const results = document.getElementById('results');
     const submitBtn = document.getElementById('submitBtn');
     const loadingTimer = document.getElementById('loadingTimer');
     const searchTime = document.getElementById('searchTime');
+    const warningBox = document.getElementById('warningBox');
+    const batchInfo = document.getElementById('batchInfo');
+    const cancelBtn = document.getElementById('cancelBtn');
 
     let currentData = null;
     let sortColumn = null;
     let sortDirection = 'asc';
     let timerInterval = null;
     let startTime = null;
+    let batchClient = null;
 
     // Gestione tab
     const tabButtons = document.querySelectorAll('.tab-button');
@@ -699,6 +932,107 @@
         searchTime.textContent = `⏱️ Ricerca completata in ${totalTime}s`;
       }
     }
+
+    function showBatchProgress() {
+      batchProgress.style.display = 'block';
+      submitBtn.disabled = true;
+      hideError();
+      results.style.display = 'none';
+    }
+
+    function hideBatchProgress() {
+      batchProgress.style.display = 'none';
+      submitBtn.disabled = false;
+    }
+
+    function updateBatchProgress(progress) {
+      document.getElementById('progressBarFill').style.width = `${progress.percentage}%`;
+      document.getElementById('progressBarFill').textContent = `${progress.percentage}%`;
+      document.getElementById('progressQueries').textContent = `${progress.completed}/${progress.total} query`;
+      document.getElementById('progressTime').textContent = `${(progress.duration / 1000).toFixed(1)}s`;
+      document.getElementById('progressResults').textContent = `${progress.results} medici`;
+      document.getElementById('progressErrors').textContent = progress.errors;
+    }
+
+    function displayBatchInfo(meta) {
+      if (!meta) {
+        batchInfo.style.display = 'none';
+        return;
+      }
+
+      const list = document.getElementById('batchInfoList');
+      const duplicatesRemoved = meta.deduplicatedFrom - meta.deduplicatedTo;
+      const successRate = ((meta.totalQueries - meta.errors) / meta.totalQueries * 100).toFixed(1);
+
+      list.innerHTML = `
+        <li>• ${meta.totalQueries} query eseguite in ${(meta.duration / 1000).toFixed(1)}s</li>
+        <li>• ${meta.deduplicatedFrom} risultati totali → ${meta.deduplicatedTo} dopo deduplicazione</li>
+        <li>• ${duplicatesRemoved} duplicati rimossi</li>
+        <li>• ${meta.errors} query fallite (${successRate}% successo)</li>
+      `;
+
+      batchInfo.style.display = 'block';
+      searchTime.textContent = `⏱️ Ricerca batch completata in ${(meta.duration / 1000).toFixed(2)}s`;
+    }
+
+    function checkCombinationsWarning() {
+      const activeTab = document.querySelector('.tab-button.active').dataset.tab;
+      const searchMode = document.querySelector('input[name="searchMode"]:checked').value;
+
+      let cognomiCount, capCount, nomiCount;
+
+      if (activeTab === 'base') {
+        const cognomiBase = document.getElementById('cognomi-base').value.trim();
+        cognomiCount = cognomiBase ? cognomiBase.split(',').filter(c => c.trim()).length : 0;
+        capCount = 0;
+        nomiCount = 0;
+      } else {
+        const cognomi = document.getElementById('cognomi').value.trim();
+        const cap = document.getElementById('cap').value.trim();
+        const nomi = document.getElementById('nomi').value.trim();
+
+        cognomiCount = cognomi ? cognomi.split(',').filter(c => c.trim()).length : 0;
+        capCount = cap ? cap.split(',').filter(c => c.trim()).length : 0;
+        nomiCount = nomi ? nomi.split(',').filter(n => n.trim()).length : 0;
+      }
+
+      // Calcola combinazioni (almeno 1 per ogni dimensione)
+      const combinations = Math.max(1, cognomiCount) * Math.max(1, capCount) * Math.max(1, nomiCount);
+
+      if (combinations > 10 && searchMode === 'standard') {
+        warningBox.innerHTML = `⚠️ Con <strong>${combinations} combinazioni</strong> potrebbe esserci timeout. Consigliamo <strong>modalità Batch</strong>.`;
+        warningBox.style.display = 'block';
+      } else {
+        warningBox.style.display = 'none';
+      }
+    }
+
+    // Event listener per il warning
+    const cognomiFields = [
+      document.getElementById('cognomi-base'),
+      document.getElementById('cognomi'),
+      document.getElementById('cap'),
+      document.getElementById('nomi')
+    ];
+
+    cognomiFields.forEach(field => {
+      if (field) {
+        field.addEventListener('input', checkCombinationsWarning);
+      }
+    });
+
+    document.querySelectorAll('input[name="searchMode"]').forEach(radio => {
+      radio.addEventListener('change', checkCombinationsWarning);
+    });
+
+    // Cancel button
+    cancelBtn.addEventListener('click', () => {
+      if (batchClient) {
+        batchClient.abort();
+        hideBatchProgress();
+        showError('Ricerca annullata dall\'utente.');
+      }
+    });
 
     function sortData(column) {
       if (!currentData) return;
@@ -821,6 +1155,7 @@
 
       // Determina quale tab è attivo
       const activeTab = document.querySelector('.tab-button.active').dataset.tab;
+      const searchMode = document.querySelector('input[name="searchMode"]:checked').value;
 
       let cognomi, cap, nomi;
 
@@ -864,6 +1199,49 @@
       const asl = document.getElementById('asl').value;
       const tipo = document.getElementById('tipo').value;
 
+      // MODALITÀ BATCH
+      if (searchMode === 'batch') {
+        showBatchProgress();
+
+        try {
+          batchClient = new BatchSearchClient({
+            parallelism: 5,
+            onProgress: (progress) => {
+              updateBatchProgress(progress);
+            }
+          });
+
+          const result = await batchClient.search({
+            cognomi,
+            cap,
+            nomi,
+            tipo,
+            asl
+          });
+
+          hideBatchProgress();
+
+          if (!result.success) {
+            showError(result.error || 'Errore durante la ricerca batch.');
+            return;
+          }
+
+          // Mostra batch info
+          if (result.meta) {
+            displayBatchInfo(result.meta);
+          }
+
+          displayResults(result);
+        } catch (err) {
+          hideBatchProgress();
+          showError('Errore durante la ricerca batch. Riprova più tardi.');
+          console.error('Batch search error:', err);
+        }
+
+        return;
+      }
+
+      // MODALITÀ STANDARD
       showLoading();
 
       try {
@@ -901,6 +1279,9 @@
           showError(data.error || 'Errore durante la ricerca.');
           return;
         }
+
+        // Nascondi batch info se standard mode
+        batchInfo.style.display = 'none';
 
         displayResults(data);
       } catch (err) {
