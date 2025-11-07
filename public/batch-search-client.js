@@ -107,6 +107,7 @@ export class BatchSearchClient {
     const allResults = new Map(); // key: codiceFiscale, value: medico (per dedup)
     const allSingleQueries = [];
     const errors = [];
+    let totalResultsBeforeDedup = 0; // Conta risultati prima della dedup
 
     this.abortController = new AbortController();
     const { signal } = this.abortController;
@@ -132,6 +133,7 @@ export class BatchSearchClient {
 
         // Deduplicazione risultati per codiceFiscale
         if (result.results && Array.isArray(result.results)) {
+          totalResultsBeforeDedup += result.results.length; // Conta prima della dedup
           result.results.forEach(medico => {
             if (medico.codiceFiscale) {
               // Usa codiceFiscale come chiave univoca
@@ -193,7 +195,8 @@ export class BatchSearchClient {
       results: Array.from(allResults.values()),
       singleQueries: allSingleQueries,
       errors,
-      duration: Date.now() - startTime
+      duration: Date.now() - startTime,
+      totalResultsBeforeDedup: totalResultsBeforeDedup
     };
   }
 
@@ -290,7 +293,7 @@ export class BatchSearchClient {
           completedQueries: combinations.length,
           errors: batchResult.errors.length,
           duration: batchResult.duration,
-          deduplicatedFrom: batchResult.singleQueries.length,
+          deduplicatedFrom: batchResult.totalResultsBeforeDedup,
           deduplicatedTo: batchResult.results.length
         }
       };
