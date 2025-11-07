@@ -15,7 +15,7 @@
     "/api/search": {
       "get": {
         "summary": "Ricerca medici (GET)",
-        "description": "Ricerca medici per cognome con filtri opzionali. Parametri in query string. NOTA: Richiesto almeno uno tra cognomi, cap, nomi.",
+        "description": "Ricerca medici attraverso il portale Salute Lazio. I filtri a testo libero supportano valori multipli che saranno tradotti in una quantità di query distinte pari al loro prodotto cartesiano. Richiesto almeno uno tra i filtri: cap, cognomi, nomi.",
         "operationId": "searchMediciGet",
         "tags": ["Ricerca"],
         "security": [
@@ -53,7 +53,7 @@
             "name": "cap",
             "in": "query",
             "required": false,
-            "description": "CAP da cercare, separati da virgola (ogni CAP deve essere di 5 cifre)",
+            "description": "CAP da cercare, separati da virgola (ogni CAP deve essere di 5 cifre - gli spazi prima e dopo saranno trimmati)",
             "schema": {
               "type": "string",
               "pattern": "^(\\d{5})(,\\d{5})*$",
@@ -64,7 +64,7 @@
             "name": "cognomi",
             "in": "query",
             "required": false,
-            "description": "Cognomi da cercare, separati da virgola",
+            "description": "Cognomi da cercare, separati da virgola (ogni cognome può contenere solo lettere, spazi o apostrofi - gli spazi prima e dopo saranno trimmati, quelli in mezzo se multipli verranno appiattiti e le minuscole rese maiuscole)",
             "schema": {
               "type": "string",
               "pattern": "^[A-Z'\\s,]+$",
@@ -75,7 +75,7 @@
             "name": "nomi",
             "in": "query",
             "required": false,
-            "description": "Nomi da cercare, separati da virgola",
+            "description": "Nomi da cercare, separati da virgola (ogni nome può contenere solo lettere, spazi o apostrofi - gli spazi prima e dopo saranno trimmati, quelli in mezzo se multipli verranno appiattiti e le minuscole rese maiuscole)",
             "schema": {
               "type": "string",
               "pattern": "^[A-Z'\\s,]+$",
@@ -195,7 +195,7 @@
       },
       "post": {
         "summary": "Ricerca medici (POST)",
-        "description": "Ricerca medici per cognome con filtri opzionali. Parametri nel body JSON. NOTA: Richiesto almeno uno tra cognomi, cap, nomi.",
+        "description": "Ricerca medici attraverso il portale Salute Lazio. I filtri a testo libero supportano valori multipli che saranno tradotti in una quantità di query distinte pari al loro prodotto cartesiano. Richiesto almeno uno tra i filtri: cap, cognomi, nomi.",
         "operationId": "searchMediciPost",
         "tags": ["Ricerca"],
         "security": [
@@ -309,7 +309,7 @@
               "type": "string",
               "pattern": "^\\d{5}$"
             },
-            "description": "Array di CAP (ogni CAP deve essere di 5 cifre)",
+            "description": "Array di CAP (ogni CAP deve essere di 5 cifre - gli spazi prima e dopo saranno trimmati)",
             "example": ["00100", "00118"]
           },
           "cognomi": {
@@ -319,7 +319,7 @@
               "pattern": "^[A-Z'\\s]+$"
             },
             "minItems": 1,
-            "description": "Array di cognomi da cercare (solo lettere maiuscole, apostrofi e spazi)",
+            "description": "Array di cognomi da cercare (ogni cognome può contenere solo lettere, spazi o apostrofi - gli spazi prima e dopo saranno trimmati, quelli in mezzo se multipli verranno appiattiti e le minuscole rese maiuscole)",
             "example": ["ROSSI", "BIANCHI", "DE LUCA"]
           },
           "nomi": {
@@ -328,7 +328,7 @@
               "type": "string",
               "pattern": "^[A-Z'\\s]+$"
             },
-            "description": "Array di nomi da cercare (solo lettere maiuscole, apostrofi e spazi)",
+            "description": "Array di nomi da cercare (ogni nome può contenere solo lettere, spazi o apostrofi - gli spazi prima e dopo saranno trimmati, quelli in mezzo se multipli verranno appiattiti e le minuscole rese maiuscole)",
             "example": ["MARIO", "LUIGI", "MARIA ROSA"]
           }
         }
