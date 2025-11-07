@@ -205,6 +205,12 @@
       font-weight: 600;
     }
 
+    .loading-timer {
+      font-size: 0.9rem;
+      color: #999;
+      margin-top: 5px;
+    }
+
     .loading::after {
       content: '...';
       animation: dots 1.5s steps(4, end) infinite;
@@ -214,6 +220,14 @@
       0%, 20% { content: '.'; }
       40% { content: '..'; }
       60%, 100% { content: '...'; }
+    }
+
+    .search-time {
+      text-align: center;
+      color: #667eea;
+      font-size: 0.9rem;
+      margin-bottom: 15px;
+      font-weight: 500;
     }
 
     .error {
@@ -541,11 +555,13 @@
 
       <div id="loading" style="display: none;" class="loading">
         Ricerca in corso
+        <div class="loading-timer" id="loadingTimer">0.0s</div>
       </div>
 
       <div id="error" style="display: none;" class="error"></div>
 
       <div id="results" style="display: none;" class="results">
+        <div class="search-time" id="searchTime"></div>
         <div class="results-summary">
           <div class="summary-item">
             <div class="summary-number" id="totalCount">0</div>
@@ -588,10 +604,14 @@
     const error = document.getElementById('error');
     const results = document.getElementById('results');
     const submitBtn = document.getElementById('submitBtn');
+    const loadingTimer = document.getElementById('loadingTimer');
+    const searchTime = document.getElementById('searchTime');
 
     let currentData = null;
     let sortColumn = null;
     let sortDirection = 'asc';
+    let timerInterval = null;
+    let startTime = null;
 
     // Gestione tab
     const tabButtons = document.querySelectorAll('.tab-button');
@@ -652,11 +672,32 @@
       submitBtn.disabled = true;
       hideError();
       results.style.display = 'none';
+
+      // Avvia il timer
+      startTime = Date.now();
+      loadingTimer.textContent = '0.0s';
+
+      timerInterval = setInterval(() => {
+        const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+        loadingTimer.textContent = `${elapsed}s`;
+      }, 100);
     }
 
     function hideLoading() {
       loading.style.display = 'none';
       submitBtn.disabled = false;
+
+      // Ferma il timer
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+
+      // Calcola il tempo totale
+      if (startTime) {
+        const totalTime = ((Date.now() - startTime) / 1000).toFixed(2);
+        searchTime.textContent = `⏱️ Ricerca completata in ${totalTime}s`;
+      }
     }
 
     function sortData(column) {
