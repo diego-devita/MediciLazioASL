@@ -660,26 +660,6 @@
     </div>
 
     <div class="content">
-      <!-- Search Mode Toggle -->
-      <div class="search-mode-toggle">
-        <h3>⚙️ Modalità ricerca</h3>
-        <div class="toggle-options">
-          <div class="toggle-option">
-            <input type="radio" id="mode-standard" name="searchMode" value="standard" checked>
-            <label for="mode-standard">🚀 Standard<br><small>Veloce</small></label>
-          </div>
-          <div class="toggle-option">
-            <input type="radio" id="mode-batch" name="searchMode" value="batch">
-            <label for="mode-batch">🔄 Batch<br><small>No timeout</small></label>
-          </div>
-        </div>
-        <div class="toggle-hint">
-          <strong>Standard:</strong> Veloce ma può andare in timeout con molti parametri (>10 combinazioni)<br>
-          <strong>Batch:</strong> Divide in più chiamate parallele, ideale per ricerche complesse
-        </div>
-        <div id="warningBox" class="warning-box" style="display: none;"></div>
-      </div>
-
       <form id="searchForm">
         <div class="form-row">
           <div class="form-group">
@@ -722,6 +702,22 @@
         </div>
 
         <div id="tab-avanzate" class="tab-content">
+          <!-- Search Mode Toggle (solo in Avanzate) -->
+          <div class="search-mode-toggle">
+            <h3>⚙️ Modalità ricerca</h3>
+            <div class="toggle-options">
+              <div class="toggle-option">
+                <input type="radio" id="mode-standard" name="searchMode" value="standard" checked>
+                <label for="mode-standard">🚀 Standard<br><small>Veloce</small></label>
+              </div>
+              <div class="toggle-option">
+                <input type="radio" id="mode-batch" name="searchMode" value="batch">
+                <label for="mode-batch">🔄 Batch<br><small>No timeout</small></label>
+              </div>
+            </div>
+            <div id="warningBox" class="warning-box" style="display: none;"></div>
+          </div>
+
           <div class="form-group">
             <label for="cap">CAP</label>
             <input type="text" id="cap" name="cap" placeholder="es. 00100, 00118, 00185">
@@ -873,12 +869,17 @@
           cognomiAvanzate.required = false;
           cap.required = false;
           nomi.required = false;
+          // In modalità Base, forza Standard mode
+          document.getElementById('mode-standard').checked = true;
         } else {
           cognomiBase.required = false;
           cognomiAvanzate.required = false;
           cap.required = false;
           nomi.required = false;
         }
+
+        // Ricalcola warning
+        checkCombinationsWarning();
       });
     });
 
@@ -1155,7 +1156,8 @@
 
       // Determina quale tab è attivo
       const activeTab = document.querySelector('.tab-button.active').dataset.tab;
-      const searchMode = document.querySelector('input[name="searchMode"]:checked').value;
+      // In modalità Base, forza sempre Standard
+      const searchMode = activeTab === 'base' ? 'standard' : document.querySelector('input[name="searchMode"]:checked').value;
 
       let cognomi, cap, nomi;
 
