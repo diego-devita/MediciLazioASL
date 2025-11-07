@@ -1,7 +1,25 @@
-import { getAllUsers, saveResults } from '../lib/database.js';
+import { getAllUsers, saveResults, markSuccessfulContact, markFailedContact } from '../lib/database.js';
 import { sendNotification } from '../lib/telegram.js';
 import { MediciSearchClient } from '../lib/medici/client.js';
 import { requireApiKey } from '../lib/auth.js';
+
+// Helper per inviare notifiche con gestione 403
+async function sendNotificationSafe(chatId, message) {
+  try {
+    await sendNotification(chatId, message);
+    await markSuccessfulContact(chatId);
+    return { success: true };
+  } catch (error) {
+    // Errore 403: bot bloccato o chat cancellata
+    if (error.response?.statusCode === 403 || error.code === 403) {
+      console.log(`403 error for user ${chatId} - marking as failed`);
+      await markFailedContact(chatId);
+      return { success: false, reason: 'blocked' };
+    }
+    // Altri errori: rilancia
+    throw error;
+  }
+}
 
 async function handler(req, res) {
   // Solo metodo POST o GET
@@ -106,7 +124,13 @@ ${variazioniMsg}
 Usa /medici per vedere i dettagli.
         `.trim();
 
-        await sendNotification(user.chatId, message);
+        const mainResult = await sendNotificationSafe(user.chatId, message);
+
+        // Se utente bloccato/inattivo, skip notifiche diff
+        if (!mainResult.success) {
+          console.log(`Skipping user ${user.chatId} - blocked or deleted`);
+          continue;
+        }
 
         // === NOTIFICHE DIFF ===
 
@@ -126,7 +150,7 @@ Usa /medici per vedere i dettagli.
             nuoviMsg += `${emoji} ${m.cognome} ${m.nome}\n`;
           });
 
-          await sendNotification(user.chatId, nuoviMsg.trim());
+          await sendNotificationSafe(user.chatId, nuoviMsg.trim());
           await new Promise(resolve => setTimeout(resolve, 500));
         }
 
@@ -146,7 +170,7 @@ Usa /medici per vedere i dettagli.
             cambiatoMsg += `${emoji} ${m.cognome} ${m.nome}\n`;
           });
 
-          await sendNotification(user.chatId, cambiatoMsg.trim());
+          await sendNotificationSafe(user.chatId, cambiatoMsg.trim());
           await new Promise(resolve => setTimeout(resolve, 500));
         }
 
@@ -159,8 +183,8 @@ Usa /medici per vedere i dettagli.
         console.error(`Error checking user ${user.chatId}:`, error);
         errorCount++;
 
-        // Notifica errore all'utente
-        await sendNotification(
+        // Notifica errore all'utente (con gestione 403)
+        await sendNotificationSafe(
           user.chatId,
           `❌ Errore durante la ricerca automatica`
         );
