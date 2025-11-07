@@ -68,7 +68,7 @@
             "schema": {
               "type": "string",
               "pattern": "^[A-Z'\\s,]+$",
-              "example": "ROSSI,BIANCHI,DE LUCA"
+              "example": "ROSSI,BIANCHI,DE LUCA,MAGO'"
             }
           },
           {
@@ -462,7 +462,7 @@
               "pattern": "^[A-Z'\\s]+$"
             },
             "description": "Array di cognomi da cercare (ogni cognome può contenere solo lettere, spazi o apostrofi - gli spazi prima e dopo saranno trimmati, quelli in mezzo se multipli verranno appiattiti e le minuscole rese maiuscole)",
-            "example": ["ROSSI", "BIANCHI", "DE LUCA"]
+            "example": ["ROSSI", "BIANCHI", "DE LUCA", "MAGO'"]
           },
           "nomi": {
             "type": "array",
