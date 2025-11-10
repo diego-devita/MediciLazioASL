@@ -350,28 +350,25 @@
       box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
     }
 
-    .back-button-container {
-      padding: 20px 30px;
-      background: white;
-    }
-
     .back-link {
-      display: block;
-      width: 100%;
-      padding: 14px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 15px;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
       color: white;
       text-decoration: none;
       border-radius: 8px;
-      font-size: 1rem;
+      font-size: 0.9rem;
       font-weight: 600;
-      text-align: center;
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition: background 0.3s, transform 0.2s;
+      border: 2px solid rgba(255, 255, 255, 0.3);
     }
 
     .back-link:hover {
+      background: rgba(255, 255, 255, 0.3);
       transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
       text-decoration: none;
     }
 
@@ -845,10 +842,6 @@
         padding: 20px 15px;
       }
 
-      .back-button-container {
-        padding: 15px;
-      }
-
       .container {
         border-radius: 8px;
       }
@@ -871,10 +864,6 @@
         </svg>
         Telegram Bot
       </h1>
-      <p>Ricevi notifiche automatiche sui medici disponibili</p>
-    </div>
-
-    <div class="back-button-container">
       <a href="/" class="back-link">← Torna alla ricerca</a>
     </div>
 
