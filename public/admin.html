@@ -415,6 +415,7 @@
       <div class="tabs">
         <button class="tab-button active" data-tab="overview">📈 Overview</button>
         <button class="tab-button" data-tab="users">👥 Utenti Bot</button>
+        <button class="tab-button" data-tab="sessions">🔑 Sessioni Web</button>
         <button class="tab-button" data-tab="login-attempts">🔐 Login Attempts</button>
         <button class="tab-button" data-tab="database">🗄️ Database</button>
       </div>
@@ -463,6 +464,37 @@
             </table>
 
             <div class="pagination" id="usersPagination"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Sessioni -->
+      <div id="tab-sessions" class="tab-content">
+        <div class="section">
+          <div class="controls">
+            <button onclick="loadSessions()">🔄 Aggiorna</button>
+          </div>
+
+          <div id="sessionsLoading" class="loading">Caricamento sessioni...</div>
+          <div id="sessionsError" class="error" style="display: none;"></div>
+          <div id="sessionsContent" style="display: none;">
+            <table id="sessionsTable">
+              <thead>
+                <tr>
+                  <th>Chat ID</th>
+                  <th>Username</th>
+                  <th>Ruolo</th>
+                  <th>IP</th>
+                  <th>User Agent</th>
+                  <th>Creata</th>
+                  <th>Ultimo Uso</th>
+                  <th>Azioni</th>
+                </tr>
+              </thead>
+              <tbody id="sessionsTableBody"></tbody>
+            </table>
+
+            <div class="pagination" id="sessionsPagination"></div>
           </div>
         </div>
       </div>
@@ -762,6 +794,7 @@
             <td>${createdAt}</td>
             <td>${lastCheck}</td>
             <td>
+              <button class="action-btn" style="background: #f39c12; margin-right: 5px;" onclick="revokeUserSessions('${user.chatId}')">🔒 Revoca sessioni</button>
               <button class="action-btn" onclick="deleteUser('${user.chatId}')">🗑️ Elimina</button>
             </td>
           </tr>
@@ -791,6 +824,128 @@
 
       } catch (err) {
         alert(`Errore eliminazione utente: ${err.message}`);
+      }
+    }
+
+    async function revokeUserSessions(chatId) {
+      if (!confirm(`Sei sicuro di voler revocare tutte le sessioni dell'utente ${chatId}?`)) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/admin/sessions?chatId=${chatId}`, {
+          method: 'DELETE',
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const result = await response.json();
+        alert(result.message || 'Sessioni revocate con successo');
+        loadUsers(usersPage);
+
+      } catch (err) {
+        alert(`Errore revoca sessioni: ${err.message}`);
+      }
+    }
+
+    // Load sessions
+    let sessionsPage = 1;
+
+    async function loadSessions(page = 1) {
+      sessionsPage = page;
+
+      const loading = document.getElementById('sessionsLoading');
+      const error = document.getElementById('sessionsError');
+      const content = document.getElementById('sessionsContent');
+
+      loading.style.display = 'block';
+      error.style.display = 'none';
+      content.style.display = 'none';
+
+      const params = new URLSearchParams({
+        page: sessionsPage,
+        limit: 50
+      });
+
+      try {
+        const response = await fetch(`/api/admin/sessions?${params}`, {
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        loading.style.display = 'none';
+        content.style.display = 'block';
+
+        renderSessionsTable(data);
+
+      } catch (err) {
+        loading.style.display = 'none';
+        error.style.display = 'block';
+        error.textContent = `Errore caricamento sessioni: ${err.message}`;
+      }
+    }
+
+    function renderSessionsTable(data) {
+      const tbody = document.getElementById('sessionsTableBody');
+      const { sessions, pagination } = data;
+
+      if (sessions.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="empty">Nessuna sessione trovata</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = sessions.map(session => {
+        const createdAt = new Date(session.createdAt).toLocaleString('it-IT');
+        const lastUsed = new Date(session.lastUsed).toLocaleString('it-IT');
+        const userAgent = session.userAgent ? session.userAgent.substring(0, 40) + '...' : '-';
+
+        return `
+          <tr>
+            <td>${session.chatId}</td>
+            <td>${session.username || '-'}</td>
+            <td><span class="badge ${session.role === 'admin' ? 'warning' : 'info'}">${session.role}</span></td>
+            <td>${session.ip || '-'}</td>
+            <td style="font-size: 0.75rem;">${userAgent}</td>
+            <td>${createdAt}</td>
+            <td>${lastUsed}</td>
+            <td>
+              <button class="action-btn" onclick="revokeSession('${session.tokenHash}')">🗑️ Revoca</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      renderPagination('sessions', pagination);
+    }
+
+    async function revokeSession(tokenHash) {
+      if (!confirm('Sei sicuro di voler revocare questa sessione?')) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/admin/sessions?tokenHash=${tokenHash}`, {
+          method: 'DELETE',
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        alert('Sessione revocata con successo');
+        loadSessions(sessionsPage);
+
+      } catch (err) {
+        alert(`Errore revoca sessione: ${err.message}`);
       }
     }
 
@@ -1091,6 +1246,7 @@
       button.addEventListener('click', () => {
         const tabName = button.getAttribute('data-tab');
         if (tabName === 'users') loadUsers();
+        if (tabName === 'sessions') loadSessions();
         if (tabName === 'login-attempts') loadLoginAttempts();
         if (tabName === 'database') loadDatabaseInfo();
       });

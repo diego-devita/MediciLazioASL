@@ -1,5 +1,5 @@
-import { createJWT } from '../lib/auth.js';
-import { validateWebAuthToken, markWebAuthTokenAsUsed } from '../lib/database.js';
+import { createJWT, hashToken } from '../lib/auth.js';
+import { validateWebAuthToken, markWebAuthTokenAsUsed, createSession } from '../lib/database.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -31,6 +31,17 @@ export default async function handler(req, res) {
       chatId: user.chatId,
       username: user.username,
       role: user.role || 'user'
+    });
+
+    // Salva sessione nel DB
+    const tokenHash = hashToken(jwtToken);
+    await createSession({
+      tokenHash,
+      chatId: user.chatId,
+      username: user.username,
+      role: user.role || 'user',
+      userAgent: req.headers['user-agent'] || 'unknown',
+      ip: req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || req.socket?.remoteAddress || 'unknown'
     });
 
     // Setta cookie httpOnly SENZA scadenza
