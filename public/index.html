@@ -195,6 +195,10 @@
       padding: 20px;
       color: #667eea;
       font-weight: 600;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
     }
 
     .loading-timer {
@@ -1117,6 +1121,7 @@
       <div id="loading" style="display: none;" class="loading">
         Ricerca in corso
         <div class="loading-timer" id="loadingTimer">0.0s</div>
+        <button type="button" id="cancelBtnStandard" class="cancel-btn">❌ Annulla ricerca</button>
       </div>
 
       <!-- Batch Progress Bar -->
@@ -1221,6 +1226,7 @@
     const warningBox = document.getElementById('warningBox');
     const batchInfo = document.getElementById('batchInfo');
     const cancelBtn = document.getElementById('cancelBtn');
+    const cancelBtnStandard = document.getElementById('cancelBtnStandard');
 
     let currentData = null;
     let sortColumn = null;
@@ -1228,6 +1234,7 @@
     let timerInterval = null;
     let startTime = null;
     let batchClient = null;
+    let standardAbortController = null;
 
     // Check if user is admin and show admin link
     (async function checkIfAdmin() {
@@ -1428,11 +1435,20 @@
       radio.addEventListener('change', checkCombinationsWarning);
     });
 
-    // Cancel button
+    // Cancel button (batch)
     cancelBtn.addEventListener('click', () => {
       if (batchClient) {
         batchClient.abort();
         hideBatchProgress();
+        showError('Ricerca annullata dall\'utente.');
+      }
+    });
+
+    // Cancel button (standard)
+    cancelBtnStandard.addEventListener('click', () => {
+      if (standardAbortController) {
+        standardAbortController.abort();
+        hideLoading();
         showError('Ricerca annullata dall\'utente.');
       }
     });
@@ -1704,12 +1720,15 @@
       showLoading();
 
       try {
+        standardAbortController = new AbortController();
+
         const response = await fetch('/api/search', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
           credentials: 'include',
+          signal: standardAbortController.signal,
           body: JSON.stringify({
             cognomi,
             asl: aslToSend,
@@ -1745,6 +1764,10 @@
         displayResults(data);
       } catch (err) {
         hideLoading();
+        if (err.name === 'AbortError') {
+          // Ricerca annullata, non mostrare errore (già gestito nel click handler)
+          return;
+        }
         showError('Errore di connessione. Riprova più tardi.');
         console.error('Search error:', err);
       }
