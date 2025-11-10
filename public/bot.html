@@ -479,6 +479,46 @@
     .result-item-detail strong {
       color: #333;
     }
+
+    /* Toggle per espandere/comprimere risultati */
+    .results-toggle {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s;
+      margin-bottom: 15px;
+    }
+
+    .results-toggle:hover {
+      background: #5568d3;
+      transform: translateY(-1px);
+    }
+
+    .results-toggle-icon {
+      transition: transform 0.3s;
+    }
+
+    .results-toggle.expanded .results-toggle-icon {
+      transform: rotate(180deg);
+    }
+
+    .results-list-container {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .results-list-container.expanded {
+      max-height: 5000px;
+    }
   </style>
 </head>
 <body>
@@ -551,38 +591,6 @@
       <div class="highlight">
         <strong>💡 Nota:</strong> Il sistema cerca automaticamente medici di Medicina Generale (MMG) in tutte le ASL del Lazio. Le notifiche vengono inviate quando ci sono nuovi medici disponibili o cambiamenti di stato.
       </div>
-
-      <!-- Statistiche compatte -->
-      <div id="infoStats" class="section" style="display: none;">
-        <h2>📊 Ultima ricerca</h2>
-        <div class="stats-compact">
-          <div class="stat-compact">
-            <span class="stat-compact-value" id="infoStatTotal">0</span>
-            <span class="stat-compact-label">Totale</span>
-          </div>
-          <div class="stat-compact stat-success">
-            <span class="stat-compact-value" id="infoStatLiberi">0</span>
-            <span class="stat-compact-label">Liberi</span>
-          </div>
-          <div class="stat-compact stat-warning">
-            <span class="stat-compact-value" id="infoStatDeroga">0</span>
-            <span class="stat-compact-label">Con deroga</span>
-          </div>
-          <div class="stat-compact stat-info">
-            <span class="stat-compact-value" id="infoStatAltri">0</span>
-            <span class="stat-compact-label">Altri</span>
-          </div>
-        </div>
-        <p class="last-check-compact">
-          Ultimo controllo: <strong id="infoLastCheck">-</strong>
-        </p>
-      </div>
-
-      <!-- Lista risultati completi -->
-      <div id="infoResults" class="section" style="display: none;">
-        <h2>📋 Medici trovati</h2>
-        <div id="infoResultsList"></div>
-      </div>
     </div>
 
     <!-- TAB CONFIGURAZIONE -->
@@ -626,22 +634,40 @@
           </div>
         </div>
 
-        <div class="stat-grid" id="statsGrid" style="display: none;">
-          <div class="stat-card">
-            <div class="stat-value" id="statTotal">0</div>
-            <div class="stat-label">Totali</div>
+        <!-- Statistiche compatte ultima ricerca -->
+        <div id="statsSection" class="section" style="display: none;">
+          <h2>📊 Ultima ricerca</h2>
+          <div class="stats-compact">
+            <div class="stat-compact">
+              <span class="stat-compact-value" id="statTotal">0</span>
+              <span class="stat-compact-label">Totale</span>
+            </div>
+            <div class="stat-compact stat-success">
+              <span class="stat-compact-value" id="statLiberi">0</span>
+              <span class="stat-compact-label">Liberi</span>
+            </div>
+            <div class="stat-compact stat-warning">
+              <span class="stat-compact-value" id="statDeroga">0</span>
+              <span class="stat-compact-label">Con deroga</span>
+            </div>
+            <div class="stat-compact stat-info">
+              <span class="stat-compact-value" id="statAltri">0</span>
+              <span class="stat-compact-label">Altri</span>
+            </div>
           </div>
-          <div class="stat-card">
-            <div class="stat-value" id="statLiberi" style="color: #22c55e;">0</div>
-            <div class="stat-label">Assegnabili</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-value" id="statDeroga" style="color: #f59e0b;">0</div>
-            <div class="stat-label">Con deroga</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-value" id="statAltri" style="color: #ef4444;">0</div>
-            <div class="stat-label">Altri</div>
+          <p class="last-check-compact">
+            Ultimo controllo: <strong id="lastCheckInfo">-</strong>
+          </p>
+        </div>
+
+        <!-- Lista risultati espandibile -->
+        <div id="resultsSection" class="section" style="display: none;">
+          <button class="results-toggle" id="resultsToggle">
+            <span>📋 Mostra dettaglio medici (<span id="resultsCount">0</span>)</span>
+            <span class="results-toggle-icon">▼</span>
+          </button>
+          <div class="results-list-container" id="resultsListContainer">
+            <div id="resultsList"></div>
           </div>
         </div>
       </div>
@@ -652,9 +678,6 @@
     // Gestione tab
     const tabs = document.querySelectorAll('.tab');
     const tabContents = document.querySelectorAll('.tab-content');
-
-    // Variabile globale per cacheare i dati utente
-    let userData = null;
 
     tabs.forEach(tab => {
       tab.addEventListener('click', () => {
@@ -669,119 +692,19 @@
         // Carica configurazione quando si apre il tab
         if (targetTab === 'config') {
           loadConfiguration();
-        } else if (targetTab === 'info') {
-          loadInfoResults();
         }
       });
     });
 
-    // Carica i risultati al primo caricamento
-    window.addEventListener('DOMContentLoaded', () => {
-      loadInfoResults();
-    });
+    // Gestione toggle risultati
+    const resultsToggle = document.getElementById('resultsToggle');
+    const resultsListContainer = document.getElementById('resultsListContainer');
 
-    // Funzione per caricare i risultati nella tab Info
-    async function loadInfoResults() {
-      try {
-        const response = await fetch('/api/user/me', {
-          credentials: 'include'
-        });
-
-        if (!response.ok) {
-          // Se non autenticato, non mostrare nulla
-          return;
-        }
-
-        const data = await response.json();
-        userData = data.user;
-
-        const lastResults = userData.lastResults || [];
-        const lastCheck = userData.lastCheck;
-
-        if (lastResults.length === 0) {
-          // Nessun risultato da mostrare
-          document.getElementById('infoStats').style.display = 'none';
-          document.getElementById('infoResults').style.display = 'none';
-          return;
-        }
-
-        // Calcola statistiche
-        const liberi = lastResults.filter(m =>
-          m.assegnabilita && m.assegnabilita.toLowerCase().includes('assegnazione libera')
-        ).length;
-
-        const deroga = lastResults.filter(m =>
-          m.assegnabilita &&
-          m.assegnabilita.toLowerCase().includes('deroga') &&
-          !m.assegnabilita.toLowerCase().includes('assegnazione libera')
-        ).length;
-
-        const altri = lastResults.length - liberi - deroga;
-
-        // Mostra statistiche compatte
-        document.getElementById('infoStatTotal').textContent = lastResults.length;
-        document.getElementById('infoStatLiberi').textContent = liberi;
-        document.getElementById('infoStatDeroga').textContent = deroga;
-        document.getElementById('infoStatAltri').textContent = altri;
-
-        if (lastCheck) {
-          const lastCheckDate = new Date(lastCheck);
-          document.getElementById('infoLastCheck').textContent = lastCheckDate.toLocaleString('it-IT');
-        } else {
-          document.getElementById('infoLastCheck').textContent = 'Mai eseguito';
-        }
-
-        document.getElementById('infoStats').style.display = 'block';
-
-        // Mostra lista risultati
-        const resultsList = document.getElementById('infoResultsList');
-        resultsList.innerHTML = lastResults.map(medico => {
-          const isLibero = medico.assegnabilita && medico.assegnabilita.toLowerCase().includes('assegnazione libera');
-          const isDeroga = medico.assegnabilita && medico.assegnabilita.toLowerCase().includes('deroga') && !isLibero;
-
-          let badgeText = 'Altro';
-          let itemClass = '';
-          let badgeClass = '';
-
-          if (isLibero) {
-            badgeText = 'Assegnabile';
-            itemClass = 'libero';
-            badgeClass = 'libero';
-          } else if (isDeroga) {
-            badgeText = 'Con deroga';
-            itemClass = 'deroga';
-            badgeClass = 'deroga';
-          }
-
-          return `
-            <div class="result-item ${itemClass}">
-              <div class="result-item-header">
-                <div class="result-item-name">${medico.cognome || '-'} ${medico.nome || ''}</div>
-                <div class="result-item-badge ${badgeClass}">${badgeText}</div>
-              </div>
-              <div class="result-item-details">
-                <div class="result-item-detail">
-                  <strong>ASL:</strong> <span>${medico.azienda || '-'}</span>
-                </div>
-                <div class="result-item-detail">
-                  <strong>Ambito:</strong> <span>${medico.ambito || '-'}</span>
-                </div>
-                ${medico.assegnabilita ? `
-                  <div class="result-item-detail" style="grid-column: 1 / -1;">
-                    <strong>Assegnabilità:</strong> <span>${medico.assegnabilita}</span>
-                  </div>
-                ` : ''}
-              </div>
-            </div>
-          `;
-        }).join('');
-
-        document.getElementById('infoResults').style.display = 'block';
-
-      } catch (error) {
-        console.error('Error loading info results:', error);
-        // Silenziosamente ignora errori (utente non loggato o altro)
-      }
+    if (resultsToggle) {
+      resultsToggle.addEventListener('click', () => {
+        resultsToggle.classList.toggle('expanded');
+        resultsListContainer.classList.toggle('expanded');
+      });
     }
 
     // Funzione per caricare la configurazione
@@ -853,13 +776,69 @@
 
           const altri = lastResults.length - liberi - deroga;
 
+          // Mostra statistiche compatte
           document.getElementById('statTotal').textContent = lastResults.length;
           document.getElementById('statLiberi').textContent = liberi;
           document.getElementById('statDeroga').textContent = deroga;
           document.getElementById('statAltri').textContent = altri;
-          document.getElementById('statsGrid').style.display = 'grid';
+
+          if (lastCheck) {
+            const lastCheckDate = new Date(lastCheck);
+            document.getElementById('lastCheckInfo').textContent = lastCheckDate.toLocaleString('it-IT');
+          } else {
+            document.getElementById('lastCheckInfo').textContent = 'Mai eseguito';
+          }
+
+          document.getElementById('statsSection').style.display = 'block';
+
+          // Popola lista risultati
+          document.getElementById('resultsCount').textContent = lastResults.length;
+          const resultsList = document.getElementById('resultsList');
+          resultsList.innerHTML = lastResults.map(medico => {
+            const isLibero = medico.assegnabilita && medico.assegnabilita.toLowerCase().includes('assegnazione libera');
+            const isDeroga = medico.assegnabilita && medico.assegnabilita.toLowerCase().includes('deroga') && !isLibero;
+
+            let badgeText = 'Altro';
+            let itemClass = '';
+            let badgeClass = '';
+
+            if (isLibero) {
+              badgeText = 'Assegnabile';
+              itemClass = 'libero';
+              badgeClass = 'libero';
+            } else if (isDeroga) {
+              badgeText = 'Con deroga';
+              itemClass = 'deroga';
+              badgeClass = 'deroga';
+            }
+
+            return `
+              <div class="result-item ${itemClass}">
+                <div class="result-item-header">
+                  <div class="result-item-name">${medico.cognome || '-'} ${medico.nome || ''}</div>
+                  <div class="result-item-badge ${badgeClass}">${badgeText}</div>
+                </div>
+                <div class="result-item-details">
+                  <div class="result-item-detail">
+                    <strong>ASL:</strong> <span>${medico.azienda || '-'}</span>
+                  </div>
+                  <div class="result-item-detail">
+                    <strong>Ambito:</strong> <span>${medico.ambito || '-'}</span>
+                  </div>
+                  ${medico.assegnabilita ? `
+                    <div class="result-item-detail" style="grid-column: 1 / -1;">
+                      <strong>Assegnabilità:</strong> <span>${medico.assegnabilita}</span>
+                    </div>
+                  ` : ''}
+                </div>
+              </div>
+            `;
+          }).join('');
+
+          document.getElementById('resultsSection').style.display = 'block';
         } else {
-          document.getElementById('statsGrid').style.display = 'none';
+          document.getElementById('statsSection').style.display = 'none';
+          document.getElementById('resultsSection').style.display = 'none';
         }
 
       } catch (error) {
