@@ -636,7 +636,6 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      min-width: 300px;
       z-index: 10000;
       animation: slideIn 0.3s ease;
       border-left: 4px solid #22c55e;
@@ -823,6 +822,35 @@
     .notification-item span {
       font-size: 0.95rem;
       color: #333;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+
+      .header {
+        padding: 20px 15px;
+      }
+
+      .header h1 {
+        font-size: 1.5rem;
+      }
+
+      .tab-content {
+        padding: 20px 15px;
+      }
+
+      .container {
+        border-radius: 8px;
+      }
+
+      .toast {
+        right: 10px;
+        left: 10px;
+        bottom: 10px;
+        max-width: calc(100vw - 20px);
+      }
     }
   </style>
 </head>
