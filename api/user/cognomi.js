@@ -1,6 +1,19 @@
 import { requireAuth } from '../../lib/auth.js';
 import { getUser, updateUser } from '../../lib/database.js';
 
+// Normalizza cognome: trim, uppercase, spazi multipli → uno
+function normalizeCognome(str) {
+  return str
+    .trim()
+    .replace(/\s+/g, ' ')
+    .toUpperCase();
+}
+
+// Valida cognome: solo lettere, spazi, apostrofi
+function isValidCognome(cognome) {
+  return /^[A-Z'\s]+$/.test(cognome) && cognome.length >= 2;
+}
+
 async function handler(req, res) {
   const chatId = req.user.chatId;
 
@@ -16,12 +29,12 @@ async function handler(req, res) {
         });
       }
 
-      const cognomeTrimmed = cognome.trim().toUpperCase();
+      const cognomeNormalized = normalizeCognome(cognome);
 
-      if (cognomeTrimmed.length === 0) {
+      if (!isValidCognome(cognomeNormalized)) {
         return res.status(400).json({
           success: false,
-          error: 'Il cognome non può essere vuoto'
+          error: 'Cognome non valido. Usa solo lettere, spazi e apostrofi (minimo 2 caratteri)'
         });
       }
 
@@ -36,14 +49,14 @@ async function handler(req, res) {
 
       const cognomi = user.query?.cognomi || [];
 
-      if (cognomi.includes(cognomeTrimmed)) {
+      if (cognomi.includes(cognomeNormalized)) {
         return res.status(400).json({
           success: false,
           error: 'Cognome già presente nella lista'
         });
       }
 
-      cognomi.push(cognomeTrimmed);
+      cognomi.push(cognomeNormalized);
 
       await updateUser(chatId, {
         'query.cognomi': cognomi
@@ -51,7 +64,7 @@ async function handler(req, res) {
 
       return res.status(200).json({
         success: true,
-        message: `Cognome "${cognomeTrimmed}" aggiunto con successo`,
+        message: `Cognome "${cognomeNormalized}" aggiunto con successo`,
         cognomi
       });
 
@@ -76,7 +89,7 @@ async function handler(req, res) {
         });
       }
 
-      const cognomeTrimmed = cognome.trim().toUpperCase();
+      const cognomeNormalized = normalizeCognome(cognome);
 
       const user = await getUser(chatId);
 
@@ -89,14 +102,14 @@ async function handler(req, res) {
 
       const cognomi = user.query?.cognomi || [];
 
-      if (!cognomi.includes(cognomeTrimmed)) {
+      if (!cognomi.includes(cognomeNormalized)) {
         return res.status(400).json({
           success: false,
           error: 'Cognome non presente nella lista'
         });
       }
 
-      const nuoviCognomi = cognomi.filter(c => c !== cognomeTrimmed);
+      const nuoviCognomi = cognomi.filter(c => c !== cognomeNormalized);
 
       await updateUser(chatId, {
         'query.cognomi': nuoviCognomi
@@ -104,7 +117,7 @@ async function handler(req, res) {
 
       return res.status(200).json({
         success: true,
-        message: `Cognome "${cognomeTrimmed}" rimosso con successo`,
+        message: `Cognome "${cognomeNormalized}" rimosso con successo`,
         cognomi: nuoviCognomi
       });
 

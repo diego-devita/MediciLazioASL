@@ -725,6 +725,18 @@
     .modal-btn-confirm:hover {
       background: #16a34a;
     }
+
+    .modal-error {
+      color: #ef4444;
+      font-size: 0.85rem;
+      margin-top: -10px;
+      margin-bottom: 10px;
+      display: none;
+    }
+
+    .modal-error.visible {
+      display: block;
+    }
   </style>
 </head>
 <body>
@@ -887,6 +899,7 @@
         placeholder="Inserisci il cognome..."
         maxlength="50"
       />
+      <div class="modal-error" id="modalError"></div>
       <div class="modal-buttons">
         <button class="modal-btn modal-btn-cancel" id="modalCancelBtn">Annulla</button>
         <button class="modal-btn modal-btn-confirm" id="modalConfirmBtn">Aggiungi</button>
@@ -924,6 +937,18 @@
           toast.parentNode.removeChild(toast);
         }
       }, 300);
+    }
+
+    // ===== VALIDAZIONE COGNOMI =====
+    function normalizeCognome(str) {
+      return str
+        .trim()
+        .replace(/\s+/g, ' ')
+        .toUpperCase();
+    }
+
+    function isValidCognome(cognome) {
+      return /^[A-Z'\s]+$/.test(cognome) && cognome.length >= 2;
     }
 
     // ===== GESTIONE COGNOMI =====
@@ -980,16 +1005,19 @@
         const data = await response.json();
 
         if (!response.ok) {
-          showToast(data.error || 'Errore nell\'aggiunta del cognome', true);
-          return;
+          // Mostra errore nel modal, non chiudere
+          showModalError(data.error || 'Errore nell\'aggiunta del cognome');
+          return false;
         }
 
         showToast(data.message);
         renderCognomi(data.cognomi);
+        return true;
 
       } catch (error) {
         console.error('Error adding cognome:', error);
-        showToast('Errore di connessione', true);
+        showModalError('Errore di connessione');
+        return false;
       }
     }
 
@@ -1023,36 +1051,71 @@
     // ===== MODAL GESTIONE =====
     const modal = document.getElementById('addCognomeModal');
     const cognomeInput = document.getElementById('cognomeInput');
+    const modalError = document.getElementById('modalError');
     const modalCancelBtn = document.getElementById('modalCancelBtn');
     const modalConfirmBtn = document.getElementById('modalConfirmBtn');
+
+    function showModalError(message) {
+      modalError.textContent = message;
+      modalError.classList.add('visible');
+    }
+
+    function hideModalError() {
+      modalError.textContent = '';
+      modalError.classList.remove('visible');
+    }
 
     function openAddCognomeModal() {
       modal.classList.add('active');
       cognomeInput.value = '';
+      hideModalError();
       cognomeInput.focus();
     }
 
     function closeAddCognomeModal() {
       modal.classList.remove('active');
+      hideModalError();
+    }
+
+    async function handleAddCognome() {
+      const cognome = cognomeInput.value.trim();
+
+      if (!cognome) {
+        showModalError('Il cognome non può essere vuoto');
+        return;
+      }
+
+      // Validazione lato client
+      const cognomeNormalized = normalizeCognome(cognome);
+
+      if (!isValidCognome(cognomeNormalized)) {
+        showModalError('Cognome non valido. Usa solo lettere, spazi e apostrofi (minimo 2 caratteri)');
+        return;
+      }
+
+      // Tenta l'aggiunta
+      const success = await addCognome(cognome);
+
+      // Chiudi modal solo se successo
+      if (success) {
+        closeAddCognomeModal();
+      }
     }
 
     modalCancelBtn.addEventListener('click', closeAddCognomeModal);
 
-    modalConfirmBtn.addEventListener('click', async () => {
-      const cognome = cognomeInput.value.trim();
-      if (cognome) {
-        await addCognome(cognome);
-        closeAddCognomeModal();
-      }
-    });
+    modalConfirmBtn.addEventListener('click', handleAddCognome);
 
     cognomeInput.addEventListener('keypress', async (e) => {
       if (e.key === 'Enter') {
-        const cognome = cognomeInput.value.trim();
-        if (cognome) {
-          await addCognome(cognome);
-          closeAddCognomeModal();
-        }
+        await handleAddCognome();
+      }
+    });
+
+    // Nascondi errore quando l'utente inizia a digitare
+    cognomeInput.addEventListener('input', () => {
+      if (modalError.classList.contains('visible')) {
+        hideModalError();
       }
     });
 
