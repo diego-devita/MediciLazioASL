@@ -62,7 +62,7 @@ async function handler(req, res) {
     }
 
     const client = new MediciSearchClient({
-      debug: false,
+      debug: true, // Abilita debug temporaneamente per vedere cosa viene parsato
       useStaticConfig: false
     });
 
