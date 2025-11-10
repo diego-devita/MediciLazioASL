@@ -682,8 +682,8 @@
 
           <div class="form-group">
             <label for="asl">ASL</label>
-            <select id="asl" name="asl" required>
-              <option value="Tutte">Tutte</option>
+            <select id="asl" name="asl">
+              <option value="">Tutte</option>
               <option value="Roma 1">Roma 1</option>
               <option value="Roma 2">Roma 2</option>
               <option value="Roma 3">Roma 3</option>
@@ -705,10 +705,11 @@
 
         <div id="tab-base" class="tab-content active">
           <div class="form-group">
-            <label for="cognomi-base">Cognomi *</label>
-            <input type="text" id="cognomi-base" name="cognomi-base" placeholder="es. ROSSI, BIANCHI, VERDI, MAGO'" required>
+            <label for="cognomi-base">Cognomi</label>
+            <input type="text" id="cognomi-base" name="cognomi-base" placeholder="es. ROSSI, BIANCHI, VERDI, MAGO'">
             <p class="help-text">Inserisci uno o più cognomi separati da virgola</p>
           </div>
+          <p class="help-text" style="margin-top: -10px; margin-bottom: 20px; color: #f59e0b; font-weight: 600;">* Richiesto almeno uno tra Cognomi o ASL specifica</p>
         </div>
 
         <div id="tab-avanzate" class="tab-content">
@@ -746,7 +747,7 @@
             <p class="help-text">Inserisci uno o più nomi separati da virgola</p>
           </div>
 
-          <p class="help-text" style="margin-top: -10px; margin-bottom: 20px; color: #f59e0b; font-weight: 600;">* Richiesto almeno uno tra CAP, Cognomi o Nomi</p>
+          <p class="help-text" style="margin-top: -10px; margin-bottom: 20px; color: #f59e0b; font-weight: 600;">* Richiesto almeno uno tra CAP, Cognomi, Nomi o ASL specifica</p>
         </div>
 
         <button type="submit" id="submitBtn">🔍 Cerca</button>
@@ -1193,8 +1194,13 @@
 
       let cognomi, cap, nomi;
 
+      // Leggi ASL prima per validazione
+      const asl = document.getElementById('asl').value;
+      const tipo = document.getElementById('tipo').value;
+      const hasAsl = asl && asl !== '' && asl !== 'Tutte';
+
       if (activeTab === 'base') {
-        // Tab Base: solo cognomi (obbligatorio)
+        // Tab Base: cognomi o ASL specifica (almeno uno richiesto)
         cognomi = document.getElementById('cognomi-base').value
           .split(',')
           .map(c => c.trim().toUpperCase())
@@ -1203,12 +1209,12 @@
         cap = [];
         nomi = [];
 
-        if (cognomi.length === 0) {
-          showError('Il campo Cognomi è obbligatorio.');
+        if (cognomi.length === 0 && !hasAsl) {
+          showError('Inserisci almeno uno tra Cognomi o ASL specifica.');
           return;
         }
       } else {
-        // Tab Avanzate: cap, cognomi, nomi (almeno uno richiesto)
+        // Tab Avanzate: cap, cognomi, nomi, asl (almeno uno richiesto)
         cognomi = document.getElementById('cognomi').value
           .split(',')
           .map(c => c.trim().toUpperCase())
@@ -1224,14 +1230,11 @@
           .map(n => n.trim().toUpperCase())
           .filter(n => n.length > 0);
 
-        if (cognomi.length === 0 && cap.length === 0 && nomi.length === 0) {
-          showError('Inserisci almeno uno tra CAP, Cognomi o Nomi.');
+        if (cognomi.length === 0 && cap.length === 0 && nomi.length === 0 && !hasAsl) {
+          showError('Inserisci almeno uno tra CAP, Cognomi, Nomi o ASL specifica.');
           return;
         }
       }
-
-      const asl = document.getElementById('asl').value;
-      const tipo = document.getElementById('tipo').value;
 
       // MODALITÀ BATCH
       if (searchMode === 'batch') {

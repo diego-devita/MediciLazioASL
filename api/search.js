@@ -43,7 +43,7 @@ async function handler(req, res) {
 
     params = {
       cognomi: cognomi ? cognomi.split(',').map(c => normalizeString(c)) : [],
-      asl: asl || 'Tutte',
+      asl: asl || '',
       tipo: tipo || 'Medicina generale',
       cap: cap ? cap.split(',').map(c => c.trim()) : [],
       nomi: nomi ? nomi.split(',').map(n => normalizeString(n)) : []
@@ -78,12 +78,13 @@ async function handler(req, res) {
       params.cap = [];
     }
 
-    // Default tipo e asl se non specificati
+    // Default tipo se non specificato
     if (!params.tipo) {
       params.tipo = 'Medicina generale';
     }
+    // ASL default vuoto se non specificato
     if (!params.asl) {
-      params.asl = 'Tutte';
+      params.asl = '';
     }
 
   } else {
@@ -96,11 +97,14 @@ async function handler(req, res) {
   // Accumula tutti gli errori di validazione
   const validationErrors = [];
 
-  // Validazione: almeno uno tra cognomi, cap, nomi deve essere presente
-  if (params.cognomi.length === 0 && params.cap.length === 0 && params.nomi.length === 0) {
+  // Verifica se ASL è specificata (non vuota e non "Tutte")
+  const hasAsl = params.asl && params.asl !== '' && params.asl !== 'Tutte';
+
+  // Validazione: almeno uno tra cognomi, cap, nomi, asl deve essere presente
+  if (params.cognomi.length === 0 && params.cap.length === 0 && params.nomi.length === 0 && !hasAsl) {
     validationErrors.push({
-      field: 'cognomi/cap/nomi',
-      message: 'At least one of the following parameters is required: cognomi, cap, nomi'
+      field: 'cognomi/cap/nomi/asl',
+      message: 'At least one of the following parameters is required: cognomi, cap, nomi, asl (specific ASL, not "Tutte")'
     });
   }
 
