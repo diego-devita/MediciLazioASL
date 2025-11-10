@@ -182,16 +182,14 @@ async function handler(req, res) {
             cognome: m.cognome,
             nome: m.nome,
             assegnabilita: m.assegnabilita,
-            azienda: m.azienda,
-            ambito: m.ambito
+            asl: m.asl
           })),
           rimossi: mediciRimossi.map(m => ({
             codiceFiscale: m.codiceFiscale,
             cognome: m.cognome,
             nome: m.nome,
             assegnabilita: m.assegnabilita,
-            azienda: m.azienda,
-            ambito: m.ambito
+            asl: m.asl
           })),
           cambiati: medicinCambiati.map(item => ({
             codiceFiscale: item.medico.codiceFiscale,
@@ -199,8 +197,7 @@ async function handler(req, res) {
             nome: item.medico.nome,
             statoVecchio: item.statoVecchio,
             statoNuovo: item.statoNuovo,
-            azienda: item.medico.azienda,
-            ambito: item.medico.ambito
+            asl: item.medico.asl
           })),
           timestamp: new Date().toISOString()
         };
