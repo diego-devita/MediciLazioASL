@@ -528,6 +528,40 @@
       background: #f59e0b;
     }
 
+    /* Cambio stato */
+    .result-item-change {
+      background: #f9f9f9;
+      border-left: 4px solid #667eea;
+      padding: 10px 15px;
+      margin-bottom: 8px;
+      border-radius: 6px;
+    }
+
+    .result-item-change-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .result-item-change-name {
+      font-weight: 600;
+      color: #333;
+      font-size: 0.95rem;
+    }
+
+    .result-item-change-status {
+      font-size: 0.85rem;
+      color: #666;
+      font-style: italic;
+    }
+
+    .result-item-change-arrow {
+      color: #667eea;
+      font-weight: bold;
+      margin: 0 8px;
+    }
+
     /* Toggle per espandere/comprimere risultati */
     .results-toggle {
       background: #667eea;
@@ -884,6 +918,39 @@
             <div id="resultsList"></div>
           </div>
         </div>
+
+        <!-- Medici aggiunti -->
+        <div id="addedSection" class="section" style="display: none;">
+          <button class="results-toggle" id="addedToggle">
+            <span>➕ Mostra medici aggiunti (<span id="addedCount">0</span>)</span>
+            <span class="results-toggle-icon">▼</span>
+          </button>
+          <div class="results-list-container" id="addedListContainer">
+            <div id="addedList"></div>
+          </div>
+        </div>
+
+        <!-- Medici rimossi -->
+        <div id="removedSection" class="section" style="display: none;">
+          <button class="results-toggle" id="removedToggle">
+            <span>➖ Mostra medici rimossi (<span id="removedCount">0</span>)</span>
+            <span class="results-toggle-icon">▼</span>
+          </button>
+          <div class="results-list-container" id="removedListContainer">
+            <div id="removedList"></div>
+          </div>
+        </div>
+
+        <!-- Differenze assegnabilità -->
+        <div id="changedSection" class="section" style="display: none;">
+          <button class="results-toggle" id="changedToggle">
+            <span>🔄 Mostra differenze assegnabilità (<span id="changedCount">0</span>)</span>
+            <span class="results-toggle-icon">▼</span>
+          </button>
+          <div class="results-list-container" id="changedListContainer">
+            <div id="changedList"></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1147,15 +1214,23 @@
     });
 
     // Gestione toggle risultati
-    const resultsToggle = document.getElementById('resultsToggle');
-    const resultsListContainer = document.getElementById('resultsListContainer');
+    const toggleButtons = [
+      { button: 'resultsToggle', container: 'resultsListContainer' },
+      { button: 'addedToggle', container: 'addedListContainer' },
+      { button: 'removedToggle', container: 'removedListContainer' },
+      { button: 'changedToggle', container: 'changedListContainer' }
+    ];
 
-    if (resultsToggle) {
-      resultsToggle.addEventListener('click', () => {
-        resultsToggle.classList.toggle('expanded');
-        resultsListContainer.classList.toggle('expanded');
-      });
-    }
+    toggleButtons.forEach(({ button, container }) => {
+      const btn = document.getElementById(button);
+      const cont = document.getElementById(container);
+      if (btn && cont) {
+        btn.addEventListener('click', () => {
+          btn.classList.toggle('expanded');
+          cont.classList.toggle('expanded');
+        });
+      }
+    });
 
     // Funzione per caricare la configurazione
     async function loadConfiguration() {
@@ -1268,6 +1343,105 @@
         } else {
           document.getElementById('statsSection').style.display = 'none';
           document.getElementById('resultsSection').style.display = 'none';
+        }
+
+        // === GESTIONE DIFFERENZE ===
+        const differences = data.user.lastDifferences;
+
+        if (differences) {
+          // Medici aggiunti
+          if (differences.nuovi && differences.nuovi.length > 0) {
+            document.getElementById('addedCount').textContent = differences.nuovi.length;
+            const addedList = document.getElementById('addedList');
+            addedList.innerHTML = differences.nuovi.map(medico => {
+              const isLibero = medico.assegnabilita && medico.assegnabilita.toLowerCase().includes('assegnazione libera');
+              const isDeroga = medico.assegnabilita && medico.assegnabilita.toLowerCase().includes('deroga') && !isLibero;
+
+              let badgeText = 'Altro';
+              let itemClass = '';
+              let badgeClass = '';
+
+              if (isLibero) {
+                badgeText = 'Assegnabile';
+                itemClass = 'libero';
+                badgeClass = 'libero';
+              } else if (isDeroga) {
+                badgeText = 'Con deroga';
+                itemClass = 'deroga';
+                badgeClass = 'deroga';
+              }
+
+              return `
+                <div class="result-item ${itemClass}">
+                  <div class="result-item-name">${medico.cognome || '-'} ${medico.nome || ''}</div>
+                  <div class="result-item-badge ${badgeClass}">${badgeText}</div>
+                </div>
+              `;
+            }).join('');
+            document.getElementById('addedSection').style.display = 'block';
+          } else {
+            document.getElementById('addedSection').style.display = 'none';
+          }
+
+          // Medici rimossi
+          if (differences.rimossi && differences.rimossi.length > 0) {
+            document.getElementById('removedCount').textContent = differences.rimossi.length;
+            const removedList = document.getElementById('removedList');
+            removedList.innerHTML = differences.rimossi.map(medico => {
+              const isLibero = medico.assegnabilita && medico.assegnabilita.toLowerCase().includes('assegnazione libera');
+              const isDeroga = medico.assegnabilita && medico.assegnabilita.toLowerCase().includes('deroga') && !isLibero;
+
+              let badgeText = 'Altro';
+              let itemClass = '';
+              let badgeClass = '';
+
+              if (isLibero) {
+                badgeText = 'Assegnabile';
+                itemClass = 'libero';
+                badgeClass = 'libero';
+              } else if (isDeroga) {
+                badgeText = 'Con deroga';
+                itemClass = 'deroga';
+                badgeClass = 'deroga';
+              }
+
+              return `
+                <div class="result-item ${itemClass}">
+                  <div class="result-item-name">${medico.cognome || '-'} ${medico.nome || ''}</div>
+                  <div class="result-item-badge ${badgeClass}">${badgeText}</div>
+                </div>
+              `;
+            }).join('');
+            document.getElementById('removedSection').style.display = 'block';
+          } else {
+            document.getElementById('removedSection').style.display = 'none';
+          }
+
+          // Medici cambiati
+          if (differences.cambiati && differences.cambiati.length > 0) {
+            document.getElementById('changedCount').textContent = differences.cambiati.length;
+            const changedList = document.getElementById('changedList');
+            changedList.innerHTML = differences.cambiati.map(item => {
+              return `
+                <div class="result-item-change">
+                  <div class="result-item-change-header">
+                    <div class="result-item-change-name">${item.cognome || '-'} ${item.nome || ''}</div>
+                  </div>
+                  <div class="result-item-change-status">
+                    ${item.statoVecchio || 'N/D'} <span class="result-item-change-arrow">→</span> ${item.statoNuovo || 'N/D'}
+                  </div>
+                </div>
+              `;
+            }).join('');
+            document.getElementById('changedSection').style.display = 'block';
+          } else {
+            document.getElementById('changedSection').style.display = 'none';
+          }
+        } else {
+          // Nessuna differenza disponibile
+          document.getElementById('addedSection').style.display = 'none';
+          document.getElementById('removedSection').style.display = 'none';
+          document.getElementById('changedSection').style.display = 'none';
         }
 
       } catch (error) {
