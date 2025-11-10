@@ -22,7 +22,7 @@
     }
 
     .container {
-      max-width: 1400px;
+      max-width: 900px;
       margin: 0 auto;
       background: white;
       border-radius: 12px;
@@ -33,7 +33,7 @@
     .header {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
-      padding: 30px;
+      padding: 40px 30px;
       text-align: center;
     }
 
@@ -47,20 +47,29 @@
       font-size: 1rem;
     }
 
+    .back-button-container {
+      padding: 20px 30px;
+      background: white;
+    }
+
     .back-link {
-      display: inline-block;
-      margin-top: 15px;
-      padding: 8px 16px;
-      background: rgba(255, 255, 255, 0.2);
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       text-decoration: none;
-      border-radius: 6px;
-      font-size: 0.9rem;
-      transition: background 0.3s;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-align: center;
+      transition: transform 0.2s, box-shadow 0.2s;
     }
 
     .back-link:hover {
-      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+      text-decoration: none;
     }
 
     .content {
@@ -163,7 +172,7 @@
     .controls input {
       padding: 8px 12px;
       border: 1px solid #ddd;
-      border-radius: 6px;
+      border-radius: 8px;
       font-size: 0.9rem;
     }
 
@@ -172,7 +181,7 @@
       background: #667eea;
       color: white;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       font-size: 0.9rem;
       font-weight: 600;
       cursor: pointer;
@@ -269,7 +278,7 @@
       background: #667eea;
       color: white;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
       transition: background 0.3s;
     }
@@ -298,7 +307,7 @@
       background: #f8d7da;
       color: #721c24;
       padding: 15px;
-      border-radius: 6px;
+      border-radius: 8px;
       margin-bottom: 20px;
     }
 
@@ -423,6 +432,10 @@
         padding: 20px 15px;
       }
 
+      .back-button-container {
+        padding: 15px;
+      }
+
       .container {
         border-radius: 8px;
       }
@@ -434,6 +447,9 @@
     <div class="header">
       <h1>🔧 Admin Panel</h1>
       <p>Sistema di amministrazione - Medici ASL Lazio</p>
+    </div>
+
+    <div class="back-button-container">
       <a href="/" class="back-link">← Torna alla ricerca</a>
     </div>
 
