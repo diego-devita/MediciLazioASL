@@ -6,6 +6,7 @@ import { handleCognomi } from '../lib/commands/cognomi.js';
 import { handleMedici } from '../lib/commands/medici.js';
 import { handleHelp } from '../lib/commands/help.js';
 import { handleOtp } from '../lib/commands/otp.js';
+import { handleRuolo } from '../lib/commands/ruolo.js';
 
 export default async function handler(req, res) {
   // Only accept POST requests from Telegram
@@ -72,6 +73,10 @@ export default async function handler(req, res) {
 
       case '/otp':
         await handleOtp(bot, chatId);
+        break;
+
+      case '/ruolo':
+        await handleRuolo(bot, chatId);
         break;
 
       default:
