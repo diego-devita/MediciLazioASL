@@ -1,5 +1,5 @@
 import { createJWT, hashToken } from '../lib/auth.js';
-import { validateWebAuthToken, markWebAuthTokenAsUsed, createSession } from '../lib/database.js';
+import { validateWebAuthToken, markWebAuthTokenAsUsed, createSession, logLoginAttempt } from '../lib/database.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -9,6 +9,10 @@ export default async function handler(req, res) {
   try {
     const { token } = req.body;
 
+    // Estrai IP e User Agent per logging
+    const ip = req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || req.socket?.remoteAddress || 'unknown';
+    const userAgent = req.headers['user-agent'] || 'unknown';
+
     if (!token) {
       return res.status(400).json({ error: 'Token richiesto' });
     }
@@ -17,6 +21,15 @@ export default async function handler(req, res) {
     const user = await validateWebAuthToken(token);
 
     if (!user) {
+      // Log tentativo fallito
+      await logLoginAttempt({
+        ip,
+        userAgent,
+        success: false,
+        blocked: false,
+        username: null
+      });
+
       return res.status(401).json({
         error: 'Codice non valido',
         message: 'Il codice non è valido, è già stato usato o è scaduto (validità: 20 minuti). Richiedi un nuovo codice con /token nel bot Telegram.'
@@ -40,8 +53,17 @@ export default async function handler(req, res) {
       chatId: user.chatId,
       username: user.username,
       role: user.role || 'user',
-      userAgent: req.headers['user-agent'] || 'unknown',
-      ip: req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || req.socket?.remoteAddress || 'unknown'
+      userAgent,
+      ip
+    });
+
+    // Log tentativo riuscito
+    await logLoginAttempt({
+      ip,
+      userAgent,
+      success: true,
+      blocked: false,
+      username: user.username
     });
 
     // Setta cookie httpOnly SENZA scadenza
