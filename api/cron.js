@@ -214,8 +214,18 @@ async function handler(req, res) {
           ? 'Ci sono state variazioni.'
           : 'Non ci sono state variazioni.';
 
-        // Notifica fine ricerca
-        const message = `
+        // Preferenze notifiche (default a true se non esistono)
+        const notifications = user.notifications || {
+          searchCompleted: true,
+          newDoctors: true,
+          removedDoctors: true,
+          statusChanged: true
+        };
+
+        // Notifica fine ricerca (se abilitata)
+        let mainResult = { success: true };
+        if (notifications.searchCompleted) {
+          const message = `
 ✅ Ricerca terminata!
 
 Trovati ${medici.length} medici totali
@@ -224,20 +234,21 @@ Di cui ${assegnabili.length} assegnabili (🟢🟠)
 ${variazioniMsg}
 
 Usa /medici per vedere i dettagli.
-        `.trim();
+          `.trim();
 
-        const mainResult = await sendNotificationSafe(user.chatId, message);
+          mainResult = await sendNotificationSafe(user.chatId, message);
 
-        // Se utente bloccato/inattivo, skip notifiche diff
-        if (!mainResult.success) {
-          console.log(`Skipping user ${user.chatId} - blocked or deleted`);
-          continue;
+          // Se utente bloccato/inattivo, skip notifiche diff
+          if (!mainResult.success) {
+            console.log(`Skipping user ${user.chatId} - blocked or deleted`);
+            continue;
+          }
         }
 
         // === NOTIFICHE DIFF ===
 
-        // Notifica nuovi medici
-        if (nuoviMedici.length > 0) {
+        // Notifica nuovi medici (se abilitata)
+        if (notifications.newDoctors && nuoviMedici.length > 0) {
           const getEmoji = (assegnabilita) => {
             if (!assegnabilita) return '🔴';
             const stato = assegnabilita.toLowerCase();
@@ -256,8 +267,19 @@ Usa /medici per vedere i dettagli.
           await new Promise(resolve => setTimeout(resolve, 500));
         }
 
-        // Notifica medici cambiati
-        if (medicinCambiati.length > 0) {
+        // Notifica medici rimossi (se abilitata)
+        if (notifications.removedDoctors && mediciRimossi.length > 0) {
+          let rimossiMsg = `❌ Medici rimossi (${mediciRimossi.length}):\n\n`;
+          mediciRimossi.forEach(m => {
+            rimossiMsg += `⚫ ${m.cognome} ${m.nome}\n`;
+          });
+
+          await sendNotificationSafe(user.chatId, rimossiMsg.trim());
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+
+        // Notifica medici cambiati (se abilitata)
+        if (notifications.statusChanged && medicinCambiati.length > 0) {
           const getEmoji = (assegnabilita) => {
             if (!assegnabilita) return '🔴';
             const stato = assegnabilita.toLowerCase();
