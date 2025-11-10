@@ -830,6 +830,9 @@
     </div>
   </div>
 
+  <!-- Auth check -->
+  <script src="/auth-check.js"></script>
+
   <script type="module">
     import { BatchSearchClient } from '/batch-search-client.js';
 
@@ -853,7 +856,7 @@
     let batchClient = null;
 
     // Check if user is admin and show admin link
-    (async function checkAdmin() {
+    (async function checkIfAdmin() {
       try {
         const response = await fetch('/api/user/me', {
           credentials: 'include'
@@ -867,7 +870,6 @@
         }
       } catch (err) {
         // Silently fail - admin link stays hidden
-        console.log('Could not check admin status');
       }
     })();
 

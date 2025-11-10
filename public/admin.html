@@ -588,7 +588,18 @@
     </div>
   </div>
 
+  <!-- Auth check -->
+  <script src="/auth-check.js"></script>
+
   <script>
+    // Check admin access on page load
+    (async function() {
+      const isAdmin = await window.requireAdmin();
+      if (!isAdmin) {
+        return; // requireAdmin already handles redirect
+      }
+    })();
+
     // State
     let statsData = null;
     let usersPage = 1;
