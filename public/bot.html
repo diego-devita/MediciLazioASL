@@ -342,7 +342,6 @@
     .last-run-info .detail {
       display: flex;
       justify-content: space-between;
-      padding: 8px 0;
       border-bottom: 1px solid #d1fae5;
     }
 
@@ -419,10 +418,14 @@
     }
 
     .last-check-compact {
-      text-align: center;
       color: #777;
-      font-size: 0.9rem;
-      margin-top: 10px;
+      font-size: 0.85rem;
+      margin-left: 10px;
+    }
+
+    .section h2 {
+      display: flex;
+      align-items: center;
     }
 
     /* Lista risultati */
@@ -594,14 +597,12 @@
 
       <div id="configContent" style="display: none;">
         <div class="info-box">
-          <h3>🔍 Ricerca Configurata</h3>
           <div class="info-box-grid">
             <div class="info-box-col">
               <p><strong>Tipo:</strong> Medicina Generale (MMG)</p>
               <p><strong>ASL:</strong> Tutte le ASL del Lazio</p>
             </div>
             <div class="info-box-col">
-              <h4>📝 Cognomi monitorati</h4>
               <div id="cognomiTags" class="cognomi-tags"></div>
               <div id="noCognomi" style="display: none;">
                 <p style="font-size: 0.85rem; margin: 0; color: #999;">Nessun cognome configurato. Usa <code>/add COGNOME</code> nel bot.</p>
@@ -611,7 +612,6 @@
         </div>
 
         <div class="last-run-info">
-          <h4>📊 Ultima esecuzione automatica</h4>
           <div class="detail">
             <span class="label">Ultimo controllo:</span>
             <span class="value" id="lastCheckTime">-</span>
@@ -624,7 +624,10 @@
 
         <!-- Statistiche compatte ultima ricerca -->
         <div id="statsSection" class="section" style="display: none;">
-          <h2>📊 Ultima ricerca</h2>
+          <h2>
+            <span>Ultima ricerca</span>
+            <span class="last-check-compact" id="lastCheckInfo">-</span>
+          </h2>
           <div class="stats-compact">
             <div class="stat-compact">
               <span class="stat-compact-value" id="statTotal">0</span>
@@ -643,9 +646,6 @@
               <span class="stat-compact-label">Altri</span>
             </div>
           </div>
-          <p class="last-check-compact">
-            Ultimo controllo: <strong id="lastCheckInfo">-</strong>
-          </p>
         </div>
 
         <!-- Lista risultati espandibile -->
@@ -770,7 +770,14 @@
 
           if (lastCheck) {
             const lastCheckDate = new Date(lastCheck);
-            document.getElementById('lastCheckInfo').textContent = lastCheckDate.toLocaleString('it-IT');
+            const formattedDate = lastCheckDate.toLocaleString('it-IT', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+            document.getElementById('lastCheckInfo').textContent = formattedDate;
           } else {
             document.getElementById('lastCheckInfo').textContent = 'Mai eseguito';
           }
