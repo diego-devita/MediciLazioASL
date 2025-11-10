@@ -223,19 +223,13 @@
       border: 2px solid #e0e0e0;
       border-radius: 8px;
       padding: 15px;
-      margin-bottom: 20px;
-    }
-
-    .search-mode-toggle h3 {
-      margin: 0 0 10px 0;
-      font-size: 1rem;
-      color: #555;
+      margin-top: 20px;
     }
 
     .toggle-options {
       display: flex;
       gap: 15px;
-      margin-bottom: 10px;
+      margin-bottom: 15px;
     }
 
     .toggle-option {
@@ -248,7 +242,10 @@
     }
 
     .toggle-option label {
-      display: block;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
       padding: 12px 15px;
       border: 2px solid #e0e0e0;
       border-radius: 6px;
@@ -257,6 +254,7 @@
       text-align: center;
       font-weight: 500;
       background: white;
+      font-size: 1rem;
     }
 
     .toggle-option input[type="radio"]:checked + label {
@@ -269,6 +267,44 @@
     .toggle-option label:hover {
       border-color: #667eea;
       transform: translateY(-2px);
+    }
+
+    .search-mode-toggle button[type="submit"] {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 10px;
+    }
+
+    .search-mode-toggle button[type="submit"]:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .submit-base {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 20px;
+    }
+
+    .submit-base:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
     }
 
     .toggle-hint {
@@ -874,18 +910,15 @@
         display: flex;
       }
 
-      /* Toggle Standard/Batch più compatto */
-      .search-mode-toggle h3 {
-        font-size: 1rem;
-      }
-
+      /* Toggle più compatto */
       .toggle-options {
         gap: 10px;
       }
 
       .toggle-option label {
-        font-size: 0.85rem;
-        padding: 8px 12px;
+        font-size: 0.9rem;
+        padding: 10px;
+        gap: 6px;
       }
     }
   </style>
@@ -985,22 +1018,6 @@
         </div>
 
         <div id="tab-avanzate" class="tab-content">
-          <!-- Search Mode Toggle (solo in Avanzate) -->
-          <div class="search-mode-toggle">
-            <h3>⚙️ Modalità ricerca</h3>
-            <div class="toggle-options">
-              <div class="toggle-option">
-                <input type="radio" id="mode-standard" name="searchMode" value="standard" checked>
-                <label for="mode-standard">🚀 Standard<br><small>Veloce</small></label>
-              </div>
-              <div class="toggle-option">
-                <input type="radio" id="mode-batch" name="searchMode" value="batch">
-                <label for="mode-batch">🔄 Batch<br><small>No timeout</small></label>
-              </div>
-            </div>
-            <div id="warningBox" class="warning-box" style="display: none;"></div>
-          </div>
-
           <div class="form-group">
             <label for="asl">ASL</label>
             <div class="multiselect-container" id="aslMultiselect">
@@ -1071,9 +1088,26 @@
             <input type="text" id="nomi" name="nomi" placeholder="es. MARIO, LUIGI, PAOLO">
             <p class="help-text">Inserisci uno o più nomi separati da virgola</p>
           </div>
+
+          <!-- Search Mode Toggle + Submit Button (solo in Avanzate) -->
+          <div class="search-mode-toggle">
+            <div class="toggle-options">
+              <div class="toggle-option">
+                <input type="radio" id="mode-standard" name="searchMode" value="standard" checked>
+                <label for="mode-standard">🚀 Singola</label>
+              </div>
+              <div class="toggle-option">
+                <input type="radio" id="mode-batch" name="searchMode" value="batch">
+                <label for="mode-batch">🔄 Batch</label>
+              </div>
+            </div>
+            <div id="warningBox" class="warning-box" style="display: none;"></div>
+            <button type="submit" id="submitBtn">🔍 Cerca</button>
+          </div>
         </div>
 
-        <button type="submit" id="submitBtn">🔍 Cerca</button>
+        <!-- Submit button per Base (fuori dal tab) -->
+        <button type="submit" id="submitBtnBase" class="submit-base">🔍 Cerca</button>
       </form>
 
       <div id="loading" style="display: none;" class="loading">
@@ -1225,40 +1259,20 @@
         button.classList.add('active');
         document.getElementById(`tab-${targetTab}`).classList.add('active');
 
-        // Reset del form quando si cambia tab
+        // Reset solo errori e risultati, NON i campi (che sono sincronizzati)
         hideError();
         results.style.display = 'none';
 
-        // Reset campi Base
-        document.getElementById('cognomi-base').value = '';
-        aslCheckboxesBase.forEach(cb => cb.checked = false);
-        updateAslHeaderTextBase();
-
-        // Reset campi Avanzate
-        document.getElementById('cognomi').value = '';
-        document.getElementById('cap').value = '';
-        document.getElementById('nomi').value = '';
-        aslCheckboxes.forEach(cb => cb.checked = false);
-        updateAslHeaderText();
-
-        // Gestisci required fields
-        const cognomiBase = document.getElementById('cognomi-base');
-        const cognomiAvanzate = document.getElementById('cognomi');
-        const cap = document.getElementById('cap');
-        const nomi = document.getElementById('nomi');
+        // Gestisci visibilità bottoni submit
+        const submitBtnBase = document.getElementById('submitBtnBase');
+        const submitBtnAvanzate = document.getElementById('submitBtn');
 
         if (targetTab === 'base') {
-          cognomiBase.required = true;
-          cognomiAvanzate.required = false;
-          cap.required = false;
-          nomi.required = false;
+          submitBtnBase.style.display = 'block';
           // In modalità Base, forza Standard mode
           document.getElementById('mode-standard').checked = true;
         } else {
-          cognomiBase.required = false;
-          cognomiAvanzate.required = false;
-          cap.required = false;
-          nomi.required = false;
+          submitBtnBase.style.display = 'none';
         }
 
         // Ricalcola warning
@@ -1839,6 +1853,8 @@
     aslCheckboxesBase.forEach(cb => {
       cb.addEventListener('change', () => {
         updateAslHeaderTextBase();
+        // Sincronizza con Avanzate
+        syncAslFromBaseToAvanzate();
       });
     });
 
@@ -1861,6 +1877,8 @@
       cb.addEventListener('change', () => {
         updateAslHeaderText();
         checkCombinationsWarning();
+        // Sincronizza con Base
+        syncAslFromAvanzateToBase();
       });
     });
 
@@ -1898,6 +1916,36 @@
         sortData(sortColumn || mobileSortSelect.value);
       }
     });
+
+    // ===== SINCRONIZZAZIONE CAMPI TRA BASE E AVANZATE =====
+    function syncAslFromBaseToAvanzate() {
+      aslCheckboxesBase.forEach((cbBase, index) => {
+        aslCheckboxes[index].checked = cbBase.checked;
+      });
+      updateAslHeaderText();
+    }
+
+    function syncAslFromAvanzateToBase() {
+      aslCheckboxes.forEach((cbAvanzate, index) => {
+        aslCheckboxesBase[index].checked = cbAvanzate.checked;
+      });
+      updateAslHeaderTextBase();
+    }
+
+    // Sincronizzazione Cognomi
+    const cognomiBase = document.getElementById('cognomi-base');
+    const cognomiAvanzate = document.getElementById('cognomi');
+
+    cognomiBase.addEventListener('input', () => {
+      cognomiAvanzate.value = cognomiBase.value;
+    });
+
+    cognomiAvanzate.addEventListener('input', () => {
+      cognomiBase.value = cognomiAvanzate.value;
+    });
+
+    // Inizializzazione: nascondi bottone Base all'avvio (parte da tab Base attivo)
+    document.getElementById('submitBtnBase').style.display = 'block';
   </script>
 </body>
 </html>
