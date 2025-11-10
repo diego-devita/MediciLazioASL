@@ -40,6 +40,15 @@
     .header h1 {
       font-size: 2rem;
       margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .header h1 svg {
+      width: 36px;
+      height: 36px;
     }
 
     .header p {
@@ -458,7 +467,12 @@
 <body>
   <div class="container">
     <div class="header">
-      <h1>🔧 Strumenti di amministrazione</h1>
+      <h1>
+        <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 2.182c5.423 0 9.818 4.395 9.818 9.818 0 5.423-4.395 9.818-9.818 9.818-5.423 0-9.818-4.395-9.818-9.818 0-5.423 4.395-9.818 9.818-9.818zM12 6c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zm0 8c-2.667 0-8 1.333-8 4v2h16v-2c0-2.667-5.333-4-8-4z" fill="white"/>
+        </svg>
+        Admin Panel
+      </h1>
       <a href="/" class="back-link">← Torna alla ricerca</a>
     </div>
 
