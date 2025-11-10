@@ -1458,45 +1458,46 @@
           delete nextCheckElement.dataset.lastCheck;
         }
 
-        // Calcola statistiche se ci sono risultati
+        // Calcola statistiche (sempre mostrate, anche se vuote)
+        const liberi = lastResults.filter(m =>
+          m.assegnabilita && m.assegnabilita.toLowerCase().includes('assegnazione libera')
+        ).length;
+
+        const deroga = lastResults.filter(m =>
+          m.assegnabilita &&
+          m.assegnabilita.toLowerCase().includes('deroga') &&
+          !m.assegnabilita.toLowerCase().includes('assegnazione libera')
+        ).length;
+
+        const altri = lastResults.length - liberi - deroga;
+
+        // Mostra statistiche compatte
+        document.getElementById('statTotal').textContent = lastResults.length;
+        document.getElementById('statLiberi').textContent = liberi;
+        document.getElementById('statDeroga').textContent = deroga;
+        document.getElementById('statAltri').textContent = altri;
+
+        if (lastCheck) {
+          const lastCheckDate = new Date(lastCheck);
+          const formattedDate = lastCheckDate.toLocaleString('it-IT', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+          document.getElementById('lastCheckInfo').textContent = formattedDate;
+        } else {
+          document.getElementById('lastCheckInfo').textContent = 'Mai eseguito';
+        }
+
+        document.getElementById('statsSection').style.display = 'block';
+
+        // Popola lista risultati
+        document.getElementById('resultsCount').textContent = lastResults.length;
+        const resultsList = document.getElementById('resultsList');
+
         if (lastResults.length > 0) {
-          const liberi = lastResults.filter(m =>
-            m.assegnabilita && m.assegnabilita.toLowerCase().includes('assegnazione libera')
-          ).length;
-
-          const deroga = lastResults.filter(m =>
-            m.assegnabilita &&
-            m.assegnabilita.toLowerCase().includes('deroga') &&
-            !m.assegnabilita.toLowerCase().includes('assegnazione libera')
-          ).length;
-
-          const altri = lastResults.length - liberi - deroga;
-
-          // Mostra statistiche compatte
-          document.getElementById('statTotal').textContent = lastResults.length;
-          document.getElementById('statLiberi').textContent = liberi;
-          document.getElementById('statDeroga').textContent = deroga;
-          document.getElementById('statAltri').textContent = altri;
-
-          if (lastCheck) {
-            const lastCheckDate = new Date(lastCheck);
-            const formattedDate = lastCheckDate.toLocaleString('it-IT', {
-              day: '2-digit',
-              month: '2-digit',
-              year: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit'
-            });
-            document.getElementById('lastCheckInfo').textContent = formattedDate;
-          } else {
-            document.getElementById('lastCheckInfo').textContent = 'Mai eseguito';
-          }
-
-          document.getElementById('statsSection').style.display = 'block';
-
-          // Popola lista risultati
-          document.getElementById('resultsCount').textContent = lastResults.length;
-          const resultsList = document.getElementById('resultsList');
           resultsList.innerHTML = lastResults.map(medico => {
             const isLibero = medico.assegnabilita && medico.assegnabilita.toLowerCase().includes('assegnazione libera');
             const isDeroga = medico.assegnabilita && medico.assegnabilita.toLowerCase().includes('deroga') && !isLibero;
@@ -1522,12 +1523,11 @@
               </div>
             `;
           }).join('');
-
-          document.getElementById('resultsSection').style.display = 'block';
         } else {
-          document.getElementById('statsSection').style.display = 'none';
-          document.getElementById('resultsSection').style.display = 'none';
+          resultsList.innerHTML = '<p style="color: #999; font-style: italic; padding: 10px;">Nessun medico trovato</p>';
         }
+
+        document.getElementById('resultsSection').style.display = 'block';
 
         // === GESTIONE DIFFERENZE ===
         const differences = data.user.lastDifferences || { nuovi: [], rimossi: [], cambiati: [] };
