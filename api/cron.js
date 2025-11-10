@@ -202,8 +202,11 @@ async function handler(req, res) {
           timestamp: new Date().toISOString()
         };
 
+        console.log('Saving differences:', JSON.stringify(differences, null, 2));
+
         // Salva risultati con differenze
-        await saveResults(user.chatId, medici, differences);
+        const saveResult = await saveResults(user.chatId, medici, differences);
+        console.log('Save result:', saveResult ? 'success' : 'failed');
 
         // Controlla se ci sono variazioni
         const ciSonoVariazioni = nuoviMedici.length > 0 || mediciRimossi.length > 0 || medicinCambiati.length > 0;
