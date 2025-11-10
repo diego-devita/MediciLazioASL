@@ -20,7 +20,7 @@
     }
 
     .container {
-      max-width: 800px;
+      max-width: 900px;
       margin: 0 auto;
       background: white;
       border-radius: 12px;
@@ -54,8 +54,42 @@
       font-size: 1.1rem;
     }
 
-    .content {
-      padding: 40px 30px;
+    .tabs {
+      display: flex;
+      border-bottom: 2px solid #e0e0e0;
+      background: #f9f9f9;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 18px 20px;
+      text-align: center;
+      cursor: pointer;
+      font-weight: 600;
+      color: #666;
+      transition: all 0.3s;
+      border-bottom: 3px solid transparent;
+      font-size: 1rem;
+    }
+
+    .tab:hover {
+      background: #f0f0f0;
+      color: #667eea;
+    }
+
+    .tab.active {
+      color: #667eea;
+      background: white;
+      border-bottom-color: #667eea;
+    }
+
+    .tab-content {
+      display: none;
+      padding: 30px;
+    }
+
+    .tab-content.active {
+      display: block;
     }
 
     .section {
@@ -129,6 +163,92 @@
       flex: 1;
     }
 
+    .info-box {
+      background: #f0f4ff;
+      border-left: 4px solid #667eea;
+      padding: 20px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+    }
+
+    .info-box h3 {
+      color: #667eea;
+      margin-bottom: 12px;
+      font-size: 1.1rem;
+    }
+
+    .info-box p {
+      margin: 0;
+      color: #555;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+
+    .stat-card {
+      background: #f9f9f9;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #667eea;
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      color: #777;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .cognomi-list {
+      background: #f5f5f5;
+      padding: 15px 20px;
+      border-radius: 8px;
+      margin: 15px 0;
+    }
+
+    .cognomi-list h4 {
+      color: #667eea;
+      margin-bottom: 10px;
+      font-size: 1rem;
+    }
+
+    .cognomi-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .cognome-tag {
+      background: #667eea;
+      color: white;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #999;
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: 15px;
+    }
+
     .cta-button {
       display: inline-block;
       padding: 15px 30px;
@@ -175,10 +295,60 @@
       border-radius: 4px;
       margin: 20px 0;
     }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #667eea;
+      font-size: 1.1rem;
+    }
+
+    .error-message {
+      background: #fee;
+      border-left: 4px solid #ef4444;
+      padding: 15px;
+      border-radius: 6px;
+      color: #dc2626;
+      margin: 20px 0;
+    }
+
+    .last-run-info {
+      background: #f0fdf4;
+      border-left: 4px solid #22c55e;
+      padding: 20px;
+      border-radius: 6px;
+      margin: 20px 0;
+    }
+
+    .last-run-info h4 {
+      color: #22c55e;
+      margin-bottom: 12px;
+      font-size: 1.1rem;
+    }
+
+    .last-run-info .detail {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #d1fae5;
+    }
+
+    .last-run-info .detail:last-child {
+      border-bottom: none;
+    }
+
+    .last-run-info .label {
+      color: #166534;
+      font-weight: 600;
+    }
+
+    .last-run-info .value {
+      color: #555;
+    }
   </style>
 </head>
 <body>
-  <a href="/cerca" class="back-link">← Torna alla ricerca</a>
+  <a href="/" class="back-link">← Torna alla ricerca</a>
 
   <div class="container">
     <div class="header">
@@ -191,15 +361,22 @@
       <p>Ricevi notifiche automatiche sui medici disponibili</p>
     </div>
 
-    <div class="content">
+    <div class="tabs">
+      <div class="tab active" data-tab="info">📖 Info</div>
+      <div class="tab" data-tab="config">⚙️ Configurazione</div>
+    </div>
+
+    <!-- TAB INFO -->
+    <div id="tab-info" class="tab-content active">
       <div class="section">
         <h2>🤖 Come funziona</h2>
         <p>Il bot Telegram ti permette di ricevere notifiche automatiche quando ci sono medici disponibili che corrispondono ai tuoi criteri di ricerca.</p>
         <ul>
-          <li>Imposta una ricerca con i cognomi dei medici che ti interessano</li>
-          <li>Ricevi notifiche giornaliere alle 8:00 del mattino</li>
-          <li>Vedi immediatamente quali medici sono disponibili</li>
-          <li>Nessuna necessità di controllare manualmente ogni giorno</li>
+          <li>Aggiungi i cognomi dei medici che ti interessano con <code>/add</code></li>
+          <li>Ricevi notifiche automatiche quando il cron gira</li>
+          <li>Vedi immediatamente quali medici sono disponibili e le variazioni</li>
+          <li>Nessuna necessità di controllare manualmente</li>
+          <li>Ottieni un codice OTP per accedere alla pagina web con <code>/token</code></li>
         </ul>
       </div>
 
@@ -208,52 +385,218 @@
         <div class="command-list">
           <div class="command">
             <div class="command-name">/start</div>
-            <div class="command-desc">Avvia il bot e ricevi le istruzioni iniziali</div>
+            <div class="command-desc">Avvia il bot e registrati nel sistema</div>
           </div>
           <div class="command">
-            <div class="command-name">/help</div>
-            <div class="command-desc">Mostra l'elenco completo dei comandi</div>
+            <div class="command-name">/add &lt;cognome&gt;</div>
+            <div class="command-desc">Aggiungi un cognome alla lista di ricerca</div>
+          </div>
+          <div class="command">
+            <div class="command-name">/remove &lt;cognome&gt;</div>
+            <div class="command-desc">Rimuovi un cognome dalla lista</div>
+          </div>
+          <div class="command">
+            <div class="command-name">/cognomi</div>
+            <div class="command-desc">Visualizza la lista dei cognomi configurati</div>
           </div>
           <div class="command">
             <div class="command-name">/medici</div>
-            <div class="command-desc">Imposta i cognomi dei medici da monitorare (es: ROSSI, BIANCHI)</div>
+            <div class="command-desc">Mostra i risultati dell'ultima ricerca</div>
           </div>
           <div class="command">
-            <div class="command-name">/asl</div>
-            <div class="command-desc">Filtra per una specifica ASL (es: Roma 1, Latina)</div>
+            <div class="command-name">/token</div>
+            <div class="command-desc">Genera un codice OTP per accedere alla pagina web (valido 20 minuti)</div>
           </div>
           <div class="command">
-            <div class="command-name">/subscribe</div>
-            <div class="command-desc">Attiva le notifiche automatiche giornaliere</div>
-          </div>
-          <div class="command">
-            <div class="command-name">/unsubscribe</div>
-            <div class="command-desc">Disattiva le notifiche automatiche</div>
-          </div>
-          <div class="command">
-            <div class="command-name">/status</div>
-            <div class="command-desc">Verifica lo stato della tua ricerca e notifiche</div>
-          </div>
-          <div class="command">
-            <div class="command-name">/cerca</div>
-            <div class="command-desc">Esegui immediatamente una ricerca manuale</div>
+            <div class="command-name">/help</div>
+            <div class="command-desc">Mostra l'elenco dei comandi</div>
           </div>
         </div>
       </div>
 
       <div class="highlight">
-        <strong>💡 Nota:</strong> Le notifiche vengono inviate solo quando ci sono medici assegnabili (con stato "Assegnazione libera" o "Con deroga").
+        <strong>💡 Nota:</strong> Il sistema cerca automaticamente medici di Medicina Generale (MMG) in tutte le ASL del Lazio. Le notifiche vengono inviate quando ci sono nuovi medici disponibili o cambiamenti di stato.
       </div>
 
       <div class="section" style="text-align: center;">
         <h2>🚀 Inizia subito</h2>
-        <p>Apri Telegram e cerca il bot:</p>
-        <a href="https://t.me/MediciLazioBot" target="_blank" class="cta-button">
-          Apri @MediciLazioBot
+        <p>Apri Telegram e avvia il bot:</p>
+        <a href="https://t.me/YOUR_BOT_USERNAME" target="_blank" class="cta-button">
+          Apri il Bot Telegram
         </a>
       </div>
+    </div>
 
+    <!-- TAB CONFIGURAZIONE -->
+    <div id="tab-config" class="tab-content">
+      <div id="configLoading" class="loading">
+        Caricamento configurazione...
+      </div>
+
+      <div id="configError" class="error-message" style="display: none;"></div>
+
+      <div id="configContent" style="display: none;">
+        <div class="info-box">
+          <h3>🔍 Ricerca Configurata</h3>
+          <p><strong>Tipo:</strong> Medicina Generale (MMG)</p>
+          <p><strong>ASL:</strong> Tutte le ASL del Lazio</p>
+        </div>
+
+        <div class="cognomi-list">
+          <h4>📝 Cognomi monitorati</h4>
+          <div id="cognomiTags" class="cognomi-tags"></div>
+          <div id="noCognomi" class="empty-state" style="display: none;">
+            <div class="empty-state-icon">📭</div>
+            <p>Nessun cognome configurato</p>
+            <p style="font-size: 0.9rem; margin-top: 10px;">Usa <code>/add COGNOME</code> nel bot per aggiungerne</p>
+          </div>
+        </div>
+
+        <div class="last-run-info">
+          <h4>📊 Ultima esecuzione automatica</h4>
+          <div class="detail">
+            <span class="label">Ultimo controllo:</span>
+            <span class="value" id="lastCheckTime">-</span>
+          </div>
+          <div class="detail">
+            <span class="label">Prossimo controllo:</span>
+            <span class="value" id="nextCheckTime">Dipende dal cron esterno</span>
+          </div>
+          <div class="detail">
+            <span class="label">Medici trovati:</span>
+            <span class="value" id="lastResultsCount">-</span>
+          </div>
+        </div>
+
+        <div class="stat-grid" id="statsGrid" style="display: none;">
+          <div class="stat-card">
+            <div class="stat-value" id="statTotal">0</div>
+            <div class="stat-label">Totali</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statLiberi" style="color: #22c55e;">0</div>
+            <div class="stat-label">Assegnabili</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statDeroga" style="color: #f59e0b;">0</div>
+            <div class="stat-label">Con deroga</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statAltri" style="color: #ef4444;">0</div>
+            <div class="stat-label">Altri</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+
+  <script>
+    // Gestione tab
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const targetTab = tab.dataset.tab;
+
+        tabs.forEach(t => t.classList.remove('active'));
+        tabContents.forEach(tc => tc.classList.remove('active'));
+
+        tab.classList.add('active');
+        document.getElementById(`tab-${targetTab}`).classList.add('active');
+
+        // Carica configurazione quando si apre il tab
+        if (targetTab === 'config') {
+          loadConfiguration();
+        }
+      });
+    });
+
+    // Funzione per caricare la configurazione
+    async function loadConfiguration() {
+      const configLoading = document.getElementById('configLoading');
+      const configError = document.getElementById('configError');
+      const configContent = document.getElementById('configContent');
+
+      configLoading.style.display = 'block';
+      configError.style.display = 'none';
+      configContent.style.display = 'none';
+
+      try {
+        const response = await fetch('/api/user/me', {
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            throw new Error('Non sei autenticato. Effettua il login per vedere la tua configurazione.');
+          }
+          throw new Error('Errore nel caricamento della configurazione');
+        }
+
+        const data = await response.json();
+
+        configLoading.style.display = 'none';
+        configContent.style.display = 'block';
+
+        // Mostra cognomi
+        const cognomiTags = document.getElementById('cognomiTags');
+        const noCognomi = document.getElementById('noCognomi');
+        const cognomi = data.user.query.cognomi || [];
+
+        if (cognomi.length === 0) {
+          cognomiTags.innerHTML = '';
+          noCognomi.style.display = 'block';
+        } else {
+          noCognomi.style.display = 'none';
+          cognomiTags.innerHTML = cognomi.map(c =>
+            `<span class="cognome-tag">${c}</span>`
+          ).join('');
+        }
+
+        // Mostra info ultima esecuzione
+        const lastCheck = data.user.lastCheck;
+        const lastResults = data.user.lastResults || [];
+
+        if (lastCheck) {
+          const lastCheckDate = new Date(lastCheck);
+          document.getElementById('lastCheckTime').textContent = lastCheckDate.toLocaleString('it-IT');
+        } else {
+          document.getElementById('lastCheckTime').textContent = 'Mai eseguito';
+        }
+
+        document.getElementById('lastResultsCount').textContent = lastResults.length;
+
+        // Calcola statistiche se ci sono risultati
+        if (lastResults.length > 0) {
+          const liberi = lastResults.filter(m =>
+            m.assegnabilita && m.assegnabilita.toLowerCase().includes('assegnazione libera')
+          ).length;
+
+          const deroga = lastResults.filter(m =>
+            m.assegnabilita &&
+            m.assegnabilita.toLowerCase().includes('deroga') &&
+            !m.assegnabilita.toLowerCase().includes('assegnazione libera')
+          ).length;
+
+          const altri = lastResults.length - liberi - deroga;
+
+          document.getElementById('statTotal').textContent = lastResults.length;
+          document.getElementById('statLiberi').textContent = liberi;
+          document.getElementById('statDeroga').textContent = deroga;
+          document.getElementById('statAltri').textContent = altri;
+          document.getElementById('statsGrid').style.display = 'grid';
+        } else {
+          document.getElementById('statsGrid').style.display = 'none';
+        }
+
+      } catch (error) {
+        configLoading.style.display = 'none';
+        configError.style.display = 'block';
+        configError.textContent = error.message;
+        console.error('Error loading configuration:', error);
+      }
+    }
+  </script>
 </body>
 </html>
