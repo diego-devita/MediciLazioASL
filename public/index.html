@@ -24,7 +24,6 @@
 
     .container {
       max-width: 900px;
-      min-width: 800px;
       margin: 0 auto;
       background: white;
       border-radius: 12px;
@@ -732,6 +731,163 @@
       flex: 1;
       font-weight: normal;
     }
+
+    /* Mobile Sort Control (nascosto su desktop) */
+    .mobile-sort-control {
+      display: none;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .mobile-sort-label {
+      font-weight: 600;
+      color: #555;
+      white-space: nowrap;
+    }
+
+    .mobile-sort-select {
+      flex: 1;
+      padding: 8px 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 0.95rem;
+    }
+
+    .mobile-sort-toggle {
+      padding: 8px 16px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .mobile-sort-toggle:active {
+      background: #5568d3;
+    }
+
+    /* Card Layout (nascosto su desktop) */
+    .results-cards {
+      display: none;
+    }
+
+    .result-card {
+      background: white;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 12px;
+      position: relative;
+    }
+
+    .result-card:hover {
+      border-color: #667eea;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .card-emoji {
+      font-size: 1.5rem;
+    }
+
+    .card-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #333;
+      flex: 1;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid #f0f0f0;
+    }
+
+    .card-stato {
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    .card-asl {
+      font-size: 0.85rem;
+      color: #555;
+      font-weight: 600;
+    }
+
+    /* Media Query per Mobile */
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+
+      .header {
+        padding: 20px 15px;
+      }
+
+      .header h1 {
+        font-size: 1.5rem;
+      }
+
+      .header-links {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .bot-link {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .content {
+        padding: 20px 15px;
+      }
+
+      .form-group {
+        margin-bottom: 15px;
+      }
+
+      /* Nascondi tabella su mobile, mostra card */
+      .results-table {
+        display: none !important;
+      }
+
+      .results-cards {
+        display: block;
+      }
+
+      .mobile-sort-control {
+        display: flex;
+      }
+
+      /* Toggle Standard/Batch più compatto */
+      .search-mode-toggle h3 {
+        font-size: 1rem;
+      }
+
+      .toggle-options {
+        gap: 10px;
+      }
+
+      .toggle-option label {
+        font-size: 0.85rem;
+        padding: 8px 12px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -979,6 +1135,18 @@
         <div id="batchInfo" style="display: none;" class="batch-info">
           <h4>ℹ️ Dettagli ricerca batch</h4>
           <ul id="batchInfoList"></ul>
+        </div>
+
+        <!-- Mobile Sort Control (visibile solo su mobile) -->
+        <div class="mobile-sort-control">
+          <span class="mobile-sort-label">Ordina per:</span>
+          <select id="mobileSortSelect" class="mobile-sort-select">
+            <option value="cognome">Cognome</option>
+            <option value="nome">Nome</option>
+            <option value="asl">ASL</option>
+            <option value="assegnabilita">Stato</option>
+          </select>
+          <button id="mobileSortToggle" class="mobile-sort-toggle">↑ ASC</button>
         </div>
 
         <div id="mediciList"></div>
@@ -1279,10 +1447,40 @@
       renderTable(currentData);
     }
 
+    function renderCards(data) {
+      const mediciList = document.getElementById('mediciList');
+
+      const cardsContainer = document.createElement('div');
+      cardsContainer.className = 'results-cards';
+
+      data.results.forEach(medico => {
+        const emoji = getStatoEmoji(medico.assegnabilita);
+
+        const card = document.createElement('div');
+        card.className = 'result-card';
+
+        card.innerHTML = `
+          <div class="card-header">
+            <div class="card-emoji">${emoji}</div>
+            <div class="card-name">${medico.cognome} ${medico.nome}</div>
+          </div>
+          <div class="card-footer">
+            <div class="card-stato">${medico.assegnabilita}</div>
+            <div class="card-asl">${medico.asl}</div>
+          </div>
+        `;
+
+        cardsContainer.appendChild(card);
+      });
+
+      mediciList.appendChild(cardsContainer);
+    }
+
     function renderTable(data) {
       const mediciList = document.getElementById('mediciList');
       mediciList.innerHTML = '';
 
+      // Render tabella desktop
       const table = document.createElement('table');
       table.className = 'results-table';
 
@@ -1338,12 +1536,15 @@
 
       mediciList.appendChild(table);
 
-      // Aggiungi event listener per il sorting
+      // Aggiungi event listener per il sorting (desktop)
       table.querySelectorAll('th[data-column]').forEach(th => {
         th.addEventListener('click', () => {
           sortData(th.dataset.column);
         });
       });
+
+      // Render cards mobile
+      renderCards(data);
     }
 
     function displayResults(data) {
@@ -1674,6 +1875,27 @@
       }
       if (!document.getElementById('aslMultiselect').contains(e.target)) {
         closeAslDropdown();
+      }
+    });
+
+    // ===== MOBILE SORT CONTROL =====
+    const mobileSortSelect = document.getElementById('mobileSortSelect');
+    const mobileSortToggle = document.getElementById('mobileSortToggle');
+    let mobileSortDirection = 'asc';
+
+    mobileSortSelect.addEventListener('change', () => {
+      if (currentData) {
+        sortData(mobileSortSelect.value);
+      }
+    });
+
+    mobileSortToggle.addEventListener('click', () => {
+      mobileSortDirection = mobileSortDirection === 'asc' ? 'desc' : 'asc';
+      mobileSortToggle.textContent = mobileSortDirection === 'asc' ? '↑ ASC' : '↓ DESC';
+
+      if (currentData) {
+        sortDirection = mobileSortDirection;
+        sortData(sortColumn || mobileSortSelect.value);
       }
     });
   </script>
