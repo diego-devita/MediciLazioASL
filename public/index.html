@@ -826,7 +826,6 @@
             <input type="text" id="cognomi-base" name="cognomi-base" placeholder="es. ROSSI, BIANCHI, VERDI, MAGO'">
             <p class="help-text">Inserisci uno o più cognomi separati da virgola</p>
           </div>
-          <p class="help-text" style="margin-top: -10px; margin-bottom: 20px; color: #f59e0b; font-weight: 600;">* Richiesto almeno uno tra Cognomi o ASL</p>
         </div>
 
         <div id="tab-avanzate" class="tab-content">
@@ -916,8 +915,6 @@
             <input type="text" id="nomi" name="nomi" placeholder="es. MARIO, LUIGI, PAOLO">
             <p class="help-text">Inserisci uno o più nomi separati da virgola</p>
           </div>
-
-          <p class="help-text" style="margin-top: -10px; margin-bottom: 20px; color: #f59e0b; font-weight: 600;">* Richiesto almeno uno tra CAP, Cognomi, Nomi o ASL</p>
         </div>
 
         <button type="submit" id="submitBtn">🔍 Cerca</button>
@@ -1059,6 +1056,22 @@
         // Aggiungi active al button cliccato e al suo content
         button.classList.add('active');
         document.getElementById(`tab-${targetTab}`).classList.add('active');
+
+        // Reset del form quando si cambia tab
+        hideError();
+        results.style.display = 'none';
+
+        // Reset campi Base
+        document.getElementById('cognomi-base').value = '';
+        aslCheckboxesBase.forEach(cb => cb.checked = false);
+        updateAslHeaderTextBase();
+
+        // Reset campi Avanzate
+        document.getElementById('cognomi').value = '';
+        document.getElementById('cap').value = '';
+        document.getElementById('nomi').value = '';
+        aslCheckboxes.forEach(cb => cb.checked = false);
+        updateAslHeaderText();
 
         // Gestisci required fields
         const cognomiBase = document.getElementById('cognomi-base');
@@ -1384,7 +1397,7 @@
         nomi = [];
 
         if (cognomi.length === 0 && !hasAsl) {
-          showError('Inserisci almeno uno tra Cognomi o ASL.');
+          showError('Inserisci almeno uno tra: Cognomi, ASL');
           return;
         }
 
@@ -1415,7 +1428,7 @@
           .filter(n => n.length > 0);
 
         if (cognomi.length === 0 && cap.length === 0 && nomi.length === 0 && !hasAsl) {
-          showError('Inserisci almeno uno tra CAP, Cognomi, Nomi o ASL.');
+          showError('Inserisci almeno uno tra: CAP, Cognomi, Nomi, ASL');
           return;
         }
 
