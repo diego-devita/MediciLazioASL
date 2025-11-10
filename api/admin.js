@@ -308,10 +308,15 @@ async function handleDeleteUser(req, res) {
       });
     }
 
+    // Revoca tutte le sessioni dell'utente
+    const deletedSessions = await deleteUserSessions(chatId);
+    console.log(`Deleted user ${chatId} and revoked ${deletedSessions} session(s)`);
+
     return res.status(200).json({
       success: true,
       message: 'User deleted successfully',
-      chatId
+      chatId,
+      sessionsRevoked: deletedSessions
     });
 
   } catch (error) {
