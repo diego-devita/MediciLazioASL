@@ -1347,103 +1347,102 @@
         }
 
         // === GESTIONE DIFFERENZE ===
-        const differences = data.user.lastDifferences;
+        const differences = data.user.lastDifferences || { nuovi: [], rimossi: [], cambiati: [] };
 
-        if (differences) {
-          // Medici aggiunti
-          if (differences.nuovi && differences.nuovi.length > 0) {
-            document.getElementById('addedCount').textContent = differences.nuovi.length;
-            const addedList = document.getElementById('addedList');
-            addedList.innerHTML = differences.nuovi.map(medico => {
-              const isLibero = medico.assegnabilita && medico.assegnabilita.toLowerCase().includes('assegnazione libera');
-              const isDeroga = medico.assegnabilita && medico.assegnabilita.toLowerCase().includes('deroga') && !isLibero;
+        // Medici aggiunti
+        const nuovi = differences.nuovi || [];
+        document.getElementById('addedCount').textContent = nuovi.length;
+        const addedList = document.getElementById('addedList');
 
-              let badgeText = 'Altro';
-              let itemClass = '';
-              let badgeClass = '';
+        if (nuovi.length > 0) {
+          addedList.innerHTML = nuovi.map(medico => {
+            const isLibero = medico.assegnabilita && medico.assegnabilita.toLowerCase().includes('assegnazione libera');
+            const isDeroga = medico.assegnabilita && medico.assegnabilita.toLowerCase().includes('deroga') && !isLibero;
 
-              if (isLibero) {
-                badgeText = 'Assegnabile';
-                itemClass = 'libero';
-                badgeClass = 'libero';
-              } else if (isDeroga) {
-                badgeText = 'Con deroga';
-                itemClass = 'deroga';
-                badgeClass = 'deroga';
-              }
+            let badgeText = 'Altro';
+            let itemClass = '';
+            let badgeClass = '';
 
-              return `
-                <div class="result-item ${itemClass}">
-                  <div class="result-item-name">${medico.cognome || '-'} ${medico.nome || ''}</div>
-                  <div class="result-item-badge ${badgeClass}">${badgeText}</div>
-                </div>
-              `;
-            }).join('');
-            document.getElementById('addedSection').style.display = 'block';
-          } else {
-            document.getElementById('addedSection').style.display = 'none';
-          }
+            if (isLibero) {
+              badgeText = 'Assegnabile';
+              itemClass = 'libero';
+              badgeClass = 'libero';
+            } else if (isDeroga) {
+              badgeText = 'Con deroga';
+              itemClass = 'deroga';
+              badgeClass = 'deroga';
+            }
 
-          // Medici rimossi
-          if (differences.rimossi && differences.rimossi.length > 0) {
-            document.getElementById('removedCount').textContent = differences.rimossi.length;
-            const removedList = document.getElementById('removedList');
-            removedList.innerHTML = differences.rimossi.map(medico => {
-              const isLibero = medico.assegnabilita && medico.assegnabilita.toLowerCase().includes('assegnazione libera');
-              const isDeroga = medico.assegnabilita && medico.assegnabilita.toLowerCase().includes('deroga') && !isLibero;
-
-              let badgeText = 'Altro';
-              let itemClass = '';
-              let badgeClass = '';
-
-              if (isLibero) {
-                badgeText = 'Assegnabile';
-                itemClass = 'libero';
-                badgeClass = 'libero';
-              } else if (isDeroga) {
-                badgeText = 'Con deroga';
-                itemClass = 'deroga';
-                badgeClass = 'deroga';
-              }
-
-              return `
-                <div class="result-item ${itemClass}">
-                  <div class="result-item-name">${medico.cognome || '-'} ${medico.nome || ''}</div>
-                  <div class="result-item-badge ${badgeClass}">${badgeText}</div>
-                </div>
-              `;
-            }).join('');
-            document.getElementById('removedSection').style.display = 'block';
-          } else {
-            document.getElementById('removedSection').style.display = 'none';
-          }
-
-          // Medici cambiati
-          if (differences.cambiati && differences.cambiati.length > 0) {
-            document.getElementById('changedCount').textContent = differences.cambiati.length;
-            const changedList = document.getElementById('changedList');
-            changedList.innerHTML = differences.cambiati.map(item => {
-              return `
-                <div class="result-item-change">
-                  <div class="result-item-change-header">
-                    <div class="result-item-change-name">${item.cognome || '-'} ${item.nome || ''}</div>
-                  </div>
-                  <div class="result-item-change-status">
-                    ${item.statoVecchio || 'N/D'} <span class="result-item-change-arrow">→</span> ${item.statoNuovo || 'N/D'}
-                  </div>
-                </div>
-              `;
-            }).join('');
-            document.getElementById('changedSection').style.display = 'block';
-          } else {
-            document.getElementById('changedSection').style.display = 'none';
-          }
+            return `
+              <div class="result-item ${itemClass}">
+                <div class="result-item-name">${medico.cognome || '-'} ${medico.nome || ''}</div>
+                <div class="result-item-badge ${badgeClass}">${badgeText}</div>
+              </div>
+            `;
+          }).join('');
         } else {
-          // Nessuna differenza disponibile
-          document.getElementById('addedSection').style.display = 'none';
-          document.getElementById('removedSection').style.display = 'none';
-          document.getElementById('changedSection').style.display = 'none';
+          addedList.innerHTML = '<p style="color: #999; font-style: italic; padding: 10px;">Nessun medico aggiunto</p>';
         }
+        document.getElementById('addedSection').style.display = 'block';
+
+        // Medici rimossi
+        const rimossi = differences.rimossi || [];
+        document.getElementById('removedCount').textContent = rimossi.length;
+        const removedList = document.getElementById('removedList');
+
+        if (rimossi.length > 0) {
+          removedList.innerHTML = rimossi.map(medico => {
+            const isLibero = medico.assegnabilita && medico.assegnabilita.toLowerCase().includes('assegnazione libera');
+            const isDeroga = medico.assegnabilita && medico.assegnabilita.toLowerCase().includes('deroga') && !isLibero;
+
+            let badgeText = 'Altro';
+            let itemClass = '';
+            let badgeClass = '';
+
+            if (isLibero) {
+              badgeText = 'Assegnabile';
+              itemClass = 'libero';
+              badgeClass = 'libero';
+            } else if (isDeroga) {
+              badgeText = 'Con deroga';
+              itemClass = 'deroga';
+              badgeClass = 'deroga';
+            }
+
+            return `
+              <div class="result-item ${itemClass}">
+                <div class="result-item-name">${medico.cognome || '-'} ${medico.nome || ''}</div>
+                <div class="result-item-badge ${badgeClass}">${badgeText}</div>
+              </div>
+            `;
+          }).join('');
+        } else {
+          removedList.innerHTML = '<p style="color: #999; font-style: italic; padding: 10px;">Nessun medico rimosso</p>';
+        }
+        document.getElementById('removedSection').style.display = 'block';
+
+        // Medici cambiati
+        const cambiati = differences.cambiati || [];
+        document.getElementById('changedCount').textContent = cambiati.length;
+        const changedList = document.getElementById('changedList');
+
+        if (cambiati.length > 0) {
+          changedList.innerHTML = cambiati.map(item => {
+            return `
+              <div class="result-item-change">
+                <div class="result-item-change-header">
+                  <div class="result-item-change-name">${item.cognome || '-'} ${item.nome || ''}</div>
+                </div>
+                <div class="result-item-change-status">
+                  ${item.statoVecchio || 'N/D'} <span class="result-item-change-arrow">→</span> ${item.statoNuovo || 'N/D'}
+                </div>
+              </div>
+            `;
+          }).join('');
+        } else {
+          changedList.innerHTML = '<p style="color: #999; font-style: italic; padding: 10px;">Nessuna differenza di assegnabilità</p>';
+        }
+        document.getElementById('changedSection').style.display = 'block';
 
       } catch (error) {
         configLoading.style.display = 'none';
