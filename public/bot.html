@@ -1588,6 +1588,7 @@
 
         // === GESTIONE DIFFERENZE ===
         const differences = data.user.lastDifferences || { nuovi: [], rimossi: [], cambiati: [] };
+        console.log('lastDifferences:', differences);
 
         // Medici aggiunti
         const nuovi = differences.nuovi || [];
