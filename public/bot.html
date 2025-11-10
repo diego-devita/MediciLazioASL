@@ -409,37 +409,6 @@
       color: #555;
     }
 
-    .interval-container {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 0;
-    }
-
-    .interval-container input {
-      width: 60px;
-      padding: 4px 8px;
-      border: 1px solid #d1fae5;
-      border-radius: 4px;
-      font-size: 1rem;
-    }
-
-    .interval-container button {
-      padding: 6px 14px;
-      background: #22c55e;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      font-weight: 600;
-      transition: background 0.2s;
-    }
-
-    .interval-container button:hover {
-      background: #16a34a;
-    }
-
     /* Statistiche compatte */
     .stats-compact {
       display: flex;
@@ -915,16 +884,8 @@
           <div class="detail">
             <span class="label">Intervallo minimo:</span>
             <span class="value">
-              <div class="interval-container">
-                <input
-                  type="number"
-                  id="intervalInput"
-                  min="1"
-                  max="300"
-                />
-                <span>minuti</span>
-                <button id="saveIntervalBtn">Salva</button>
-              </div>
+              <span id="intervalValue">30</span> minuti
+              <button class="edit-btn" id="changeIntervalBtn">Cambia</button>
             </span>
           </div>
         </div>
@@ -1017,6 +978,26 @@
       <div class="modal-buttons">
         <button class="modal-btn modal-btn-cancel" id="modalCancelBtn">Annulla</button>
         <button class="modal-btn modal-btn-confirm" id="modalConfirmBtn">Aggiungi</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal per cambiare intervallo -->
+  <div class="modal" id="changeIntervalModal">
+    <div class="modal-content">
+      <div class="modal-header">Cambia intervallo minimo</div>
+      <input
+        type="number"
+        class="modal-input"
+        id="intervalModalInput"
+        placeholder="Minuti (1-300)"
+        min="1"
+        max="300"
+      />
+      <div class="modal-error" id="intervalModalError"></div>
+      <div class="modal-buttons">
+        <button class="modal-btn modal-btn-cancel" id="intervalModalCancelBtn">Annulla</button>
+        <button class="modal-btn modal-btn-confirm" id="intervalModalConfirmBtn">Salva</button>
       </div>
     </div>
   </div>
@@ -1239,45 +1220,118 @@
       }
     });
 
-    // ===== GESTIONE INTERVALLO =====
-    const saveIntervalBtn = document.getElementById('saveIntervalBtn');
-    if (saveIntervalBtn) {
-      saveIntervalBtn.addEventListener('click', async () => {
-        const intervalInput = document.getElementById('intervalInput');
-        const minutes = parseInt(intervalInput.value);
+    // ===== GESTIONE INTERVALLO MODALE =====
+    const changeIntervalBtn = document.getElementById('changeIntervalBtn');
+    const intervalModal = document.getElementById('changeIntervalModal');
+    const intervalModalInput = document.getElementById('intervalModalInput');
+    const intervalModalError = document.getElementById('intervalModalError');
+    const intervalModalCancelBtn = document.getElementById('intervalModalCancelBtn');
+    const intervalModalConfirmBtn = document.getElementById('intervalModalConfirmBtn');
 
-        if (isNaN(minutes) || minutes < 1 || minutes > 300) {
-          showToast('L\'intervallo deve essere tra 1 e 300 minuti', true);
+    function showIntervalModalError(message) {
+      intervalModalError.textContent = message;
+      intervalModalError.classList.add('visible');
+    }
+
+    function hideIntervalModalError() {
+      intervalModalError.textContent = '';
+      intervalModalError.classList.remove('visible');
+    }
+
+    function openChangeIntervalModal() {
+      const currentValue = document.getElementById('intervalValue').textContent;
+      intervalModalInput.value = currentValue;
+      hideIntervalModalError();
+      intervalModal.classList.add('active');
+      setTimeout(() => intervalModalInput.focus(), 100);
+    }
+
+    function closeChangeIntervalModal() {
+      intervalModal.classList.remove('active');
+      intervalModalInput.value = '';
+      hideIntervalModalError();
+    }
+
+    changeIntervalBtn.addEventListener('click', openChangeIntervalModal);
+    intervalModalCancelBtn.addEventListener('click', closeChangeIntervalModal);
+
+    intervalModalConfirmBtn.addEventListener('click', async () => {
+      const minutes = parseInt(intervalModalInput.value);
+
+      // Validazione
+      if (!intervalModalInput.value.trim()) {
+        showIntervalModalError('Inserisci un valore');
+        return;
+      }
+
+      if (isNaN(minutes) || minutes < 1 || minutes > 300) {
+        showIntervalModalError('L\'intervallo deve essere tra 1 e 300 minuti');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/user/interval', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include',
+          body: JSON.stringify({ minutes })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          showIntervalModalError(data.error || 'Errore nel salvataggio');
           return;
         }
 
-        try {
-          const response = await fetch('/api/user/interval', {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            credentials: 'include',
-            body: JSON.stringify({ minutes })
+        // Aggiorna il valore visualizzato
+        document.getElementById('intervalValue').textContent = minutes;
+
+        // Ricalcola e aggiorna il prossimo controllo
+        const lastCheck = document.getElementById('nextCheckTime').dataset.lastCheck;
+        if (lastCheck) {
+          const lastCheckDate = new Date(lastCheck);
+          const nextCheckDate = new Date(lastCheckDate.getTime() + minutes * 60 * 1000);
+          const formattedNextCheck = nextCheckDate.toLocaleString('it-IT', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
           });
-
-          const data = await response.json();
-
-          if (!response.ok) {
-            showToast(data.error || 'Errore nel salvataggio', true);
-            return;
-          }
-
-          showToast(data.message);
-
-          // Ricarica la configurazione per aggiornare il prossimo controllo
-          await loadConfiguration();
-        } catch (error) {
-          console.error('Error saving interval:', error);
-          showToast('Errore di connessione', true);
+          document.getElementById('nextCheckTime').textContent = `A partire dalle ${formattedNextCheck}`;
         }
-      });
-    }
+
+        closeChangeIntervalModal();
+        showToast(data.message);
+      } catch (error) {
+        console.error('Error saving interval:', error);
+        showIntervalModalError('Errore di connessione');
+      }
+    });
+
+    // Nascondi errore quando l'utente inizia a digitare
+    intervalModalInput.addEventListener('input', () => {
+      if (intervalModalError.classList.contains('visible')) {
+        hideIntervalModalError();
+      }
+    });
+
+    // Chiudi modale cliccando fuori
+    intervalModal.addEventListener('click', (e) => {
+      if (e.target === intervalModal) {
+        closeChangeIntervalModal();
+      }
+    });
+
+    // Enter per confermare
+    intervalModalInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        intervalModalConfirmBtn.click();
+      }
+    });
 
     // Gestione tab
     const tabs = document.querySelectorAll('.tab');
@@ -1351,17 +1405,21 @@
         renderCognomi(cognomi);
 
         // Mostra intervallo minimo
-        const intervalInput = document.getElementById('intervalInput');
         const minIntervalMinutes = data.user.minIntervalMinutes || 30;
-        intervalInput.value = minIntervalMinutes;
+        document.getElementById('intervalValue').textContent = minIntervalMinutes;
 
         // Mostra info ultima esecuzione
         const lastCheck = data.user.lastCheck;
         const lastResults = data.user.lastResults || [];
 
+        const nextCheckElement = document.getElementById('nextCheckTime');
+
         if (lastCheck) {
           const lastCheckDate = new Date(lastCheck);
           document.getElementById('lastCheckTime').textContent = lastCheckDate.toLocaleString('it-IT');
+
+          // Salva lastCheck come data attribute per ricalcoli successivi
+          nextCheckElement.dataset.lastCheck = lastCheck;
 
           // Calcola prossimo controllo
           const nextCheckDate = new Date(lastCheckDate.getTime() + minIntervalMinutes * 60 * 1000);
@@ -1372,10 +1430,11 @@
             hour: '2-digit',
             minute: '2-digit'
           });
-          document.getElementById('nextCheckTime').textContent = `A partire dalle ${formattedNextCheck}`;
+          nextCheckElement.textContent = `A partire dalle ${formattedNextCheck}`;
         } else {
           document.getElementById('lastCheckTime').textContent = 'Mai eseguito';
-          document.getElementById('nextCheckTime').textContent = 'In attesa della prima esecuzione';
+          nextCheckElement.textContent = 'In attesa della prima esecuzione';
+          delete nextCheckElement.dataset.lastCheck;
         }
 
         // Calcola statistiche se ci sono risultati
