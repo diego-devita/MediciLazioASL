@@ -1435,7 +1435,12 @@
 
         const nextCheckElement = document.getElementById('nextCheckTime');
 
-        if (lastCheck) {
+        // Controlla se ci sono cognomi configurati
+        if (cognomi.length === 0) {
+          // Nessun cognome configurato - mostra badge rosso di errore
+          nextCheckElement.innerHTML = '<span style="background: #ef4444; color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.85em; font-weight: 600;">⚠️ La lista cognomi non può essere vuota</span>';
+          delete nextCheckElement.dataset.lastCheck;
+        } else if (lastCheck) {
           const lastCheckDate = new Date(lastCheck);
           document.getElementById('lastCheckTime').textContent = lastCheckDate.toLocaleString('it-IT');
 
