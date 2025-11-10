@@ -114,6 +114,24 @@ async function handler(req, res) {
         // === DIFF CON RISULTATI PRECEDENTI ===
         const oldResults = user.lastResults || [];
 
+        console.log(`User ${user.chatId} - Old results count: ${oldResults.length}, New results count: ${medici.length}`);
+
+        // Debug: controlla se i vecchi risultati hanno codiceFiscale
+        const oldWithCF = oldResults.filter(m => m.codiceFiscale);
+        const oldWithoutCF = oldResults.filter(m => !m.codiceFiscale);
+        console.log(`Old results: ${oldWithCF.length} with CF, ${oldWithoutCF.length} without CF`);
+        if (oldResults.length > 0) {
+          console.log('First old result:', JSON.stringify(oldResults[0], null, 2));
+        }
+
+        // Debug: controlla se i nuovi risultati hanno codiceFiscale
+        const newWithCF = medici.filter(m => m.codiceFiscale);
+        const newWithoutCF = medici.filter(m => !m.codiceFiscale);
+        console.log(`New results: ${newWithCF.length} with CF, ${newWithoutCF.length} without CF`);
+        if (medici.length > 0) {
+          console.log('First new result:', JSON.stringify(medici[0], null, 2));
+        }
+
         // Mappa vecchi risultati per codiceFiscale
         const oldMap = new Map();
         oldResults.forEach(m => {
@@ -139,6 +157,8 @@ async function handler(req, res) {
         const mediciRimossi = oldResults.filter(m => {
           return m.codiceFiscale && !newMap.has(m.codiceFiscale);
         });
+
+        console.log(`Differences - New: ${nuoviMedici.length}, Removed: ${mediciRimossi.length}`);
 
         // Trova medici con stato cambiato (con dettagli da->a)
         const medicinCambiati = [];
