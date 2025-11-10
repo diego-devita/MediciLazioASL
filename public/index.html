@@ -89,17 +89,6 @@
       width: 100%;
     }
 
-    .form-row {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 20px;
-    }
-
-    .form-row .form-group {
-      flex: 1;
-      margin-bottom: 0;
-    }
-
     .form-group {
       margin-bottom: 20px;
     }
@@ -773,13 +762,88 @@
 
     <div class="content">
       <form id="searchForm">
-        <div class="form-row">
+        <div class="tabs">
+          <button type="button" class="tab-button active" data-tab="base">Base</button>
+          <button type="button" class="tab-button" data-tab="avanzate">Avanzate</button>
+        </div>
+
+        <div id="tab-base" class="tab-content active">
           <div class="form-group">
-            <label for="tipo">Tipo medico</label>
-            <select id="tipo" name="tipo" disabled required>
-              <option value="Medicina generale">Medicina generale</option>
-              <option value="Pediatra">Pediatra</option>
-            </select>
+            <label for="asl-base">ASL</label>
+            <div class="multiselect-container" id="aslMultiselectBase">
+              <div class="multiselect-header" id="aslHeaderBase">
+                <span class="multiselect-header-text" id="aslHeaderTextBase">Tutte</span>
+                <span class="multiselect-header-arrow" id="aslHeaderArrowBase">▼</span>
+              </div>
+              <div class="multiselect-dropdown" id="aslDropdownBase">
+                <div class="multiselect-option">
+                  <input type="checkbox" id="asl_base_roma1" value="Roma 1">
+                  <label for="asl_base_roma1">Roma 1</label>
+                </div>
+                <div class="multiselect-option">
+                  <input type="checkbox" id="asl_base_roma2" value="Roma 2">
+                  <label for="asl_base_roma2">Roma 2</label>
+                </div>
+                <div class="multiselect-option">
+                  <input type="checkbox" id="asl_base_roma3" value="Roma 3">
+                  <label for="asl_base_roma3">Roma 3</label>
+                </div>
+                <div class="multiselect-option">
+                  <input type="checkbox" id="asl_base_roma4" value="Roma 4">
+                  <label for="asl_base_roma4">Roma 4</label>
+                </div>
+                <div class="multiselect-option">
+                  <input type="checkbox" id="asl_base_roma5" value="Roma 5">
+                  <label for="asl_base_roma5">Roma 5</label>
+                </div>
+                <div class="multiselect-option">
+                  <input type="checkbox" id="asl_base_roma6" value="Roma 6">
+                  <label for="asl_base_roma6">Roma 6</label>
+                </div>
+                <div class="multiselect-option">
+                  <input type="checkbox" id="asl_base_frosinone" value="Frosinone">
+                  <label for="asl_base_frosinone">Frosinone</label>
+                </div>
+                <div class="multiselect-option">
+                  <input type="checkbox" id="asl_base_latina" value="Latina">
+                  <label for="asl_base_latina">Latina</label>
+                </div>
+                <div class="multiselect-option">
+                  <input type="checkbox" id="asl_base_rieti" value="Rieti">
+                  <label for="asl_base_rieti">Rieti</label>
+                </div>
+                <div class="multiselect-option">
+                  <input type="checkbox" id="asl_base_viterbo" value="Viterbo">
+                  <label for="asl_base_viterbo">Viterbo</label>
+                </div>
+              </div>
+            </div>
+            <p class="help-text">Seleziona una o più ASL dalla lista</p>
+          </div>
+
+          <div class="form-group">
+            <label for="cognomi-base">Cognomi</label>
+            <input type="text" id="cognomi-base" name="cognomi-base" placeholder="es. ROSSI, BIANCHI, VERDI, MAGO'">
+            <p class="help-text">Inserisci uno o più cognomi separati da virgola</p>
+          </div>
+          <p class="help-text" style="margin-top: -10px; margin-bottom: 20px; color: #f59e0b; font-weight: 600;">* Richiesto almeno uno tra Cognomi o ASL</p>
+        </div>
+
+        <div id="tab-avanzate" class="tab-content">
+          <!-- Search Mode Toggle (solo in Avanzate) -->
+          <div class="search-mode-toggle">
+            <h3>⚙️ Modalità ricerca</h3>
+            <div class="toggle-options">
+              <div class="toggle-option">
+                <input type="radio" id="mode-standard" name="searchMode" value="standard" checked>
+                <label for="mode-standard">🚀 Standard<br><small>Veloce</small></label>
+              </div>
+              <div class="toggle-option">
+                <input type="radio" id="mode-batch" name="searchMode" value="batch">
+                <label for="mode-batch">🔄 Batch<br><small>No timeout</small></label>
+              </div>
+            </div>
+            <div id="warningBox" class="warning-box" style="display: none;"></div>
           </div>
 
           <div class="form-group">
@@ -832,38 +896,7 @@
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-
-        <div class="tabs">
-          <button type="button" class="tab-button active" data-tab="base">Base</button>
-          <button type="button" class="tab-button" data-tab="avanzate">Avanzate</button>
-        </div>
-
-        <div id="tab-base" class="tab-content active">
-          <div class="form-group">
-            <label for="cognomi-base">Cognomi</label>
-            <input type="text" id="cognomi-base" name="cognomi-base" placeholder="es. ROSSI, BIANCHI, VERDI, MAGO'">
-            <p class="help-text">Inserisci uno o più cognomi separati da virgola</p>
-          </div>
-          <p class="help-text" style="margin-top: -10px; margin-bottom: 20px; color: #f59e0b; font-weight: 600;">* Richiesto almeno uno tra Cognomi o ASL specifica</p>
-        </div>
-
-        <div id="tab-avanzate" class="tab-content">
-          <!-- Search Mode Toggle (solo in Avanzate) -->
-          <div class="search-mode-toggle">
-            <h3>⚙️ Modalità ricerca</h3>
-            <div class="toggle-options">
-              <div class="toggle-option">
-                <input type="radio" id="mode-standard" name="searchMode" value="standard" checked>
-                <label for="mode-standard">🚀 Standard<br><small>Veloce</small></label>
-              </div>
-              <div class="toggle-option">
-                <input type="radio" id="mode-batch" name="searchMode" value="batch">
-                <label for="mode-batch">🔄 Batch<br><small>No timeout</small></label>
-              </div>
-            </div>
-            <div id="warningBox" class="warning-box" style="display: none;"></div>
+            <p class="help-text">Seleziona una o più ASL dalla lista</p>
           </div>
 
           <div class="form-group">
@@ -884,7 +917,7 @@
             <p class="help-text">Inserisci uno o più nomi separati da virgola</p>
           </div>
 
-          <p class="help-text" style="margin-top: -10px; margin-bottom: 20px; color: #f59e0b; font-weight: 600;">* Richiesto almeno uno tra CAP, Cognomi, Nomi o ASL specifica</p>
+          <p class="help-text" style="margin-top: -10px; margin-bottom: 20px; color: #f59e0b; font-weight: 600;">* Richiesto almeno uno tra CAP, Cognomi, Nomi o ASL</p>
         </div>
 
         <button type="submit" id="submitBtn">🔍 Cerca</button>
@@ -1330,17 +1363,18 @@
       const searchMode = activeTab === 'base' ? 'standard' : document.querySelector('input[name="searchMode"]:checked').value;
 
       let cognomi, cap, nomi;
+      let selectedAsl, aslToSend;
 
-      // Leggi ASL selezionate dal multi-select
-      const selectedAsl = getSelectedAsl();
-      const tipo = document.getElementById('tipo').value;
-
-      // Ottimizzazione: se tutte le ASL sono selezionate E c'è almeno un altro campo, tratta come vuoto
-      let aslToSend = selectedAsl;
-      const hasAsl = selectedAsl.length > 0;
+      // Tipo medico fisso a "Medicina generale"
+      const tipo = 'Medicina generale';
 
       if (activeTab === 'base') {
-        // Tab Base: cognomi o ASL specifica (almeno uno richiesto)
+        // Tab Base: usa ASL Base
+        selectedAsl = getSelectedAslBase();
+        aslToSend = selectedAsl;
+        const hasAsl = selectedAsl.length > 0;
+
+        // Cognomi da tab base
         cognomi = document.getElementById('cognomi-base').value
           .split(',')
           .map(c => c.trim().toUpperCase())
@@ -1350,7 +1384,7 @@
         nomi = [];
 
         if (cognomi.length === 0 && !hasAsl) {
-          showError('Inserisci almeno uno tra Cognomi o ASL specifica.');
+          showError('Inserisci almeno uno tra Cognomi o ASL.');
           return;
         }
 
@@ -1359,7 +1393,12 @@
           aslToSend = [];
         }
       } else {
-        // Tab Avanzate: cap, cognomi, nomi, asl (almeno uno richiesto)
+        // Tab Avanzate: usa ASL Avanzate
+        selectedAsl = getSelectedAsl();
+        aslToSend = selectedAsl;
+        const hasAsl = selectedAsl.length > 0;
+
+        // Campi da tab avanzate
         cognomi = document.getElementById('cognomi').value
           .split(',')
           .map(c => c.trim().toUpperCase())
@@ -1376,7 +1415,7 @@
           .filter(n => n.length > 0);
 
         if (cognomi.length === 0 && cap.length === 0 && nomi.length === 0 && !hasAsl) {
-          showError('Inserisci almeno uno tra CAP, Cognomi, Nomi o ASL specifica.');
+          showError('Inserisci almeno uno tra CAP, Cognomi, Nomi o ASL.');
           return;
         }
 
@@ -1480,26 +1519,61 @@
     });
 
     // ===== MULTI-SELECT ASL DROPDOWN =====
+    const ALL_ASL_OPTIONS = ['Roma 1', 'Roma 2', 'Roma 3', 'Roma 4', 'Roma 5', 'Roma 6', 'Frosinone', 'Latina', 'Rieti', 'Viterbo'];
+
+    // Setup multi-select per Base
+    const aslHeaderBase = document.getElementById('aslHeaderBase');
+    const aslHeaderTextBase = document.getElementById('aslHeaderTextBase');
+    const aslHeaderArrowBase = document.getElementById('aslHeaderArrowBase');
+    const aslDropdownBase = document.getElementById('aslDropdownBase');
+    const aslCheckboxesBase = aslDropdownBase.querySelectorAll('input[type="checkbox"]');
+
+    // Setup multi-select per Avanzate
     const aslHeader = document.getElementById('aslHeader');
     const aslHeaderText = document.getElementById('aslHeaderText');
     const aslHeaderArrow = document.getElementById('aslHeaderArrow');
     const aslDropdown = document.getElementById('aslDropdown');
     const aslCheckboxes = aslDropdown.querySelectorAll('input[type="checkbox"]');
 
-    const ALL_ASL_OPTIONS = ['Roma 1', 'Roma 2', 'Roma 3', 'Roma 4', 'Roma 5', 'Roma 6', 'Frosinone', 'Latina', 'Rieti', 'Viterbo'];
+    // Funzioni per Base
+    function openAslDropdownBase() {
+      aslDropdownBase.classList.add('open');
+      aslHeaderBase.classList.add('open');
+      aslHeaderArrowBase.classList.add('open');
+    }
 
-    // Toggle dropdown
-    aslHeader.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const isOpen = aslDropdown.classList.contains('open');
+    function closeAslDropdownBase() {
+      aslDropdownBase.classList.remove('open');
+      aslHeaderBase.classList.remove('open');
+      aslHeaderArrowBase.classList.remove('open');
+    }
 
-      if (isOpen) {
-        closeAslDropdown();
+    function updateAslHeaderTextBase() {
+      const selected = getSelectedAslBase();
+
+      if (selected.length === 0) {
+        aslHeaderTextBase.textContent = 'Tutte';
+        aslHeaderTextBase.classList.remove('has-selection');
+      } else if (selected.length === ALL_ASL_OPTIONS.length) {
+        aslHeaderTextBase.textContent = 'Tutte';
+        aslHeaderTextBase.classList.remove('has-selection');
       } else {
-        openAslDropdown();
+        aslHeaderTextBase.textContent = selected.join(', ');
+        aslHeaderTextBase.classList.add('has-selection');
       }
-    });
+    }
 
+    function getSelectedAslBase() {
+      const selected = [];
+      aslCheckboxesBase.forEach(cb => {
+        if (cb.checked) {
+          selected.push(cb.value);
+        }
+      });
+      return selected;
+    }
+
+    // Funzioni per Avanzate
     function openAslDropdown() {
       aslDropdown.classList.add('open');
       aslHeader.classList.add('open');
@@ -1512,33 +1586,21 @@
       aslHeaderArrow.classList.remove('open');
     }
 
-    // Close dropdown when clicking outside
-    document.addEventListener('click', (e) => {
-      if (!document.getElementById('aslMultiselect').contains(e.target)) {
-        closeAslDropdown();
-      }
-    });
-
-    // Update header text when checkboxes change
     function updateAslHeaderText() {
       const selected = getSelectedAsl();
 
       if (selected.length === 0) {
-        // Nessuna selezione
         aslHeaderText.textContent = 'Tutte';
         aslHeaderText.classList.remove('has-selection');
       } else if (selected.length === ALL_ASL_OPTIONS.length) {
-        // Tutte selezionate
         aslHeaderText.textContent = 'Tutte';
         aslHeaderText.classList.remove('has-selection');
       } else {
-        // Alcune selezionate
         aslHeaderText.textContent = selected.join(', ');
         aslHeaderText.classList.add('has-selection');
       }
     }
 
-    // Get selected ASL
     function getSelectedAsl() {
       const selected = [];
       aslCheckboxes.forEach(cb => {
@@ -1549,7 +1611,38 @@
       return selected;
     }
 
-    // Checkbox change handler
+    // Event listeners per Base
+    aslHeaderBase.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = aslDropdownBase.classList.contains('open');
+      if (isOpen) {
+        closeAslDropdownBase();
+      } else {
+        openAslDropdownBase();
+      }
+    });
+
+    aslCheckboxesBase.forEach(cb => {
+      cb.addEventListener('change', () => {
+        updateAslHeaderTextBase();
+      });
+    });
+
+    aslDropdownBase.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+
+    // Event listeners per Avanzate
+    aslHeader.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = aslDropdown.classList.contains('open');
+      if (isOpen) {
+        closeAslDropdown();
+      } else {
+        openAslDropdown();
+      }
+    });
+
     aslCheckboxes.forEach(cb => {
       cb.addEventListener('change', () => {
         updateAslHeaderText();
@@ -1557,9 +1650,18 @@
       });
     });
 
-    // Prevent dropdown close when clicking checkbox/label
     aslDropdown.addEventListener('click', (e) => {
       e.stopPropagation();
+    });
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!document.getElementById('aslMultiselectBase').contains(e.target)) {
+        closeAslDropdownBase();
+      }
+      if (!document.getElementById('aslMultiselect').contains(e.target)) {
+        closeAslDropdown();
+      }
     });
   </script>
 </body>
