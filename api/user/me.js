@@ -36,7 +36,9 @@ async function handler(req, res) {
         role: user.role,
         query: user.query,
         lastResults: user.lastResults || [],
+        lastDifferences: user.lastDifferences || { nuovi: [], rimossi: [], cambiati: [] },
         lastCheck: user.lastCheck,
+        minIntervalMinutes: user.minIntervalMinutes || 30,
         createdAt: user.createdAt
       }
     });
