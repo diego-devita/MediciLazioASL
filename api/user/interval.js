@@ -10,6 +10,8 @@ async function handler(req, res) {
     const chatId = req.user.chatId;
     const { minutes } = req.body;
 
+    console.log('Interval update request:', { chatId, minutes });
+
     // Validazione
     if (!minutes || typeof minutes !== 'number') {
       return res.status(400).json({
@@ -26,9 +28,18 @@ async function handler(req, res) {
     }
 
     // Aggiorna intervallo
-    await updateUser(chatId, {
+    const result = await updateUser(chatId, {
       minIntervalMinutes: Math.floor(minutes)
     });
+
+    console.log('Update result:', result);
+
+    if (!result) {
+      return res.status(500).json({
+        success: false,
+        error: 'Errore durante l\'aggiornamento'
+      });
+    }
 
     return res.status(200).json({
       success: true,
