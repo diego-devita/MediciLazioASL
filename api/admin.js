@@ -150,36 +150,47 @@ async function handleStats(req, res) {
     // Get detailed stats for each collection
     const collectionsWithStats = await Promise.all(
       collectionsList.map(async (c) => {
-        try {
-          const collection = db.collection(c.name);
-          const collStats = await collection.stats();
-          const count = await collection.countDocuments();
-          const indexes = await collection.indexes();
+        const collection = db.collection(c.name);
 
-          return {
-            name: c.name,
-            type: c.type,
-            count,
-            size: collStats.size || 0,
-            storageSize: collStats.storageSize || 0,
-            indexCount: indexes.length,
-            indexes: indexes.map(idx => ({
-              name: idx.name,
-              keys: idx.key
-            }))
-          };
+        // Count e indexes sono affidabili, stats() può fallire
+        let count = 0;
+        let indexes = [];
+        let size = 0;
+        let storageSize = 0;
+
+        try {
+          count = await collection.countDocuments();
         } catch (err) {
-          console.error(`Error getting stats for collection ${c.name}:`, err);
-          return {
-            name: c.name,
-            type: c.type,
-            count: 0,
-            size: 0,
-            storageSize: 0,
-            indexCount: 0,
-            indexes: []
-          };
+          console.error(`Error counting documents for ${c.name}:`, err);
         }
+
+        try {
+          indexes = await collection.indexes();
+        } catch (err) {
+          console.error(`Error getting indexes for ${c.name}:`, err);
+        }
+
+        try {
+          const collStats = await collection.stats();
+          size = collStats.size || 0;
+          storageSize = collStats.storageSize || 0;
+        } catch (err) {
+          console.error(`Error getting stats for ${c.name}:`, err);
+          // Non è critico se stats() fallisce
+        }
+
+        return {
+          name: c.name,
+          type: c.type,
+          count,
+          size,
+          storageSize,
+          indexCount: indexes.length,
+          indexes: indexes.map(idx => ({
+            name: idx.name,
+            keys: idx.key
+          }))
+        };
       })
     );
 
