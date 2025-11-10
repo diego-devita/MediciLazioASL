@@ -116,7 +116,6 @@
     }
 
     .section li {
-      padding: 10px 0;
       padding-left: 30px;
       position: relative;
       color: #555;
@@ -141,7 +140,6 @@
     .command {
       display: flex;
       margin-bottom: 15px;
-      padding-bottom: 15px;
       border-bottom: 1px solid #e0e0e0;
     }
 
@@ -245,10 +243,61 @@
     .cognome-tag {
       background: #667eea;
       color: white;
+      padding: 6px 12px 6px 14px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cognome-tag-remove {
+      background: rgba(255, 255, 255, 0.3);
+      border: none;
+      color: white;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: bold;
+      transition: all 0.2s;
+      padding: 0;
+    }
+
+    .cognome-tag-remove:hover {
+      background: rgba(255, 255, 255, 0.5);
+      transform: scale(1.1);
+    }
+
+    .cognome-add-btn {
+      background: #22c55e;
+      color: white;
+      border: none;
       padding: 6px 14px;
       border-radius: 20px;
       font-size: 0.9rem;
       font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .cognome-add-btn:hover {
+      background: #16a34a;
+      transform: translateY(-1px);
+    }
+
+    .cognomi-empty {
+      color: #999;
+      font-size: 0.85rem;
+      font-style: italic;
     }
 
     .empty-state {
@@ -418,7 +467,11 @@
     }
 
     .last-check-compact {
-      color: #777;
+      background: seagreen;
+      color: white;
+      padding: 0 .5em;
+      font-weight: 400;
+      margin-top: .25em;
       font-size: 0.85rem;
       margin-left: 10px;
     }
@@ -513,6 +566,165 @@
     .results-list-container.expanded {
       max-height: 5000px;
     }
+
+    /* Toast notifications */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: white;
+      color: #333;
+      padding: 16px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 300px;
+      z-index: 10000;
+      animation: slideIn 0.3s ease;
+      border-left: 4px solid #22c55e;
+    }
+
+    .toast.error {
+      border-left-color: #ef4444;
+    }
+
+    .toast-icon {
+      font-size: 1.2rem;
+    }
+
+    .toast-message {
+      flex: 1;
+      font-size: 0.95rem;
+    }
+
+    .toast-close {
+      background: none;
+      border: none;
+      color: #999;
+      cursor: pointer;
+      font-size: 1.2rem;
+      padding: 0;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s;
+    }
+
+    .toast-close:hover {
+      color: #333;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideOut {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+    }
+
+    .toast.hiding {
+      animation: slideOut 0.3s ease;
+    }
+
+    /* Modal per input cognome */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-header {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .modal-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1rem;
+      margin-bottom: 20px;
+      transition: border-color 0.2s;
+    }
+
+    .modal-input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .modal-btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .modal-btn-cancel {
+      background: #f0f0f0;
+      color: #666;
+    }
+
+    .modal-btn-cancel:hover {
+      background: #e0e0e0;
+    }
+
+    .modal-btn-confirm {
+      background: #22c55e;
+      color: white;
+    }
+
+    .modal-btn-confirm:hover {
+      background: #16a34a;
+    }
   </style>
 </head>
 <body>
@@ -603,9 +815,11 @@
               <p><strong>ASL:</strong> Tutte le ASL del Lazio</p>
             </div>
             <div class="info-box-col">
-              <div id="cognomiTags" class="cognomi-tags"></div>
-              <div id="noCognomi" style="display: none;">
-                <p style="font-size: 0.85rem; margin: 0; color: #999;">Nessun cognome configurato. Usa <code>/add COGNOME</code> nel bot.</p>
+              <div id="cognomiTags" class="cognomi-tags">
+                <button class="cognome-add-btn" id="addCognomeBtn">
+                  <span>+</span>
+                  <span>Aggiungi</span>
+                </button>
               </div>
             </div>
           </div>
@@ -662,7 +876,192 @@
     </div>
   </div>
 
+  <!-- Modal per aggiungere cognome -->
+  <div class="modal" id="addCognomeModal">
+    <div class="modal-content">
+      <div class="modal-header">Aggiungi cognome</div>
+      <input
+        type="text"
+        class="modal-input"
+        id="cognomeInput"
+        placeholder="Inserisci il cognome..."
+        maxlength="50"
+      />
+      <div class="modal-buttons">
+        <button class="modal-btn modal-btn-cancel" id="modalCancelBtn">Annulla</button>
+        <button class="modal-btn modal-btn-confirm" id="modalConfirmBtn">Aggiungi</button>
+      </div>
+    </div>
+  </div>
+
   <script>
+    // ===== TOAST NOTIFICATIONS =====
+    function showToast(message, isError = false) {
+      const toast = document.createElement('div');
+      toast.className = `toast ${isError ? 'error' : ''}`;
+      toast.innerHTML = `
+        <span class="toast-icon">${isError ? '❌' : '✅'}</span>
+        <span class="toast-message">${message}</span>
+        <button class="toast-close">×</button>
+      `;
+
+      document.body.appendChild(toast);
+
+      const closeBtn = toast.querySelector('.toast-close');
+      closeBtn.addEventListener('click', () => {
+        removeToast(toast);
+      });
+
+      setTimeout(() => {
+        removeToast(toast);
+      }, 4000);
+    }
+
+    function removeToast(toast) {
+      toast.classList.add('hiding');
+      setTimeout(() => {
+        if (toast.parentNode) {
+          toast.parentNode.removeChild(toast);
+        }
+      }, 300);
+    }
+
+    // ===== GESTIONE COGNOMI =====
+    function renderCognomi(cognomi) {
+      const cognomiTags = document.getElementById('cognomiTags');
+
+      if (!cognomi || cognomi.length === 0) {
+        cognomiTags.innerHTML = `
+          <span class="cognomi-empty">Nessun cognome presente</span>
+          <button class="cognome-add-btn" id="addCognomeBtn">
+            <span>+</span>
+            <span>Aggiungi</span>
+          </button>
+        `;
+      } else {
+        const tagsHtml = cognomi.map(cognome => `
+          <span class="cognome-tag">
+            <span>${cognome}</span>
+            <button class="cognome-tag-remove" data-cognome="${cognome}">×</button>
+          </span>
+        `).join('');
+
+        cognomiTags.innerHTML = `
+          ${tagsHtml}
+          <button class="cognome-add-btn" id="addCognomeBtn">
+            <span>+</span>
+            <span>Aggiungi</span>
+          </button>
+        `;
+      }
+
+      // Aggiungi event listeners
+      document.getElementById('addCognomeBtn').addEventListener('click', openAddCognomeModal);
+
+      document.querySelectorAll('.cognome-tag-remove').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const cognome = e.target.dataset.cognome;
+          await removeCognome(cognome);
+        });
+      });
+    }
+
+    async function addCognome(cognome) {
+      try {
+        const response = await fetch('/api/user/cognomi', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include',
+          body: JSON.stringify({ cognome })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          showToast(data.error || 'Errore nell\'aggiunta del cognome', true);
+          return;
+        }
+
+        showToast(data.message);
+        renderCognomi(data.cognomi);
+
+      } catch (error) {
+        console.error('Error adding cognome:', error);
+        showToast('Errore di connessione', true);
+      }
+    }
+
+    async function removeCognome(cognome) {
+      try {
+        const response = await fetch('/api/user/cognomi', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include',
+          body: JSON.stringify({ cognome })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          showToast(data.error || 'Errore nella rimozione del cognome', true);
+          return;
+        }
+
+        showToast(data.message);
+        renderCognomi(data.cognomi);
+
+      } catch (error) {
+        console.error('Error removing cognome:', error);
+        showToast('Errore di connessione', true);
+      }
+    }
+
+    // ===== MODAL GESTIONE =====
+    const modal = document.getElementById('addCognomeModal');
+    const cognomeInput = document.getElementById('cognomeInput');
+    const modalCancelBtn = document.getElementById('modalCancelBtn');
+    const modalConfirmBtn = document.getElementById('modalConfirmBtn');
+
+    function openAddCognomeModal() {
+      modal.classList.add('active');
+      cognomeInput.value = '';
+      cognomeInput.focus();
+    }
+
+    function closeAddCognomeModal() {
+      modal.classList.remove('active');
+    }
+
+    modalCancelBtn.addEventListener('click', closeAddCognomeModal);
+
+    modalConfirmBtn.addEventListener('click', async () => {
+      const cognome = cognomeInput.value.trim();
+      if (cognome) {
+        await addCognome(cognome);
+        closeAddCognomeModal();
+      }
+    });
+
+    cognomeInput.addEventListener('keypress', async (e) => {
+      if (e.key === 'Enter') {
+        const cognome = cognomeInput.value.trim();
+        if (cognome) {
+          await addCognome(cognome);
+          closeAddCognomeModal();
+        }
+      }
+    });
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeAddCognomeModal();
+      }
+    });
+
     // Gestione tab
     const tabs = document.querySelectorAll('.tab');
     const tabContents = document.querySelectorAll('.tab-content');
@@ -723,19 +1122,8 @@
         configContent.style.display = 'block';
 
         // Mostra cognomi
-        const cognomiTags = document.getElementById('cognomiTags');
-        const noCognomi = document.getElementById('noCognomi');
         const cognomi = data.user.query.cognomi || [];
-
-        if (cognomi.length === 0) {
-          cognomiTags.innerHTML = '';
-          noCognomi.style.display = 'block';
-        } else {
-          noCognomi.style.display = 'none';
-          cognomiTags.innerHTML = cognomi.map(c =>
-            `<span class="cognome-tag">${c}</span>`
-          ).join('');
-        }
+        renderCognomi(cognomi);
 
         // Mostra info ultima esecuzione
         const lastCheck = data.user.lastCheck;
