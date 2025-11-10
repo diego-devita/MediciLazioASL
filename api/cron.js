@@ -1,4 +1,4 @@
-import { getAllUsers, saveResults, markSuccessfulContact, markFailedContact } from '../lib/database.js';
+import { getAllUsers, saveResults, markSuccessfulContact, markFailedContact, saveCronLog } from '../lib/database.js';
 import { sendNotification } from '../lib/telegram.js';
 import { MediciSearchClient } from '../lib/medici/client.js';
 
@@ -47,6 +47,7 @@ async function handler(req, res) {
   }
 
   console.log('🕐 Cron job started:', new Date().toISOString());
+  const startTime = Date.now();
 
   try {
     // Ottieni tutti gli utenti
@@ -54,6 +55,15 @@ async function handler(req, res) {
     console.log(`Found ${users.length} users`);
 
     if (users.length === 0) {
+      // Salva log anche se non ci sono utenti
+      await saveCronLog({
+        success: true,
+        usersChecked: 0,
+        usersSuccessful: 0,
+        usersErrors: 0,
+        duration: Date.now() - startTime
+      });
+
       return res.status(200).json({
         success: true,
         message: 'No users',
@@ -317,6 +327,15 @@ Usa /medici per vedere i dettagli.
 
     console.log(`✅ Cron job completed: ${successCount} success, ${errorCount} errors`);
 
+    // Salva log esecuzione
+    await saveCronLog({
+      success: true,
+      usersChecked: users.length,
+      usersSuccessful: successCount,
+      usersErrors: errorCount,
+      duration: Date.now() - startTime
+    });
+
     return res.status(200).json({
       success: true,
       checked: users.length,
@@ -326,6 +345,17 @@ Usa /medici per vedere i dettagli.
 
   } catch (error) {
     console.error('Cron job error:', error);
+
+    // Salva log errore
+    await saveCronLog({
+      success: false,
+      usersChecked: 0,
+      usersSuccessful: 0,
+      usersErrors: 0,
+      duration: Date.now() - startTime,
+      error: error.message
+    });
+
     return res.status(500).json({
       success: false,
       error: error.message
