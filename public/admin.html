@@ -627,7 +627,7 @@
       content.style.display = 'none';
 
       try {
-        const response = await fetch('/api/admin/stats', {
+        const response = await fetch('/api/admin?action=stats', {
           credentials: 'include'
         });
 
@@ -750,7 +750,7 @@
       });
 
       try {
-        const response = await fetch(`/api/admin/users?${params}`, {
+        const response = await fetch(`/api/admin?action=users&${params}`, {
           credentials: 'include'
         });
 
@@ -810,7 +810,7 @@
       }
 
       try {
-        const response = await fetch(`/api/admin/users?chatId=${chatId}`, {
+        const response = await fetch(`/api/admin?action=users&chatId=${chatId}`, {
           method: 'DELETE',
           credentials: 'include'
         });
@@ -833,7 +833,7 @@
       }
 
       try {
-        const response = await fetch(`/api/admin/sessions?chatId=${chatId}`, {
+        const response = await fetch(`/api/admin?action=sessions&chatId=${chatId}`, {
           method: 'DELETE',
           credentials: 'include'
         });
@@ -871,7 +871,7 @@
       });
 
       try {
-        const response = await fetch(`/api/admin/sessions?${params}`, {
+        const response = await fetch(`/api/admin?action=sessions&${params}`, {
           credentials: 'include'
         });
 
@@ -932,7 +932,7 @@
       }
 
       try {
-        const response = await fetch(`/api/admin/sessions?tokenHash=${tokenHash}`, {
+        const response = await fetch(`/api/admin?action=sessions&tokenHash=${tokenHash}`, {
           method: 'DELETE',
           credentials: 'include'
         });
@@ -977,7 +977,7 @@
       if (ip) params.append('ip', ip);
 
       try {
-        const response = await fetch(`/api/admin/login-attempts?${params}`, {
+        const response = await fetch(`/api/admin?action=login-attempts&${params}`, {
           credentials: 'include'
         });
 
@@ -1041,7 +1041,7 @@
       }
 
       try {
-        const response = await fetch('/api/admin/login-attempts', {
+        const response = await fetch('/api/admin?action=login-attempts', {
           method: 'DELETE',
           credentials: 'include'
         });
@@ -1177,7 +1177,7 @@
 
       try {
         const params = new URLSearchParams({ name: collectionName, page, limit: 20 });
-        const response = await fetch(`/api/admin/collection?${params}`, {
+        const response = await fetch(`/api/admin?action=collection&${params}`, {
           credentials: 'include'
         });
 
