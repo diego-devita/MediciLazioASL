@@ -182,6 +182,19 @@
       color: #555;
     }
 
+    .info-box-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .info-box-col h4 {
+      color: #667eea;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+    }
+
     .stat-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -349,21 +362,21 @@
     /* Statistiche compatte */
     .stats-compact {
       display: flex;
-      gap: 12px;
+      gap: 10px;
       margin: 15px 0;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
     }
 
     .stat-compact {
       background: #f9f9f9;
       border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      padding: 12px 18px;
+      border-radius: 6px;
+      padding: 8px 12px;
       display: flex;
-      flex-direction: column;
+      gap: 8px;
       align-items: center;
       flex: 1;
-      min-width: 100px;
+      min-width: 0;
     }
 
     .stat-compact.stat-success {
@@ -382,10 +395,9 @@
     }
 
     .stat-compact-value {
-      font-size: 1.5rem;
+      font-size: 1.25rem;
       font-weight: 700;
       color: #667eea;
-      margin-bottom: 4px;
     }
 
     .stat-success .stat-compact-value {
@@ -402,7 +414,7 @@
 
     .stat-compact-label {
       color: #666;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       font-weight: 600;
     }
 
@@ -417,9 +429,12 @@
     .result-item {
       background: #f9f9f9;
       border-left: 4px solid #667eea;
-      padding: 15px;
-      margin-bottom: 12px;
+      padding: 10px 15px;
+      margin-bottom: 8px;
       border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
     .result-item.libero {
@@ -432,17 +447,10 @@
       background: #fffbeb;
     }
 
-    .result-item-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 8px;
-    }
-
     .result-item-name {
-      font-weight: 700;
+      font-weight: 600;
       color: #333;
-      font-size: 1.05rem;
+      font-size: 0.95rem;
     }
 
     .result-item-badge {
@@ -461,23 +469,6 @@
 
     .result-item-badge.deroga {
       background: #f59e0b;
-    }
-
-    .result-item-details {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 8px;
-      font-size: 0.9rem;
-      color: #555;
-    }
-
-    .result-item-detail {
-      display: flex;
-      gap: 6px;
-    }
-
-    .result-item-detail strong {
-      color: #333;
     }
 
     /* Toggle per espandere/comprimere risultati */
@@ -604,17 +595,18 @@
       <div id="configContent" style="display: none;">
         <div class="info-box">
           <h3>🔍 Ricerca Configurata</h3>
-          <p><strong>Tipo:</strong> Medicina Generale (MMG)</p>
-          <p><strong>ASL:</strong> Tutte le ASL del Lazio</p>
-        </div>
-
-        <div class="cognomi-list">
-          <h4>📝 Cognomi monitorati</h4>
-          <div id="cognomiTags" class="cognomi-tags"></div>
-          <div id="noCognomi" class="empty-state" style="display: none;">
-            <div class="empty-state-icon">📭</div>
-            <p>Nessun cognome configurato</p>
-            <p style="font-size: 0.9rem; margin-top: 10px;">Usa <code>/add COGNOME</code> nel bot per aggiungerne</p>
+          <div class="info-box-grid">
+            <div class="info-box-col">
+              <p><strong>Tipo:</strong> Medicina Generale (MMG)</p>
+              <p><strong>ASL:</strong> Tutte le ASL del Lazio</p>
+            </div>
+            <div class="info-box-col">
+              <h4>📝 Cognomi monitorati</h4>
+              <div id="cognomiTags" class="cognomi-tags"></div>
+              <div id="noCognomi" style="display: none;">
+                <p style="font-size: 0.85rem; margin: 0; color: #999;">Nessun cognome configurato. Usa <code>/add COGNOME</code> nel bot.</p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -627,10 +619,6 @@
           <div class="detail">
             <span class="label">Prossimo controllo:</span>
             <span class="value" id="nextCheckTime">Dipende dal cron esterno</span>
-          </div>
-          <div class="detail">
-            <span class="label">Medici trovati:</span>
-            <span class="value" id="lastResultsCount">-</span>
           </div>
         </div>
 
@@ -760,8 +748,6 @@
           document.getElementById('lastCheckTime').textContent = 'Mai eseguito';
         }
 
-        document.getElementById('lastResultsCount').textContent = lastResults.length;
-
         // Calcola statistiche se ci sono risultati
         if (lastResults.length > 0) {
           const liberi = lastResults.filter(m =>
@@ -814,23 +800,8 @@
 
             return `
               <div class="result-item ${itemClass}">
-                <div class="result-item-header">
-                  <div class="result-item-name">${medico.cognome || '-'} ${medico.nome || ''}</div>
-                  <div class="result-item-badge ${badgeClass}">${badgeText}</div>
-                </div>
-                <div class="result-item-details">
-                  <div class="result-item-detail">
-                    <strong>ASL:</strong> <span>${medico.azienda || '-'}</span>
-                  </div>
-                  <div class="result-item-detail">
-                    <strong>Ambito:</strong> <span>${medico.ambito || '-'}</span>
-                  </div>
-                  ${medico.assegnabilita ? `
-                    <div class="result-item-detail" style="grid-column: 1 / -1;">
-                      <strong>Assegnabilità:</strong> <span>${medico.assegnabilita}</span>
-                    </div>
-                  ` : ''}
-                </div>
+                <div class="result-item-name">${medico.cognome || '-'} ${medico.nome || ''}</div>
+                <div class="result-item-badge ${badgeClass}">${badgeText}</div>
               </div>
             `;
           }).join('');
