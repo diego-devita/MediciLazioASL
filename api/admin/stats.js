@@ -115,7 +115,43 @@ async function handler(req, res) {
 
     // Database info
     const stats = await db.stats();
-    const collections = await db.listCollections().toArray();
+    const collectionsList = await db.listCollections().toArray();
+
+    // Get detailed stats for each collection
+    const collectionsWithStats = await Promise.all(
+      collectionsList.map(async (c) => {
+        try {
+          const collection = db.collection(c.name);
+          const collStats = await collection.stats();
+          const count = await collection.countDocuments();
+          const indexes = await collection.indexes();
+
+          return {
+            name: c.name,
+            type: c.type,
+            count,
+            size: collStats.size || 0,
+            storageSize: collStats.storageSize || 0,
+            indexCount: indexes.length,
+            indexes: indexes.map(idx => ({
+              name: idx.name,
+              keys: idx.key
+            }))
+          };
+        } catch (err) {
+          console.error(`Error getting stats for collection ${c.name}:`, err);
+          return {
+            name: c.name,
+            type: c.type,
+            count: 0,
+            size: 0,
+            storageSize: 0,
+            indexCount: 0,
+            indexes: []
+          };
+        }
+      })
+    );
 
     return res.status(200).json({
       success: true,
@@ -135,14 +171,9 @@ async function handler(req, res) {
       database: {
         name: DATABASE.NAME,
         size: stats.dataSize,
-        collections: collections.map(c => ({
-          name: c.name,
-          type: c.type
-        }))
-      },
-      environment: {
-        region: process.env.VERCEL_REGION || 'unknown',
-        env: process.env.VERCEL_ENV || 'unknown'
+        storageSize: stats.storageSize,
+        indexSize: stats.indexSize,
+        collections: collectionsWithStats
       }
     });
 

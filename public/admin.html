@@ -416,7 +416,7 @@
         <button class="tab-button active" data-tab="overview">📈 Overview</button>
         <button class="tab-button" data-tab="users">👥 Utenti Bot</button>
         <button class="tab-button" data-tab="login-attempts">🔐 Login Attempts</button>
-        <button class="tab-button" data-tab="system">⚙️ System Info</button>
+        <button class="tab-button" data-tab="database">🗄️ Database</button>
       </div>
 
       <!-- Tab Overview -->
@@ -513,12 +513,44 @@
         </div>
       </div>
 
-      <!-- Tab System Info -->
-      <div id="tab-system" class="tab-content">
-        <div id="systemLoading" class="loading">Caricamento informazioni sistema...</div>
-        <div id="systemError" class="error" style="display: none;"></div>
-        <div id="systemContent" style="display: none;">
-          <div class="info-grid" id="systemInfoGrid"></div>
+      <!-- Tab Database -->
+      <div id="tab-database" class="tab-content">
+        <div id="databaseLoading" class="loading">Caricamento informazioni database...</div>
+        <div id="databaseError" class="error" style="display: none;"></div>
+        <div id="databaseContent" style="display: none;">
+          <div class="section">
+            <h2>📊 Sintesi Database</h2>
+            <div class="info-grid" id="databaseSummary"></div>
+          </div>
+
+          <div class="section">
+            <h2>📋 Collections</h2>
+            <table id="collectionsTable">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Tipo</th>
+                  <th>Documenti</th>
+                  <th>Dimensione</th>
+                  <th>Storage</th>
+                  <th>Indici</th>
+                  <th>Azioni</th>
+                </tr>
+              </thead>
+              <tbody id="collectionsTableBody"></tbody>
+            </table>
+          </div>
+
+          <div class="section" id="collectionContentSection" style="display: none;">
+            <h2 id="collectionContentTitle">📄 Contenuto Collection</h2>
+            <button onclick="closeCollectionContent()" style="margin-bottom: 15px;">✕ Chiudi</button>
+            <div id="collectionContentLoading" class="loading">Caricamento contenuto...</div>
+            <div id="collectionContentError" class="error" style="display: none;"></div>
+            <div id="collectionContentData" style="display: none;">
+              <pre id="collectionContentPre" style="background: #f5f5f5; padding: 20px; border-radius: 6px; overflow-x: auto; font-size: 0.85rem; line-height: 1.4;"></pre>
+              <div class="pagination" id="collectionContentPagination"></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -891,11 +923,20 @@
       `;
     }
 
-    // Load system info from stats
-    async function loadSystemInfo() {
-      const loading = document.getElementById('systemLoading');
-      const error = document.getElementById('systemError');
-      const content = document.getElementById('systemContent');
+    // Format bytes helper
+    function formatBytes(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+    }
+
+    // Load database info from stats
+    async function loadDatabaseInfo() {
+      const loading = document.getElementById('databaseLoading');
+      const error = document.getElementById('databaseError');
+      const content = document.getElementById('databaseContent');
 
       if (!statsData) {
         await loadOverview();
@@ -904,22 +945,16 @@
       loading.style.display = 'none';
       content.style.display = 'block';
 
-      renderSystemInfo();
+      renderDatabaseInfo();
     }
 
-    function renderSystemInfo() {
-      const grid = document.getElementById('systemInfoGrid');
-      const { database, environment } = statsData;
+    function renderDatabaseInfo() {
+      const summary = document.getElementById('databaseSummary');
+      const tbody = document.getElementById('collectionsTableBody');
+      const { database } = statsData;
 
-      const formatBytes = (bytes) => {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
-      };
-
-      grid.innerHTML = `
+      // Render summary
+      summary.innerHTML = `
         <div class="info-card">
           <h3>🗄️ Database</h3>
           <div class="info-row">
@@ -927,37 +962,123 @@
             <span class="info-value">${database.name}</span>
           </div>
           <div class="info-row">
-            <span class="info-label">Dimensione:</span>
+            <span class="info-label">Dimensione Dati:</span>
             <span class="info-value">${formatBytes(database.size)}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Storage:</span>
+            <span class="info-value">${formatBytes(database.storageSize)}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Dimensione Indici:</span>
+            <span class="info-value">${formatBytes(database.indexSize)}</span>
           </div>
           <div class="info-row">
             <span class="info-label">Collections:</span>
             <span class="info-value">${database.collections.length}</span>
           </div>
         </div>
-
-        <div class="info-card">
-          <h3>☁️ Vercel</h3>
-          <div class="info-row">
-            <span class="info-label">Region:</span>
-            <span class="info-value">${environment.region}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Environment:</span>
-            <span class="info-value">${environment.env}</span>
-          </div>
-        </div>
-
-        <div class="info-card">
-          <h3>📋 Collections</h3>
-          ${database.collections.map(c => `
-            <div class="info-row">
-              <span class="info-label">${c.name}</span>
-              <span class="info-value">${c.type}</span>
-            </div>
-          `).join('')}
-        </div>
       `;
+
+      // Render collections table
+      tbody.innerHTML = database.collections.map(c => `
+        <tr>
+          <td><strong>${c.name}</strong></td>
+          <td><span class="badge info">${c.type}</span></td>
+          <td>${c.count.toLocaleString()}</td>
+          <td>${formatBytes(c.size)}</td>
+          <td>${formatBytes(c.storageSize)}</td>
+          <td>
+            ${c.indexCount}
+            ${c.indexes.length > 0 ? `<span style="font-size: 0.75rem; color: #999;" title="${c.indexes.map(idx => idx.name).join(', ')}">(${c.indexes.map(idx => idx.name).join(', ')})</span>` : ''}
+          </td>
+          <td>
+            <button class="action-btn" style="background: #667eea;" onclick="loadCollectionContent('${c.name}', 1)">👁️ Vedi</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Collection content viewer
+    let currentCollectionName = null;
+
+    async function loadCollectionContent(collectionName, page = 1) {
+      currentCollectionName = collectionName;
+
+      const section = document.getElementById('collectionContentSection');
+      const title = document.getElementById('collectionContentTitle');
+      const loading = document.getElementById('collectionContentLoading');
+      const error = document.getElementById('collectionContentError');
+      const data = document.getElementById('collectionContentData');
+
+      section.style.display = 'block';
+      title.textContent = `📄 Contenuto: ${collectionName}`;
+      loading.style.display = 'block';
+      error.style.display = 'none';
+      data.style.display = 'none';
+
+      // Scroll to section
+      section.scrollIntoView({ behavior: 'smooth' });
+
+      try {
+        const params = new URLSearchParams({ name: collectionName, page, limit: 20 });
+        const response = await fetch(`/api/admin/collection?${params}`, {
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        loading.style.display = 'none';
+        data.style.display = 'block';
+
+        renderCollectionContent(result);
+
+      } catch (err) {
+        loading.style.display = 'none';
+        error.style.display = 'block';
+        error.textContent = `Errore caricamento contenuto: ${err.message}`;
+      }
+    }
+
+    function renderCollectionContent(result) {
+      const pre = document.getElementById('collectionContentPre');
+      const { documents, pagination } = result;
+
+      if (documents.length === 0) {
+        pre.textContent = 'Nessun documento trovato in questa collection.';
+      } else {
+        pre.textContent = JSON.stringify(documents, null, 2);
+      }
+
+      renderCollectionContentPagination(pagination);
+    }
+
+    function renderCollectionContentPagination(pagination) {
+      const container = document.getElementById('collectionContentPagination');
+      const { page, totalPages, total } = pagination;
+
+      const prevDisabled = page <= 1;
+      const nextDisabled = page >= totalPages;
+
+      container.innerHTML = `
+        <button ${prevDisabled ? 'disabled' : ''} onclick="loadCollectionContent('${currentCollectionName}', ${page - 1})">
+          ← Precedente
+        </button>
+        <span>Pagina ${page} di ${totalPages} (Totale: ${total.toLocaleString()} documenti)</span>
+        <button ${nextDisabled ? 'disabled' : ''} onclick="loadCollectionContent('${currentCollectionName}', ${page + 1})">
+          Successiva →
+        </button>
+      `;
+    }
+
+    function closeCollectionContent() {
+      const section = document.getElementById('collectionContentSection');
+      section.style.display = 'none';
+      currentCollectionName = null;
     }
 
     // Initial load
@@ -971,7 +1092,7 @@
         const tabName = button.getAttribute('data-tab');
         if (tabName === 'users') loadUsers();
         if (tabName === 'login-attempts') loadLoginAttempts();
-        if (tabName === 'system') loadSystemInfo();
+        if (tabName === 'database') loadDatabaseInfo();
       });
     });
   </script>
