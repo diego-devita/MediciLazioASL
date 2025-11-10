@@ -1,0 +1,51 @@
+name: Trigger Cron Job
+
+on:
+  schedule:
+    # Ogni 10 minuti dalle 7:00 alle 23:00 ora italiana
+    # GitHub Actions usa UTC, quindi:
+    # - Inverno (CET, UTC+1): 6:00-21:50 UTC = 7:00-22:50 CET
+    # - Estate (CEST, UTC+2): 5:00-20:50 UTC = 7:00-22:50 CEST
+    #
+    # Nota: Per ora estiva cambia manualmente a '*/10 5-20 * * *'
+    - cron: '*/10 6-21 * * *'
+
+  # Permetti trigger manuale per test
+  workflow_dispatch:
+
+jobs:
+  trigger-cron:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Call Cron Endpoint
+        env:
+          CRON_URL: https://medici-lazio-asl.vercel.app/api/cron
+          CRON_KEY: ${{ secrets.CRON_SECRET_KEY }}
+        run: |
+          echo "🕐 Triggering cron job at $(date)"
+
+          response=$(curl -s -w "\n%{http_code}" -X POST \
+            -H "X-Cron-Key: $CRON_KEY" \
+            -H "Content-Type: application/json" \
+            "$CRON_URL")
+
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | head -n-1)
+
+          echo "📊 HTTP Status: $http_code"
+          echo "📄 Response:"
+          echo "$body" | jq '.' 2>/dev/null || echo "$body"
+
+          if [ "$http_code" -ne 200 ]; then
+            echo "❌ Cron job failed with status $http_code"
+            exit 1
+          fi
+
+          echo "✅ Cron job completed successfully"
+
+      - name: Report Failure
+        if: failure()
+        run: |
+          echo "❌ Cron job execution failed"
+          echo "Check the logs above for details"
