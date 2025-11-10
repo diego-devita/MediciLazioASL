@@ -641,6 +641,108 @@
       font-size: 0.875rem;
       border-top: 1px solid #e0e0e0;
     }
+
+    /* Multi-select Dropdown per ASL */
+    .multiselect-container {
+      position: relative;
+      width: 100%;
+    }
+
+    .multiselect-header {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: border-color 0.3s;
+      font-size: 1rem;
+    }
+
+    .multiselect-header:hover {
+      border-color: #667eea;
+    }
+
+    .multiselect-header.open {
+      border-color: #667eea;
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+
+    .multiselect-header-text {
+      flex: 1;
+      color: #999;
+    }
+
+    .multiselect-header-text.has-selection {
+      color: #333;
+    }
+
+    .multiselect-header-arrow {
+      color: #666;
+      transition: transform 0.3s;
+      font-size: 0.8rem;
+    }
+
+    .multiselect-header-arrow.open {
+      transform: rotate(180deg);
+    }
+
+    .multiselect-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 2px solid #667eea;
+      border-top: none;
+      border-bottom-left-radius: 6px;
+      border-bottom-right-radius: 6px;
+      max-height: 300px;
+      overflow-y: auto;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      display: none;
+    }
+
+    .multiselect-dropdown.open {
+      display: block;
+    }
+
+    .multiselect-option {
+      padding: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.2s;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .multiselect-option:last-child {
+      border-bottom: none;
+    }
+
+    .multiselect-option:hover {
+      background: #f5f5f5;
+    }
+
+    .multiselect-option input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      margin: 0;
+    }
+
+    .multiselect-option label {
+      cursor: pointer;
+      margin: 0;
+      flex: 1;
+      font-weight: normal;
+    }
   </style>
 </head>
 <body>
@@ -682,19 +784,54 @@
 
           <div class="form-group">
             <label for="asl">ASL</label>
-            <select id="asl" name="asl">
-              <option value="">Tutte</option>
-              <option value="Roma 1">Roma 1</option>
-              <option value="Roma 2">Roma 2</option>
-              <option value="Roma 3">Roma 3</option>
-              <option value="Roma 4">Roma 4</option>
-              <option value="Roma 5">Roma 5</option>
-              <option value="Roma 6">Roma 6</option>
-              <option value="Frosinone">Frosinone</option>
-              <option value="Latina">Latina</option>
-              <option value="Rieti">Rieti</option>
-              <option value="Viterbo">Viterbo</option>
-            </select>
+            <div class="multiselect-container" id="aslMultiselect">
+              <div class="multiselect-header" id="aslHeader">
+                <span class="multiselect-header-text" id="aslHeaderText">Tutte</span>
+                <span class="multiselect-header-arrow" id="aslHeaderArrow">▼</span>
+              </div>
+              <div class="multiselect-dropdown" id="aslDropdown">
+                <div class="multiselect-option">
+                  <input type="checkbox" id="asl_roma1" value="Roma 1">
+                  <label for="asl_roma1">Roma 1</label>
+                </div>
+                <div class="multiselect-option">
+                  <input type="checkbox" id="asl_roma2" value="Roma 2">
+                  <label for="asl_roma2">Roma 2</label>
+                </div>
+                <div class="multiselect-option">
+                  <input type="checkbox" id="asl_roma3" value="Roma 3">
+                  <label for="asl_roma3">Roma 3</label>
+                </div>
+                <div class="multiselect-option">
+                  <input type="checkbox" id="asl_roma4" value="Roma 4">
+                  <label for="asl_roma4">Roma 4</label>
+                </div>
+                <div class="multiselect-option">
+                  <input type="checkbox" id="asl_roma5" value="Roma 5">
+                  <label for="asl_roma5">Roma 5</label>
+                </div>
+                <div class="multiselect-option">
+                  <input type="checkbox" id="asl_roma6" value="Roma 6">
+                  <label for="asl_roma6">Roma 6</label>
+                </div>
+                <div class="multiselect-option">
+                  <input type="checkbox" id="asl_frosinone" value="Frosinone">
+                  <label for="asl_frosinone">Frosinone</label>
+                </div>
+                <div class="multiselect-option">
+                  <input type="checkbox" id="asl_latina" value="Latina">
+                  <label for="asl_latina">Latina</label>
+                </div>
+                <div class="multiselect-option">
+                  <input type="checkbox" id="asl_rieti" value="Rieti">
+                  <label for="asl_rieti">Rieti</label>
+                </div>
+                <div class="multiselect-option">
+                  <input type="checkbox" id="asl_viterbo" value="Viterbo">
+                  <label for="asl_viterbo">Viterbo</label>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1194,10 +1331,13 @@
 
       let cognomi, cap, nomi;
 
-      // Leggi ASL prima per validazione
-      const asl = document.getElementById('asl').value;
+      // Leggi ASL selezionate dal multi-select
+      const selectedAsl = getSelectedAsl();
       const tipo = document.getElementById('tipo').value;
-      const hasAsl = asl && asl !== '' && asl !== 'Tutte';
+
+      // Ottimizzazione: se tutte le ASL sono selezionate E c'è almeno un altro campo, tratta come vuoto
+      let aslToSend = selectedAsl;
+      const hasAsl = selectedAsl.length > 0;
 
       if (activeTab === 'base') {
         // Tab Base: cognomi o ASL specifica (almeno uno richiesto)
@@ -1212,6 +1352,11 @@
         if (cognomi.length === 0 && !hasAsl) {
           showError('Inserisci almeno uno tra Cognomi o ASL specifica.');
           return;
+        }
+
+        // Ottimizzazione: se tutte ASL selezionate + cognomi compilati, usa ASL vuoto
+        if (selectedAsl.length === ALL_ASL_OPTIONS.length && cognomi.length > 0) {
+          aslToSend = [];
         }
       } else {
         // Tab Avanzate: cap, cognomi, nomi, asl (almeno uno richiesto)
@@ -1234,6 +1379,12 @@
           showError('Inserisci almeno uno tra CAP, Cognomi, Nomi o ASL specifica.');
           return;
         }
+
+        // Ottimizzazione: se tutte ASL selezionate + almeno un altro campo, usa ASL vuoto
+        const hasOtherFields = cognomi.length > 0 || cap.length > 0 || nomi.length > 0;
+        if (selectedAsl.length === ALL_ASL_OPTIONS.length && hasOtherFields) {
+          aslToSend = [];
+        }
       }
 
       // MODALITÀ BATCH
@@ -1253,7 +1404,7 @@
             cap,
             nomi,
             tipo,
-            asl
+            asl: aslToSend
           });
 
           hideBatchProgress();
@@ -1290,7 +1441,7 @@
           credentials: 'include',
           body: JSON.stringify({
             cognomi,
-            asl,
+            asl: aslToSend,
             tipo,
             cap,
             nomi
@@ -1326,6 +1477,89 @@
         showError('Errore di connessione. Riprova più tardi.');
         console.error('Search error:', err);
       }
+    });
+
+    // ===== MULTI-SELECT ASL DROPDOWN =====
+    const aslHeader = document.getElementById('aslHeader');
+    const aslHeaderText = document.getElementById('aslHeaderText');
+    const aslHeaderArrow = document.getElementById('aslHeaderArrow');
+    const aslDropdown = document.getElementById('aslDropdown');
+    const aslCheckboxes = aslDropdown.querySelectorAll('input[type="checkbox"]');
+
+    const ALL_ASL_OPTIONS = ['Roma 1', 'Roma 2', 'Roma 3', 'Roma 4', 'Roma 5', 'Roma 6', 'Frosinone', 'Latina', 'Rieti', 'Viterbo'];
+
+    // Toggle dropdown
+    aslHeader.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = aslDropdown.classList.contains('open');
+
+      if (isOpen) {
+        closeAslDropdown();
+      } else {
+        openAslDropdown();
+      }
+    });
+
+    function openAslDropdown() {
+      aslDropdown.classList.add('open');
+      aslHeader.classList.add('open');
+      aslHeaderArrow.classList.add('open');
+    }
+
+    function closeAslDropdown() {
+      aslDropdown.classList.remove('open');
+      aslHeader.classList.remove('open');
+      aslHeaderArrow.classList.remove('open');
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!document.getElementById('aslMultiselect').contains(e.target)) {
+        closeAslDropdown();
+      }
+    });
+
+    // Update header text when checkboxes change
+    function updateAslHeaderText() {
+      const selected = getSelectedAsl();
+
+      if (selected.length === 0) {
+        // Nessuna selezione
+        aslHeaderText.textContent = 'Tutte';
+        aslHeaderText.classList.remove('has-selection');
+      } else if (selected.length === ALL_ASL_OPTIONS.length) {
+        // Tutte selezionate
+        aslHeaderText.textContent = 'Tutte';
+        aslHeaderText.classList.remove('has-selection');
+      } else {
+        // Alcune selezionate
+        aslHeaderText.textContent = selected.join(', ');
+        aslHeaderText.classList.add('has-selection');
+      }
+    }
+
+    // Get selected ASL
+    function getSelectedAsl() {
+      const selected = [];
+      aslCheckboxes.forEach(cb => {
+        if (cb.checked) {
+          selected.push(cb.value);
+        }
+      });
+      return selected;
+    }
+
+    // Checkbox change handler
+    aslCheckboxes.forEach(cb => {
+      cb.addEventListener('change', () => {
+        updateAslHeaderText();
+        checkCombinationsWarning();
+      });
+    });
+
+    // Prevent dropdown close when clicking checkbox/label
+    aslDropdown.addEventListener('click', (e) => {
+      e.stopPropagation();
     });
   </script>
 </body>

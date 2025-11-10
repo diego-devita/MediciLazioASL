@@ -27,7 +27,7 @@
  *   cap: ['00100', '00118'],
  *   nomi: ['MARIO'],
  *   tipo: 'Medicina generale',
- *   asl: 'Tutte'
+ *   asl: ['Roma 1', 'Roma 2']
  * });
  */
 
@@ -37,33 +37,38 @@ export class BatchSearchClient {
     this.parallelism = options.parallelism || 5;
     this.onProgress = options.onProgress || null;
     this.abortController = null;
+    this.ALL_ASL_OPTIONS = ['Roma 1', 'Roma 2', 'Roma 3', 'Roma 4', 'Roma 5', 'Roma 6', 'Frosinone', 'Latina', 'Rieti', 'Viterbo'];
   }
 
   /**
-   * Genera prodotto cartesiano di cognomi × cap × nomi
+   * Genera prodotto cartesiano di cognomi × cap × nomi × asl
    * @private
    */
-  _generateCombinations(cognomi = [], cap = [], nomi = []) {
+  _generateCombinations(cognomi = [], cap = [], nomi = [], asl = []) {
     // Se tutti vuoti, errore
-    if (cognomi.length === 0 && cap.length === 0 && nomi.length === 0) {
-      throw new Error('At least one of cognomi, cap, or nomi must be provided');
+    if (cognomi.length === 0 && cap.length === 0 && nomi.length === 0 && asl.length === 0) {
+      throw new Error('At least one of cognomi, cap, nomi, or asl must be provided');
     }
 
     // Se una lista è vuota, usa [''] per avere almeno una combinazione
     const cognomiList = cognomi.length > 0 ? cognomi : [''];
     const capList = cap.length > 0 ? cap : [''];
     const nomiList = nomi.length > 0 ? nomi : [''];
+    const aslList = asl.length > 0 ? asl : [''];
 
     const combinations = [];
 
-    for (const cognome of cognomiList) {
-      for (const c of capList) {
-        for (const nome of nomiList) {
-          combinations.push({
-            cognome: cognome || '',
-            cap: c || '',
-            nome: nome || ''
-          });
+    for (const aslValue of aslList) {
+      for (const cognome of cognomiList) {
+        for (const c of capList) {
+          for (const nome of nomiList) {
+            combinations.push({
+              cognome: cognome || '',
+              cap: c || '',
+              nome: nome || '',
+              asl: aslValue || ''
+            });
+          }
         }
       }
     }
@@ -98,7 +103,7 @@ export class BatchSearchClient {
    * Esegue batch di chiamate in parallelo con limite di concorrenza
    * @private
    */
-  async _executeBatch(combinations, tipo, asl) {
+  async _executeBatch(combinations, tipo) {
     const total = combinations.length;
     let completed = 0;
     const startTime = Date.now();
@@ -121,7 +126,7 @@ export class BatchSearchClient {
             cap: combo.cap,
             nome: combo.nome,
             tipo,
-            asl
+            asl: combo.asl
           },
           signal
         );
@@ -239,7 +244,7 @@ export class BatchSearchClient {
    * @param {string[]} params.cap - Array di CAP
    * @param {string[]} params.nomi - Array di nomi
    * @param {string} params.tipo - Tipo di medico (default: 'Medicina generale')
-   * @param {string} params.asl - ASL (default: 'Tutte')
+   * @param {string[]} params.asl - Array di ASL (default: [])
    *
    * @returns {Promise<Object>} Response formato compatibile con /api/search
    */
@@ -249,12 +254,20 @@ export class BatchSearchClient {
       cap = [],
       nomi = [],
       tipo = 'Medicina generale',
-      asl = 'Tutte'
+      asl = []
     } = params;
 
     try {
+      // Ottimizzazione: se tutte le ASL sono selezionate E c'è almeno un altro campo, tratta ASL come vuoto
+      let aslToUse = asl;
+      const hasOtherFields = cognomi.length > 0 || cap.length > 0 || nomi.length > 0;
+
+      if (Array.isArray(asl) && asl.length === this.ALL_ASL_OPTIONS.length && hasOtherFields) {
+        aslToUse = [];
+      }
+
       // Genera combinazioni
-      const combinations = this._generateCombinations(cognomi, cap, nomi);
+      const combinations = this._generateCombinations(cognomi, cap, nomi, aslToUse);
 
       // Progress iniziale
       if (this.onProgress) {
@@ -269,7 +282,7 @@ export class BatchSearchClient {
       }
 
       // Esegui batch
-      const batchResult = await this._executeBatch(combinations, tipo, asl);
+      const batchResult = await this._executeBatch(combinations, tipo);
 
       // Calcola counters finali
       const counters = this._calculateCounters(batchResult.results);
@@ -280,7 +293,7 @@ export class BatchSearchClient {
         timestamp: new Date().toISOString(),
         query: {
           tipo,
-          asl,
+          asl: asl.length > 0 ? asl : [],
           cap: cap.length > 0 ? cap : [],
           cognomi: cognomi.length > 0 ? cognomi : [],
           nomi: nomi.length > 0 ? nomi : []

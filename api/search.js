@@ -24,6 +24,7 @@ const ASL_MAP = {
 // Valori validi per i parametri
 const VALID_TIPO = Object.keys(TIPO_MAP);
 const VALID_ASL = Object.keys(ASL_MAP);
+const ALL_ASL_OPTIONS = ['Roma 1', 'Roma 2', 'Roma 3', 'Roma 4', 'Roma 5', 'Roma 6', 'Frosinone', 'Latina', 'Rieti', 'Viterbo'];
 
 // Funzione helper per normalizzare nomi/cognomi
 function normalizeString(str) {
@@ -43,7 +44,7 @@ async function handler(req, res) {
 
     params = {
       cognomi: cognomi ? cognomi.split(',').map(c => normalizeString(c)) : [],
-      asl: asl || '',
+      asl: asl ? asl.split(',').map(a => a.trim()) : [],
       tipo: tipo || 'Medicina generale',
       cap: cap ? cap.split(',').map(c => c.trim()) : [],
       nomi: nomi ? nomi.split(',').map(n => normalizeString(n)) : []
@@ -82,9 +83,14 @@ async function handler(req, res) {
     if (!params.tipo) {
       params.tipo = 'Medicina generale';
     }
-    // ASL default vuoto se non specificato
-    if (!params.asl) {
-      params.asl = '';
+
+    // Normalizza ASL (se è stringa, split; se è array, usa così; altrimenti array vuoto)
+    if (typeof params.asl === 'string') {
+      params.asl = params.asl.split(',').map(a => a.trim()).filter(a => a.length > 0);
+    } else if (Array.isArray(params.asl)) {
+      params.asl = params.asl.map(a => String(a).trim()).filter(a => a.length > 0);
+    } else {
+      params.asl = [];
     }
 
   } else {
@@ -97,14 +103,14 @@ async function handler(req, res) {
   // Accumula tutti gli errori di validazione
   const validationErrors = [];
 
-  // Verifica se ASL è specificata (non vuota e non "Tutte")
-  const hasAsl = params.asl && params.asl !== '' && params.asl !== 'Tutte';
+  // Verifica se almeno una ASL è specificata
+  const hasAsl = params.asl.length > 0;
 
   // Validazione: almeno uno tra cognomi, cap, nomi, asl deve essere presente
   if (params.cognomi.length === 0 && params.cap.length === 0 && params.nomi.length === 0 && !hasAsl) {
     validationErrors.push({
       field: 'cognomi/cap/nomi/asl',
-      message: 'At least one of the following parameters is required: cognomi, cap, nomi, asl (specific ASL, not "Tutte")'
+      message: 'At least one of the following parameters is required: cognomi, cap, nomi, asl'
     });
   }
 
@@ -117,13 +123,18 @@ async function handler(req, res) {
     });
   }
 
-  // Validazione ASL
-  if (params.asl && params.asl !== '' && !VALID_ASL.includes(params.asl)) {
-    validationErrors.push({
-      field: 'asl',
-      value: params.asl,
-      message: `Invalid asl. Must be one of: ${VALID_ASL.join(', ')}`
-    });
+  // Validazione ASL (ogni elemento dell'array deve essere valido)
+  if (params.asl.length > 0) {
+    const invalidAsl = params.asl.filter(a => !VALID_ASL.includes(a));
+    if (invalidAsl.length > 0) {
+      invalidAsl.forEach(asl => {
+        validationErrors.push({
+          field: 'asl',
+          value: asl,
+          message: `Invalid asl. Must be one of: ${VALID_ASL.join(', ')}`
+        });
+      });
+    }
   }
 
   // Validazione cognomi (devono contenere solo lettere maiuscole, apostrofi e spazi)
@@ -176,9 +187,20 @@ async function handler(req, res) {
   }
 
   try {
+    // Ottimizzazione: se tutte le ASL sono selezionate E c'è almeno un altro campo, tratta ASL come vuoto
+    let aslToUse = params.asl;
+    const hasOtherFields = params.cognomi.length > 0 || params.cap.length > 0 || params.nomi.length > 0;
+
+    if (params.asl.length === ALL_ASL_OPTIONS.length && hasOtherFields) {
+      aslToUse = [];
+    }
+
     // Converti valori leggibili in codici per il portale Lazio
     const tipoCode = TIPO_MAP[params.tipo] || 'MMG';
-    const aslCode = ASL_MAP[params.asl] || '';
+
+    // Se aslToUse è vuoto, usa stringa vuota (tutte le ASL)
+    // Se aslToUse ha elementi, genera array di codici ASL
+    const aslCodes = aslToUse.length === 0 ? [''] : aslToUse.map(asl => ASL_MAP[asl] || '');
 
     // Esegui ricerca
     const client = new MediciSearchClient({
@@ -186,18 +208,32 @@ async function handler(req, res) {
       useStaticConfig: false
     });
 
-    const result = await client.searchMedici(
-      params.cognomi,
-      {
-        asl: aslCode,
-        type: tipoCode,
-        zip: Array.isArray(params.cap) ? params.cap.join(',') : (params.cap || ''),
-        name: Array.isArray(params.nomi) ? params.nomi.join(',') : (params.nomi || '')
-      }
+    // Esegui query per ogni ASL selezionata
+    const allResults = [];
+    const allQueries = [];
+
+    for (const aslCode of aslCodes) {
+      const result = await client.searchMedici(
+        params.cognomi,
+        {
+          asl: aslCode,
+          type: tipoCode,
+          zip: Array.isArray(params.cap) ? params.cap.join(',') : (params.cap || ''),
+          name: Array.isArray(params.nomi) ? params.nomi.join(',') : (params.nomi || '')
+        }
+      );
+
+      allResults.push(...result.medici);
+      allQueries.push(...result.singleQueries);
+    }
+
+    // Rimuovi duplicati basandoti su un ID univoco (assumiamo che esista un campo id o combinazione nome+cognome+codice)
+    const uniqueMedici = Array.from(
+      new Map(allResults.map(m => [`${m.cognome}-${m.nome}-${m.codice || ''}`, m])).values()
     );
 
-    const medici = result.medici;
-    const singleQueries = result.singleQueries;
+    const medici = uniqueMedici;
+    const singleQueries = allQueries;
 
     // Conta per categoria
     const assegnabiliLiberi = medici.filter(m => {

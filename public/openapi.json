@@ -15,7 +15,7 @@
     "/api/search": {
       "get": {
         "summary": "Ricerca medici (GET)",
-        "description": "Ricerca medici attraverso il portale Salute Lazio. I filtri a testo libero supportano valori multipli che saranno tradotti in una quantità di query distinte pari al loro prodotto cartesiano. Richiesto almeno uno tra i filtri: cap, cognomi, nomi, asl (specifica, non 'Tutte').",
+        "description": "Ricerca medici attraverso il portale Salute Lazio. I filtri a testo libero supportano valori multipli che saranno tradotti in una quantità di query distinte pari al loro prodotto cartesiano. Richiesto almeno uno tra i filtri: cap, cognomi, nomi, asl.",
         "operationId": "searchMediciGet",
         "tags": ["Ricerca"],
         "security": [
@@ -42,10 +42,11 @@
             "name": "asl",
             "in": "query",
             "required": false,
-            "description": "ASL del Lazio. Specificare una ASL particolare oppure lasciare vuoto/'Tutte' per cercare in tutte le ASL. Se specificata una ASL concreta, può soddisfare da sola il requisito 'almeno un parametro'.",
+            "description": "ASL del Lazio. Supporta valori multipli separati da virgola. Lasciare vuoto per cercare in tutte le ASL. Se specificata almeno una ASL, può soddisfare da sola il requisito 'almeno un parametro'.",
             "schema": {
               "type": "string",
-              "enum": ["Tutte", "Roma 1", "Roma 2", "Roma 3", "Roma 4", "Roma 5", "Roma 6", "Frosinone", "Latina", "Rieti", "Viterbo"]
+              "pattern": "^(Roma 1|Roma 2|Roma 3|Roma 4|Roma 5|Roma 6|Frosinone|Latina|Rieti|Viterbo)(,(Roma 1|Roma 2|Roma 3|Roma 4|Roma 5|Roma 6|Frosinone|Latina|Rieti|Viterbo))*$",
+              "example": "Roma 1,Roma 2"
             }
           },
           {
@@ -95,7 +96,7 @@
                   "timestamp": "2025-11-07T00:23:00.341Z",
                   "query": {
                     "tipo": "Medicina generale",
-                    "asl": "Tutte",
+                    "asl": [],
                     "cap": ["00173"],
                     "cognomi": [],
                     "nomi": []
@@ -152,7 +153,7 @@
                       "errors": [
                         {
                           "field": "cognomi/cap/nomi/asl",
-                          "message": "At least one of the following parameters is required: cognomi, cap, nomi, asl (specific ASL, not \"Tutte\")"
+                          "message": "At least one of the following parameters is required: cognomi, cap, nomi, asl"
                         }
                       ]
                     }
@@ -171,7 +172,7 @@
                         {
                           "field": "asl",
                           "value": "Roma 99",
-                          "message": "Invalid asl. Must be one of: Tutte, Roma 1, Roma 2, Roma 3, Roma 4, Roma 5, Roma 6, Frosinone, Latina, Rieti, Viterbo"
+                          "message": "Invalid asl. Must be one of: Roma 1, Roma 2, Roma 3, Roma 4, Roma 5, Roma 6, Frosinone, Latina, Rieti, Viterbo"
                         },
                         {
                           "field": "cognomi",
@@ -237,7 +238,7 @@
       },
       "post": {
         "summary": "Ricerca medici (POST)",
-        "description": "Ricerca medici attraverso il portale Salute Lazio. I filtri a testo libero supportano valori multipli che saranno tradotti in una quantità di query distinte pari al loro prodotto cartesiano. Richiesto almeno uno tra i filtri: cap, cognomi, nomi, asl (specifica, non 'Tutte').",
+        "description": "Ricerca medici attraverso il portale Salute Lazio. I filtri a testo libero supportano valori multipli che saranno tradotti in una quantità di query distinte pari al loro prodotto cartesiano. Richiesto almeno uno tra i filtri: cap, cognomi, nomi, asl.",
         "operationId": "searchMediciPost",
         "tags": ["Ricerca"],
         "security": [
@@ -271,7 +272,7 @@
                   "timestamp": "2025-11-07T00:23:00.341Z",
                   "query": {
                     "tipo": "Medicina generale",
-                    "asl": "Tutte",
+                    "asl": [],
                     "cap": ["00173"],
                     "cognomi": [],
                     "nomi": []
@@ -328,7 +329,7 @@
                       "errors": [
                         {
                           "field": "cognomi/cap/nomi/asl",
-                          "message": "At least one of the following parameters is required: cognomi, cap, nomi, asl (specific ASL, not \"Tutte\")"
+                          "message": "At least one of the following parameters is required: cognomi, cap, nomi, asl"
                         }
                       ]
                     }
@@ -347,7 +348,7 @@
                         {
                           "field": "asl",
                           "value": "Roma 99",
-                          "message": "Invalid asl. Must be one of: Tutte, Roma 1, Roma 2, Roma 3, Roma 4, Roma 5, Roma 6, Frosinone, Latina, Rieti, Viterbo"
+                          "message": "Invalid asl. Must be one of: Roma 1, Roma 2, Roma 3, Roma 4, Roma 5, Roma 6, Frosinone, Latina, Rieti, Viterbo"
                         },
                         {
                           "field": "cognomi",
@@ -668,7 +669,7 @@
     "schemas": {
       "SearchRequest": {
         "type": "object",
-        "description": "Richiesto almeno uno tra: cognomi, cap, nomi, asl (specifica, non 'Tutte'). Tipo ha un valore di default.",
+        "description": "Richiesto almeno uno tra: cognomi, cap, nomi, asl. Tipo ha un valore di default.",
         "properties": {
           "tipo": {
             "type": "string",
@@ -677,9 +678,13 @@
             "description": "Tipo di medico"
           },
           "asl": {
-            "type": "string",
-            "enum": ["Tutte", "Roma 1", "Roma 2", "Roma 3", "Roma 4", "Roma 5", "Roma 6", "Frosinone", "Latina", "Rieti", "Viterbo"],
-            "description": "ASL del Lazio. Specificare una ASL particolare oppure lasciare vuoto/'Tutte' per cercare in tutte le ASL. Se specificata una ASL concreta, può soddisfare da sola il requisito 'almeno un parametro'."
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["Roma 1", "Roma 2", "Roma 3", "Roma 4", "Roma 5", "Roma 6", "Frosinone", "Latina", "Rieti", "Viterbo"]
+            },
+            "description": "Array di ASL del Lazio. Lasciare vuoto per cercare in tutte le ASL. Se specificata almeno una ASL, può soddisfare da sola il requisito 'almeno un parametro'.",
+            "example": ["Roma 1", "Roma 2"]
           },
           "cap": {
             "type": "array",
@@ -732,9 +737,12 @@
                 "example": "Medicina generale"
               },
               "asl": {
-                "type": "string",
-                "description": "ASL utilizzata nella ricerca",
-                "example": "Tutte"
+                "type": "array",
+                "description": "Array di ASL utilizzate nella ricerca",
+                "items": {
+                  "type": "string"
+                },
+                "example": []
               },
               "cap": {
                 "type": "array",
@@ -1004,9 +1012,12 @@
                 "example": "Medicina generale"
               },
               "asl": {
-                "type": "string",
-                "description": "ASL utilizzata nella ricerca",
-                "example": "Tutte"
+                "type": "array",
+                "description": "Array di ASL utilizzate nella ricerca",
+                "items": {
+                  "type": "string"
+                },
+                "example": []
               },
               "cap": {
                 "type": "string",
