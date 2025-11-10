@@ -78,6 +78,19 @@ async function handler(req, res) {
           continue;
         }
 
+        // Skip se non è passato abbastanza tempo dall'ultima interrogazione
+        const minIntervalMinutes = user.minIntervalMinutes || 30;
+        if (user.lastCheck) {
+          const lastCheckTime = new Date(user.lastCheck).getTime();
+          const now = Date.now();
+          const minutesSinceLastCheck = (now - lastCheckTime) / (1000 * 60);
+
+          if (minutesSinceLastCheck < minIntervalMinutes) {
+            console.log(`Skipping user ${user.chatId} - interval not reached (${Math.floor(minutesSinceLastCheck)}/${minIntervalMinutes} min)`);
+            continue;
+          }
+        }
+
         console.log(`Checking user ${user.chatId} with ${user.query.cognomi.length} cognomi...`);
 
         // Esegui ricerca (ASL = Tutte, tipo = MMG)

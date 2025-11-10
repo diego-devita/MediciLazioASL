@@ -881,6 +881,19 @@
             <span class="label">Prossimo controllo:</span>
             <span class="value" id="nextCheckTime">Dipende dal cron esterno</span>
           </div>
+          <div class="detail">
+            <span class="label">Intervallo minimo:</span>
+            <span class="value">
+              <input
+                type="number"
+                id="intervalInput"
+                min="1"
+                max="300"
+                style="width: 60px; padding: 2px 5px; border: 1px solid #d1fae5; border-radius: 4px;"
+              /> minuti
+              <button id="saveIntervalBtn" style="margin-left: 10px; padding: 4px 12px; background: #22c55e; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">Salva</button>
+            </span>
+          </div>
         </div>
 
         <!-- Statistiche compatte ultima ricerca -->
@@ -1193,6 +1206,43 @@
       }
     });
 
+    // ===== GESTIONE INTERVALLO =====
+    const saveIntervalBtn = document.getElementById('saveIntervalBtn');
+    if (saveIntervalBtn) {
+      saveIntervalBtn.addEventListener('click', async () => {
+        const intervalInput = document.getElementById('intervalInput');
+        const minutes = parseInt(intervalInput.value);
+
+        if (isNaN(minutes) || minutes < 1 || minutes > 300) {
+          showToast('L\'intervallo deve essere tra 1 e 300 minuti', true);
+          return;
+        }
+
+        try {
+          const response = await fetch('/api/user/interval', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify({ minutes })
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            showToast(data.error || 'Errore nel salvataggio', true);
+            return;
+          }
+
+          showToast(data.message);
+        } catch (error) {
+          console.error('Error saving interval:', error);
+          showToast('Errore di connessione', true);
+        }
+      });
+    }
+
     // Gestione tab
     const tabs = document.querySelectorAll('.tab');
     const tabContents = document.querySelectorAll('.tab-content');
@@ -1263,6 +1313,10 @@
         // Mostra cognomi
         const cognomi = data.user.query.cognomi || [];
         renderCognomi(cognomi);
+
+        // Mostra intervallo minimo
+        const intervalInput = document.getElementById('intervalInput');
+        intervalInput.value = data.user.minIntervalMinutes || 30;
 
         // Mostra info ultima esecuzione
         const lastCheck = data.user.lastCheck;
