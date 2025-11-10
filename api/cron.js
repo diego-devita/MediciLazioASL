@@ -109,24 +109,74 @@ async function handler(req, res) {
           }
         });
 
+        // Mappa nuovi risultati per codiceFiscale
+        const newMap = new Map();
+        medici.forEach(m => {
+          if (m.codiceFiscale) {
+            newMap.set(m.codiceFiscale, m);
+          }
+        });
+
         // Trova nuovi medici
         const nuoviMedici = medici.filter(m => {
           return m.codiceFiscale && !oldMap.has(m.codiceFiscale);
         });
 
-        // Trova medici con stato cambiato
-        const medicinCambiati = medici.filter(m => {
-          if (!m.codiceFiscale) return false;
-          const old = oldMap.get(m.codiceFiscale);
-          if (!old) return false; // Nuovo, già contato sopra
-          return old.assegnabilita !== m.assegnabilita;
+        // Trova medici rimossi
+        const mediciRimossi = oldResults.filter(m => {
+          return m.codiceFiscale && !newMap.has(m.codiceFiscale);
         });
 
-        // Salva risultati
-        await saveResults(user.chatId, medici);
+        // Trova medici con stato cambiato (con dettagli da->a)
+        const medicinCambiati = [];
+        medici.forEach(m => {
+          if (!m.codiceFiscale) return;
+          const old = oldMap.get(m.codiceFiscale);
+          if (!old) return; // Nuovo, già contato sopra
+          if (old.assegnabilita !== m.assegnabilita) {
+            medicinCambiati.push({
+              medico: m,
+              statoVecchio: old.assegnabilita,
+              statoNuovo: m.assegnabilita
+            });
+          }
+        });
+
+        // Prepara oggetto differenze
+        const differences = {
+          nuovi: nuoviMedici.map(m => ({
+            codiceFiscale: m.codiceFiscale,
+            cognome: m.cognome,
+            nome: m.nome,
+            assegnabilita: m.assegnabilita,
+            azienda: m.azienda,
+            ambito: m.ambito
+          })),
+          rimossi: mediciRimossi.map(m => ({
+            codiceFiscale: m.codiceFiscale,
+            cognome: m.cognome,
+            nome: m.nome,
+            assegnabilita: m.assegnabilita,
+            azienda: m.azienda,
+            ambito: m.ambito
+          })),
+          cambiati: medicinCambiati.map(item => ({
+            codiceFiscale: item.medico.codiceFiscale,
+            cognome: item.medico.cognome,
+            nome: item.medico.nome,
+            statoVecchio: item.statoVecchio,
+            statoNuovo: item.statoNuovo,
+            azienda: item.medico.azienda,
+            ambito: item.medico.ambito
+          })),
+          timestamp: new Date().toISOString()
+        };
+
+        // Salva risultati con differenze
+        await saveResults(user.chatId, medici, differences);
 
         // Controlla se ci sono variazioni
-        const ciSonoVariazioni = nuoviMedici.length > 0 || medicinCambiati.length > 0;
+        const ciSonoVariazioni = nuoviMedici.length > 0 || mediciRimossi.length > 0 || medicinCambiati.length > 0;
         const variazioniMsg = ciSonoVariazioni
           ? 'Ci sono state variazioni.'
           : 'Non ci sono state variazioni.';
