@@ -295,6 +295,24 @@
       transform: translateY(-1px);
     }
 
+    .edit-btn {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-left: 8px;
+    }
+
+    .edit-btn:hover {
+      background: #5568d3;
+      transform: translateY(-1px);
+    }
+
     .cognomi-empty {
       color: #999;
       font-size: 0.85rem;
@@ -1496,7 +1514,7 @@
 
             return `
               <div class="result-item ${itemClass}">
-                <div class="result-item-name">${medico.cognome || '-'} ${medico.nome || ''}</div>
+                <div class="result-item-name">${medico.cognome || '-'} ${medico.nome || ''} ${medico.asl ? `<span style="color: #999; font-size: 0.85em;">• ${medico.asl}</span>` : ''}</div>
                 <div class="result-item-badge ${badgeClass}">${badgeText}</div>
               </div>
             `;
@@ -1537,7 +1555,7 @@
 
             return `
               <div class="result-item ${itemClass}">
-                <div class="result-item-name">${medico.cognome || '-'} ${medico.nome || ''}</div>
+                <div class="result-item-name">${medico.cognome || '-'} ${medico.nome || ''} ${medico.asl ? `<span style="color: #999; font-size: 0.85em;">• ${medico.asl}</span>` : ''}</div>
                 <div class="result-item-badge ${badgeClass}">${badgeText}</div>
               </div>
             `;
@@ -1573,7 +1591,7 @@
 
             return `
               <div class="result-item ${itemClass}">
-                <div class="result-item-name">${medico.cognome || '-'} ${medico.nome || ''}</div>
+                <div class="result-item-name">${medico.cognome || '-'} ${medico.nome || ''} ${medico.asl ? `<span style="color: #999; font-size: 0.85em;">• ${medico.asl}</span>` : ''}</div>
                 <div class="result-item-badge ${badgeClass}">${badgeText}</div>
               </div>
             `;
@@ -1593,7 +1611,7 @@
             return `
               <div class="result-item-change">
                 <div class="result-item-change-header">
-                  <div class="result-item-change-name">${item.cognome || '-'} ${item.nome || ''}</div>
+                  <div class="result-item-change-name">${item.cognome || '-'} ${item.nome || ''} ${item.asl ? `<span style="color: #999; font-size: 0.85em;">• ${item.asl}</span>` : ''}</div>
                 </div>
                 <div class="result-item-change-status">
                   ${item.statoVecchio || 'N/D'} <span class="result-item-change-arrow">→</span> ${item.statoNuovo || 'N/D'}
