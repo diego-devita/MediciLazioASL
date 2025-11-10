@@ -18,8 +18,8 @@ export default async function handler(req, res) {
 
     if (!user) {
       return res.status(401).json({
-        error: 'Token non valido',
-        message: 'Il token non è valido, è già stato usato o è scaduto. Richiedi un nuovo token con /token nel bot Telegram.'
+        error: 'Codice non valido',
+        message: 'Il codice non è valido, è già stato usato o è scaduto (validità: 20 minuti). Richiedi un nuovo codice con /token nel bot Telegram.'
       });
     }
 

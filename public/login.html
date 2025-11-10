@@ -23,48 +23,52 @@
 
     .login-container {
       background: white;
-      border-radius: 12px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
       width: 100%;
-      max-width: 450px;
+      max-width: 480px;
       overflow: hidden;
     }
 
     .login-header {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
-      padding: 30px;
+      padding: 40px 30px;
       text-align: center;
     }
 
     .login-header h1 {
       font-size: 1.75rem;
-      margin-bottom: 5px;
+      margin-bottom: 8px;
+      font-weight: 700;
     }
 
     .login-header p {
-      opacity: 0.9;
-      font-size: 0.9rem;
+      opacity: 0.95;
+      font-size: 0.95rem;
+      font-weight: 500;
     }
 
     .login-content {
-      padding: 30px;
+      padding: 40px 30px;
     }
 
     .info-box {
-      background: #e3f2fd;
-      border-left: 4px solid #2196f3;
-      padding: 15px;
-      margin-bottom: 20px;
-      border-radius: 4px;
+      background: #f0f4ff;
+      border-left: 4px solid #667eea;
+      padding: 18px;
+      margin-bottom: 30px;
+      border-radius: 6px;
       font-size: 0.9rem;
-      color: #555;
+      color: #444;
     }
 
     .info-box strong {
-      color: #1976d2;
-      display: block;
-      margin-bottom: 8px;
+      color: #667eea;
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+      font-size: 0.95rem;
     }
 
     .info-box ol {
@@ -73,60 +77,109 @@
     }
 
     .info-box li {
-      margin-bottom: 5px;
+      margin-bottom: 6px;
+      line-height: 1.5;
     }
 
-    .form-group {
-      margin-bottom: 20px;
+    .info-box code {
+      background: #667eea;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      font-weight: 600;
     }
 
-    label {
+    .telegram-icon {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      margin-right: 8px;
+    }
+
+    .otp-label {
       display: block;
       font-weight: 600;
-      margin-bottom: 8px;
-      color: #555;
-    }
-
-    input[type="text"] {
-      width: 100%;
-      padding: 12px;
-      border: 2px solid #e0e0e0;
-      border-radius: 6px;
+      margin-bottom: 16px;
+      color: #333;
+      text-align: center;
       font-size: 1rem;
-      font-family: 'Courier New', monospace;
-      transition: border-color 0.3s;
     }
 
-    input:focus {
+    .otp-container {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+
+    .otp-input {
+      width: 52px;
+      height: 64px;
+      text-align: center;
+      font-size: 1.75rem;
+      font-weight: 700;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      transition: all 0.2s ease;
       outline: none;
+      font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+      color: #333;
+      background: #fafafa;
+    }
+
+    .otp-input:focus {
       border-color: #667eea;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      transform: scale(1.05);
+    }
+
+    .otp-input:not(:placeholder-shown) {
+      border-color: #667eea;
+      background: white;
+    }
+
+    .otp-input.error {
+      border-color: #ef4444;
+      animation: shake 0.3s ease;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-8px); }
+      75% { transform: translateX(8px); }
     }
 
     .help-text {
-      font-size: 0.875rem;
+      font-size: 0.85rem;
       color: #777;
-      margin-top: 5px;
+      text-align: center;
+      margin-bottom: 24px;
+      line-height: 1.5;
     }
 
     button {
       width: 100%;
-      padding: 14px;
+      padding: 16px;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       border: none;
-      border-radius: 6px;
-      font-size: 1rem;
+      border-radius: 12px;
+      font-size: 1.05rem;
       font-weight: 600;
       cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
     }
 
-    button:hover {
+    button:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
     }
 
-    button:active {
+    button:active:not(:disabled) {
       transform: translateY(0);
     }
 
@@ -138,34 +191,80 @@
 
     .error {
       background: #fee;
-      border-left: 4px solid #c33;
-      padding: 12px;
+      border-left: 4px solid #ef4444;
+      padding: 14px 16px;
       margin-bottom: 20px;
-      border-radius: 4px;
-      color: #c33;
+      border-radius: 6px;
+      color: #dc2626;
       font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .error::before {
+      content: '⚠️';
+      font-size: 1.2rem;
     }
 
     .loading {
       text-align: center;
       color: #667eea;
       font-weight: 600;
-      margin-top: 10px;
+      margin-top: 16px;
+      font-size: 0.95rem;
     }
 
-    .telegram-icon {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      margin-right: 6px;
-      vertical-align: middle;
+    .loading::after {
+      content: '...';
+      animation: dots 1.5s steps(4, end) infinite;
+    }
+
+    @keyframes dots {
+      0%, 20% { content: '.'; }
+      40% { content: '..'; }
+      60%, 100% { content: '...'; }
+    }
+
+    /* Accessibility */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border-width: 0;
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 480px) {
+      .login-container {
+        max-width: 100%;
+      }
+
+      .otp-input {
+        width: 44px;
+        height: 56px;
+        font-size: 1.5rem;
+      }
+
+      .otp-container {
+        gap: 8px;
+      }
+
+      .login-content {
+        padding: 30px 20px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="login-container">
     <div class="login-header">
-      <h1>🔑 Login</h1>
+      <h1>🔑 Accesso Sicuro</h1>
       <p>Medici ASL Lazio</p>
     </div>
 
@@ -173,32 +272,41 @@
       <div class="info-box">
         <strong>
           <svg class="telegram-icon" role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" fill="#2196f3"/>
+            <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" fill="#667eea"/>
           </svg>
-          Come ottenere il token di accesso:
+          Come ottenere il codice
         </strong>
         <ol>
           <li>Apri il bot Telegram</li>
-          <li>Invia il comando <code>/token</code></li>
-          <li>Copia il token ricevuto</li>
-          <li>Incollalo qui sotto</li>
+          <li>Invia <code>/token</code></li>
+          <li>Riceverai un codice a 6 cifre</li>
+          <li>Inseriscilo qui sotto</li>
         </ol>
       </div>
 
       <div id="error" style="display: none;" class="error"></div>
 
       <form id="loginForm">
-        <div class="form-group">
-          <label for="token">Token di accesso</label>
-          <input type="text" id="token" name="token" required placeholder="es: a1b2c3d4e5f6..." autocomplete="off">
-          <p class="help-text">Il token è valido per 24 ore e può essere usato una sola volta</p>
+        <label for="otp-1" class="otp-label">Inserisci il codice a 6 cifre</label>
+
+        <div class="otp-container" id="otpContainer">
+          <input type="text" id="otp-1" class="otp-input" maxlength="1" pattern="\d" inputmode="numeric" autocomplete="one-time-code" aria-label="Cifra 1" required>
+          <input type="text" id="otp-2" class="otp-input" maxlength="1" pattern="\d" inputmode="numeric" autocomplete="off" aria-label="Cifra 2" required>
+          <input type="text" id="otp-3" class="otp-input" maxlength="1" pattern="\d" inputmode="numeric" autocomplete="off" aria-label="Cifra 3" required>
+          <input type="text" id="otp-4" class="otp-input" maxlength="1" pattern="\d" inputmode="numeric" autocomplete="off" aria-label="Cifra 4" required>
+          <input type="text" id="otp-5" class="otp-input" maxlength="1" pattern="\d" inputmode="numeric" autocomplete="off" aria-label="Cifra 5" required>
+          <input type="text" id="otp-6" class="otp-input" maxlength="1" pattern="\d" inputmode="numeric" autocomplete="off" aria-label="Cifra 6" required>
         </div>
+
+        <p class="help-text">
+          Il codice è valido per <strong>20 minuti</strong> e può essere usato <strong>una sola volta</strong>
+        </p>
 
         <button type="submit" id="submitBtn">Accedi</button>
       </form>
 
       <div id="loading" style="display: none;" class="loading">
-        Autenticazione in corso...
+        Autenticazione in corso
       </div>
     </div>
   </div>
@@ -208,10 +316,114 @@
     const loading = document.getElementById('loading');
     const error = document.getElementById('error');
     const submitBtn = document.getElementById('submitBtn');
+    const inputs = document.querySelectorAll('.otp-input');
+
+    // Focus sul primo input all'avvio
+    window.addEventListener('load', () => {
+      inputs[0].focus();
+    });
+
+    // Gestione input OTP
+    inputs.forEach((input, index) => {
+      // Input event - auto-advance
+      input.addEventListener('input', (e) => {
+        const value = e.target.value;
+
+        // Accetta solo cifre
+        if (!/^\d$/.test(value)) {
+          e.target.value = '';
+          return;
+        }
+
+        // Rimuovi classe errore se presente
+        input.classList.remove('error');
+
+        // Auto-focus sul prossimo campo
+        if (value && index < inputs.length - 1) {
+          inputs[index + 1].focus();
+        }
+
+        // Auto-submit se tutti i campi sono pieni
+        if (index === inputs.length - 1 && value) {
+          const allFilled = Array.from(inputs).every(inp => inp.value);
+          if (allFilled) {
+            form.dispatchEvent(new Event('submit'));
+          }
+        }
+      });
+
+      // Backspace - torna al campo precedente
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !input.value && index > 0) {
+          inputs[index - 1].focus();
+          inputs[index - 1].value = '';
+        }
+
+        // Arrow keys navigation
+        if (e.key === 'ArrowLeft' && index > 0) {
+          inputs[index - 1].focus();
+        }
+        if (e.key === 'ArrowRight' && index < inputs.length - 1) {
+          inputs[index + 1].focus();
+        }
+      });
+
+      // Paste support - distribuisce le cifre nei campi
+      input.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const pastedData = e.clipboardData.getData('text').trim();
+
+        // Accetta solo 6 cifre
+        if (/^\d{6}$/.test(pastedData)) {
+          pastedData.split('').forEach((char, i) => {
+            if (inputs[i]) {
+              inputs[i].value = char;
+              inputs[i].classList.remove('error');
+            }
+          });
+          inputs[inputs.length - 1].focus();
+
+          // Auto-submit dopo paste
+          setTimeout(() => {
+            form.dispatchEvent(new Event('submit'));
+          }, 100);
+        }
+      });
+
+      // Select all on focus
+      input.addEventListener('focus', (e) => {
+        e.target.select();
+      });
+
+      // Prevent non-numeric input
+      input.addEventListener('beforeinput', (e) => {
+        if (e.data && !/^\d$/.test(e.data)) {
+          e.preventDefault();
+        }
+      });
+    });
+
+    function getOTPValue() {
+      return Array.from(inputs).map(input => input.value).join('');
+    }
+
+    function clearOTP() {
+      inputs.forEach(input => {
+        input.value = '';
+        input.classList.remove('error');
+      });
+      inputs[0].focus();
+    }
 
     function showError(message) {
       error.textContent = message;
-      error.style.display = 'block';
+      error.style.display = 'flex';
+
+      // Aggiungi animazione shake agli input
+      inputs.forEach(input => input.classList.add('error'));
+      setTimeout(() => {
+        inputs.forEach(input => input.classList.remove('error'));
+      }, 300);
     }
 
     function hideError() {
@@ -221,21 +433,30 @@
     function showLoading() {
       loading.style.display = 'block';
       submitBtn.disabled = true;
+      inputs.forEach(input => input.disabled = true);
       hideError();
     }
 
     function hideLoading() {
       loading.style.display = 'none';
       submitBtn.disabled = false;
+      inputs.forEach(input => input.disabled = false);
     }
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const token = document.getElementById('token').value.trim();
+      const otp = getOTPValue();
 
-      if (!token) {
-        showError('Inserisci un token valido.');
+      // Validazione client-side
+      if (otp.length !== 6) {
+        showError('Inserisci tutte le 6 cifre del codice.');
+        return;
+      }
+
+      if (!/^\d{6}$/.test(otp)) {
+        showError('Il codice deve contenere solo cifre.');
+        clearOTP();
         return;
       }
 
@@ -247,7 +468,7 @@
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ token })
+          body: JSON.stringify({ token: otp })
         });
 
         const data = await response.json();
@@ -255,7 +476,8 @@
         hideLoading();
 
         if (!response.ok) {
-          showError(data.message || data.error || 'Errore durante il login.');
+          showError(data.message || data.error || 'Codice non valido. Riprova.');
+          clearOTP();
           return;
         }
 
@@ -264,6 +486,7 @@
       } catch (err) {
         hideLoading();
         showError('Errore di connessione. Riprova più tardi.');
+        clearOTP();
         console.error('Login error:', err);
       }
     });
