@@ -1215,6 +1215,21 @@
             " onmouseover="this.style.background='#e0e0e0'" onmouseout="this.style.background='#f0f0f0'">
               Copia
             </button>
+            <button id="testQueryBtn" style="
+              margin-left: 10px;
+              margin-top: 5px;
+              padding: 6px 12px;
+              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              border: none;
+              border-radius: 6px;
+              color: white;
+              font-size: 0.85rem;
+              font-weight: 600;
+              cursor: pointer;
+              transition: all 0.2s;
+            " onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(102,126,234,0.4)'" onmouseout="this.style.transform=''; this.style.boxShadow=''">
+              🧪 Testa Query
+            </button>
           </h2>
           <div class="info-box">
             <div id="cognomiTags" class="cognomi-tags">
@@ -2639,6 +2654,168 @@
         // Ri-renderizza i risultati con i nuovi filtri
         renderFilteredResults();
       });
+    });
+  </script>
+
+  <!-- Dialog modale test query -->
+  <dialog id="testQueryDialog" style="
+    max-width: 95vw;
+    width: 1200px;
+    max-height: 90vh;
+    padding: 0;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    overflow: hidden;
+  ">
+    <div style="display: flex; flex-direction: column; height: 100%;">
+      <!-- Header -->
+      <div style="
+        padding: 20px 30px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      ">
+        <h2 style="margin: 0; font-size: 1.5rem;">🧪 Test Ricerca Query</h2>
+        <button id="closeTestDialog" style="
+          background: rgba(255,255,255,0.2);
+          border: none;
+          color: white;
+          font-size: 1.5rem;
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s;
+        " onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+          ×
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div id="testQueryContent" style="
+        flex: 1;
+        overflow-y: auto;
+        padding: 30px;
+      ">
+        <p style="color: #666; margin-bottom: 20px;">
+          Questa ricerca utilizzerà tutti i cognomi configurati con i rispettivi filtri (ASL, CAP, nome).
+        </p>
+        <div id="testQueryResults"></div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Script per test query -->
+  <script src="/lib/template-engine.js"></script>
+  <script src="/lib/medici-visualizer-presets.js"></script>
+  <script src="/lib/medici-visualizer.js"></script>
+  <script src="/batch-search-client.js"></script>
+  <script>
+    // Test query functionality
+    let testVisualizer = null;
+    let testBatchClient = null;
+
+    document.getElementById('testQueryBtn').addEventListener('click', async () => {
+      const dialog = document.getElementById('testQueryDialog');
+      const resultsContainer = document.getElementById('testQueryResults');
+
+      // Apri dialog
+      dialog.showModal();
+
+      // Reset visualizer
+      if (testVisualizer) {
+        testVisualizer.destroy();
+      }
+
+      // Crea visualizer con preset MODAL_TEST
+      testVisualizer = new MediciVisualizer({
+        preset: 'MODAL_TEST',
+        container: resultsContainer,
+        data: []
+      });
+
+      // Prepara query dai cognomi configurati
+      const cognomiQueries = currentUserData?.query?.cognomi || [];
+
+      if (cognomiQueries.length === 0) {
+        resultsContainer.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">Nessun cognome configurato. Aggiungi almeno un cognome per testare la query.</p>';
+        return;
+      }
+
+      // Avvia ricerca con BatchSearchClient
+      testBatchClient = new BatchSearchClient({
+        parallelism: 5,
+        onProgress: (progress) => {
+          // Update progress nel visualizer
+          testVisualizer.updateProgress(progress);
+        }
+      });
+
+      try {
+        // Prepara parametri
+        const queries = cognomiQueries.map(q => ({
+          cognomi: [q.cognome],
+          asl: q.asl ? [q.asl] : [],
+          cap: q.cap ? [q.cap] : [],
+          nomi: q.nome ? [q.nome] : [],
+          tipo: 'Medicina generale'
+        }));
+
+        // Esegui ricerche per ogni query
+        const allResults = [];
+        for (const query of queries) {
+          const result = await testBatchClient.search(query);
+          if (result.success && result.results) {
+            allResults.push(...result.results);
+          }
+        }
+
+        // Deduplica per identificativo
+        const uniqueResults = new Map();
+        allResults.forEach(medico => {
+          if (medico.identificativo) {
+            uniqueResults.set(medico.identificativo, medico);
+          } else {
+            const key = `${medico.nome}_${medico.cognome}_${Date.now()}_${Math.random()}`;
+            uniqueResults.set(key, medico);
+          }
+        });
+
+        const finalResults = Array.from(uniqueResults.values());
+
+        // Complete progress
+        testVisualizer.completeProgress();
+
+        // Set dati nel visualizer
+        testVisualizer.setData(finalResults);
+
+      } catch (error) {
+        console.error('Errore durante test query:', error);
+        resultsContainer.innerHTML = `
+          <div style="background: #fee; border-left: 4px solid #ef4444; padding: 15px; border-radius: 8px; color: #dc2626;">
+            <strong>Errore durante la ricerca:</strong><br>
+            ${error.message || 'Errore sconosciuto'}
+          </div>
+        `;
+      }
+    });
+
+    // Close dialog
+    document.getElementById('closeTestDialog').addEventListener('click', () => {
+      document.getElementById('testQueryDialog').close();
+    });
+
+    // Close dialog on click outside
+    document.getElementById('testQueryDialog').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('testQueryDialog')) {
+        document.getElementById('testQueryDialog').close();
+      }
     });
   </script>
 </body>
