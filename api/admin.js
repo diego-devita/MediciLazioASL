@@ -8,7 +8,7 @@ async function handler(req, res) {
   if (!action) {
     return res.status(400).json({
       success: false,
-      error: 'Missing action parameter. Use ?action=stats|users|sessions|login-attempts|collection'
+      error: 'Missing action parameter. Use ?action=stats|users|sessions|login-attempts|cron-logs|collection'
     });
   }
 
@@ -21,6 +21,8 @@ async function handler(req, res) {
       return handleSessions(req, res);
     case 'login-attempts':
       return handleLoginAttempts(req, res);
+    case 'cron-logs':
+      return handleCronLogs(req, res);
     case 'collection':
       return handleCollection(req, res);
     default:
@@ -514,6 +516,44 @@ async function handleCleanupOldAttempts(req, res) {
     return res.status(500).json({
       success: false,
       error: 'Failed to cleanup login attempts'
+    });
+  }
+}
+
+// ===== CRON LOGS =====
+async function handleCronLogs(req, res) {
+  if (req.method === 'DELETE') {
+    return handleCleanupCronLogs(req, res);
+  } else {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+}
+
+async function handleCleanupCronLogs(req, res) {
+  try {
+    const { db } = await connectToDatabase();
+    const cronLogsCollection = db.collection(DATABASE.COLLECTIONS.CRON_LOGS);
+
+    // Elimina log più vecchi di RETENTION_DAYS (default: 90 giorni)
+    const retentionDate = new Date();
+    retentionDate.setDate(retentionDate.getDate() - LOGGING.RETENTION_DAYS);
+
+    const result = await cronLogsCollection.deleteMany({
+      timestamp: { $lt: retentionDate }
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: `Deleted ${result.deletedCount} old cron logs`,
+      deletedCount: result.deletedCount,
+      olderThan: retentionDate.toISOString()
+    });
+
+  } catch (error) {
+    console.error('Error cleaning up cron logs:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to cleanup cron logs'
     });
   }
 }

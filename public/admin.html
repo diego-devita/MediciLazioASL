@@ -433,6 +433,67 @@
       font-size: 0.9rem;
     }
 
+    /* Responsive Cards - Stili generici */
+    .mobile-card {
+      display: none;
+      background: white;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .mobile-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .mobile-card-title {
+      font-weight: 700;
+      font-size: 1rem;
+      color: #333;
+      flex: 1;
+    }
+
+    .mobile-card-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      font-size: 0.9rem;
+      gap: 10px;
+    }
+
+    .mobile-card-label {
+      color: #666;
+      font-weight: 600;
+      min-width: 100px;
+    }
+
+    .mobile-card-value {
+      color: #333;
+      text-align: right;
+      flex: 1;
+      word-break: break-word;
+    }
+
+    .mobile-card-actions {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #f0f0f0;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .mobile-card-actions button {
+      flex: 1;
+      min-width: 120px;
+    }
+
     /* Responsive Cards per Collections Table */
     .collection-card {
       display: none;
@@ -482,13 +543,19 @@
     }
 
     @media (max-width: 768px) {
-      #collectionsTable {
+      #collectionsTable,
+      #usersTable,
+      #sessionsTable,
+      #attemptsTable,
+      #cronLogsTable {
         display: none;
       }
 
-      .collection-card {
+      .collection-card,
+      .mobile-card {
         display: block;
       }
+
       body {
         padding: 10px;
       }
@@ -606,6 +673,7 @@
               </thead>
               <tbody id="usersTableBody"></tbody>
             </table>
+            <div id="usersCards"></div>
 
             <div class="pagination" id="usersPagination"></div>
           </div>
@@ -637,6 +705,7 @@
               </thead>
               <tbody id="sessionsTableBody"></tbody>
             </table>
+            <div id="sessionsCards"></div>
 
             <div class="pagination" id="sessionsPagination"></div>
           </div>
@@ -664,7 +733,7 @@
             <input type="text" id="attemptsIpFilter" placeholder="Filtra per IP">
             <button onclick="loadLoginAttempts()">Applica filtri</button>
             <button onclick="loadLoginAttempts()" style="margin-left: auto;">🔄 Aggiorna</button>
-            <button class="danger" onclick="cleanupOldAttempts()">🗑️ Pulisci vecchi log</button>
+            <button class="danger" onclick="cleanupOldAttempts()">Svuota log</button>
           </div>
 
           <div id="attemptsLoading" class="loading">Caricamento tentativi...</div>
@@ -683,6 +752,7 @@
               </thead>
               <tbody id="attemptsTableBody"></tbody>
             </table>
+            <div id="attemptsCards"></div>
 
             <div class="pagination" id="attemptsPagination"></div>
           </div>
@@ -702,6 +772,7 @@
           <h2>Storia Esecuzioni</h2>
           <div class="controls">
             <button onclick="loadCronLogs()">🔄 Aggiorna</button>
+            <button class="danger" onclick="cleanupCronLogs()">Svuota log</button>
           </div>
 
           <div id="cronLogsLoading" class="loading">Caricamento log...</div>
@@ -721,6 +792,7 @@
               </thead>
               <tbody id="cronLogsTableBody"></tbody>
             </table>
+            <div id="cronLogsCards"></div>
 
             <div class="pagination" id="cronLogsPagination"></div>
           </div>
@@ -996,6 +1068,38 @@
         `;
       }).join('');
 
+      // Mobile cards
+      const cardsContainer = document.getElementById('usersCards');
+      cardsContainer.innerHTML = users.map(user => {
+        const createdAt = new Date(user.createdAt).toLocaleString('it-IT');
+        const lastCheck = user.lastCheck ? new Date(user.lastCheck).toLocaleString('it-IT') : 'Mai';
+        const cognomi = user.query.cognomi.length > 0 ? user.query.cognomi.join(', ') : '-';
+
+        return `
+          <div class="mobile-card">
+            <div class="mobile-card-header">
+              <div class="mobile-card-title">${user.username || 'User'} (${user.chatId})</div>
+            </div>
+            <div class="mobile-card-row">
+              <span class="mobile-card-label">Cognomi:</span>
+              <span class="mobile-card-value">${cognomi}</span>
+            </div>
+            <div class="mobile-card-row">
+              <span class="mobile-card-label">Creato:</span>
+              <span class="mobile-card-value">${createdAt}</span>
+            </div>
+            <div class="mobile-card-row">
+              <span class="mobile-card-label">Ultimo Check:</span>
+              <span class="mobile-card-value">${lastCheck}</span>
+            </div>
+            <div class="mobile-card-actions">
+              <button class="action-btn" style="background: #f39c12;" onclick="revokeUserSessions('${user.chatId}')">Revoca sessioni</button>
+              <button class="action-btn" onclick="deleteUser('${user.chatId}')">Elimina</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
       renderPagination('users', pagination);
     }
 
@@ -1118,6 +1222,42 @@
         `;
       }).join('');
 
+      // Mobile cards
+      const cardsContainer = document.getElementById('sessionsCards');
+      cardsContainer.innerHTML = sessions.map(session => {
+        const createdAt = new Date(session.createdAt).toLocaleString('it-IT');
+        const lastUsed = new Date(session.lastUsed).toLocaleString('it-IT');
+        const userAgent = session.userAgent || '-';
+
+        return `
+          <div class="mobile-card">
+            <div class="mobile-card-header">
+              <div class="mobile-card-title">${session.username || 'User'} (${session.chatId})</div>
+              <span class="badge ${session.role === 'admin' ? 'warning' : 'info'}">${session.role}</span>
+            </div>
+            <div class="mobile-card-row">
+              <span class="mobile-card-label">IP:</span>
+              <span class="mobile-card-value">${session.ip || '-'}</span>
+            </div>
+            <div class="mobile-card-row">
+              <span class="mobile-card-label">User Agent:</span>
+              <span class="mobile-card-value" style="font-size: 0.8rem;">${userAgent}</span>
+            </div>
+            <div class="mobile-card-row">
+              <span class="mobile-card-label">Creata:</span>
+              <span class="mobile-card-value">${createdAt}</span>
+            </div>
+            <div class="mobile-card-row">
+              <span class="mobile-card-label">Ultimo Uso:</span>
+              <span class="mobile-card-value">${lastUsed}</span>
+            </div>
+            <div class="mobile-card-actions">
+              <button class="action-btn" onclick="revokeSession('${session.tokenHash}')">Revoca</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
       renderPagination('sessions', pagination);
     }
 
@@ -1227,6 +1367,44 @@
         `;
       }).join('');
 
+      // Mobile cards
+      const cardsContainer = document.getElementById('attemptsCards');
+      cardsContainer.innerHTML = attempts.map(attempt => {
+        const timestamp = new Date(attempt.timestamp).toLocaleString('it-IT');
+        const userAgent = attempt.userAgent || '-';
+
+        return `
+          <div class="mobile-card">
+            <div class="mobile-card-header">
+              <div class="mobile-card-title">${attempt.ip}</div>
+              <span class="badge ${attempt.success ? 'success' : 'danger'}">
+                ${attempt.success ? '✓ Success' : '✗ Failed'}
+              </span>
+            </div>
+            <div class="mobile-card-row">
+              <span class="mobile-card-label">Timestamp:</span>
+              <span class="mobile-card-value">${timestamp}</span>
+            </div>
+            <div class="mobile-card-row">
+              <span class="mobile-card-label">Blocked:</span>
+              <span class="mobile-card-value">
+                <span class="badge ${attempt.blocked ? 'danger' : 'info'}">
+                  ${attempt.blocked ? '🚫 Sì' : 'No'}
+                </span>
+              </span>
+            </div>
+            <div class="mobile-card-row">
+              <span class="mobile-card-label">API Key:</span>
+              <span class="mobile-card-value">${attempt.apiKeyPartial || '-'}</span>
+            </div>
+            <div class="mobile-card-row">
+              <span class="mobile-card-label">User Agent:</span>
+              <span class="mobile-card-value" style="font-size: 0.8rem;">${userAgent}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+
       renderPagination('attempts', pagination);
     }
 
@@ -1248,6 +1426,30 @@
         const result = await response.json();
         alert(`Eliminati ${result.deletedCount} tentativi vecchi`);
         loadLoginAttempts(attemptsPage);
+
+      } catch (err) {
+        alert(`Errore pulizia log: ${err.message}`);
+      }
+    }
+
+    async function cleanupCronLogs() {
+      if (!confirm('Sei sicuro di voler eliminare tutti i log cron più vecchi di 90 giorni?')) {
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/admin?action=cron-logs', {
+          method: 'DELETE',
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const result = await response.json();
+        alert(`Eliminati ${result.deletedCount} log cron vecchi`);
+        loadCronLogs(cronLogsPage);
 
       } catch (err) {
         alert(`Errore pulizia log: ${err.message}`);
@@ -1339,7 +1541,7 @@
             ${c.indexes.length > 0 ? `<span style="font-size: 0.75rem; color: #999;" title="${c.indexes.map(idx => idx.name).join(', ')}">(${c.indexes.map(idx => idx.name).join(', ')})</span>` : ''}
           </td>
           <td>
-            <button class="action-btn" style="background: #667eea;" onclick="loadCollectionContent('${c.name}', 1)">View</button>
+            <button class="action-btn" style="background: #667eea; width: 100%;" onclick="loadCollectionContent('${c.name}', 1)">View</button>
           </td>
         </tr>
       `).join('');
@@ -1547,6 +1749,46 @@
               <td>${log.duration}ms</td>
               <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${errorMsg}">${errorMsg}</td>
             </tr>
+          `;
+        }).join('');
+
+        // Mobile cards
+        const cardsContainer = document.getElementById('cronLogsCards');
+        cardsContainer.innerHTML = logs.map(log => {
+          const timestamp = new Date(log.timestamp).toLocaleString('it-IT');
+          const errorMsg = log.error || '-';
+
+          return `
+            <div class="mobile-card">
+              <div class="mobile-card-header">
+                <div class="mobile-card-title">${timestamp}</div>
+                ${log.success
+                  ? '<span class="badge success">✓ Successo</span>'
+                  : '<span class="badge danger">✗ Errore</span>'}
+              </div>
+              <div class="mobile-card-row">
+                <span class="mobile-card-label">Utenti:</span>
+                <span class="mobile-card-value">${log.usersChecked}</span>
+              </div>
+              <div class="mobile-card-row">
+                <span class="mobile-card-label">Successi:</span>
+                <span class="mobile-card-value">${log.usersSuccessful}</span>
+              </div>
+              <div class="mobile-card-row">
+                <span class="mobile-card-label">Errori:</span>
+                <span class="mobile-card-value">${log.usersErrors}</span>
+              </div>
+              <div class="mobile-card-row">
+                <span class="mobile-card-label">Durata:</span>
+                <span class="mobile-card-value">${log.duration}ms</span>
+              </div>
+              ${log.error ? `
+              <div class="mobile-card-row">
+                <span class="mobile-card-label">Errore:</span>
+                <span class="mobile-card-value" style="font-size: 0.8rem; color: #ef4444;">${errorMsg}</span>
+              </div>
+              ` : ''}
+            </div>
           `;
         }).join('');
 
