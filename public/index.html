@@ -122,41 +122,6 @@
       margin-top: 5px;
     }
 
-    .tabs {
-      display: flex;
-      border-bottom: 2px solid #e0e0e0;
-      background: #f9f9f9;
-    }
-
-    .tab-button {
-      flex: 1;
-      padding: 18px 20px;
-      text-align: center;
-      cursor: pointer;
-      font-weight: 600;
-      color: #666;
-      transition: all 0.3s;
-      border: none;
-      border-bottom: 3px solid transparent;
-      border-radius: 0;
-      font-size: 1rem;
-      background: transparent;
-    }
-
-    .tab-button.active {
-      color: #667eea;
-      background: white;
-      border-bottom-color: #667eea;
-    }
-
-    .tab-content {
-      display: none;
-    }
-
-    .tab-content.active {
-      display: block;
-    }
-
     button {
       width: 100%;
       padding: 14px;
@@ -955,75 +920,9 @@
       </div>
     </div>
 
-    <div class="tabs">
-      <button type="button" class="tab-button active" data-tab="base">Base</button>
-      <button type="button" class="tab-button" data-tab="avanzate">Avanzate</button>
-    </div>
-
     <div class="content">
       <form id="searchForm">
-        <div id="tab-base" class="tab-content active">
-          <div class="form-group">
-            <label for="asl-base">ASL</label>
-            <div class="multiselect-container" id="aslMultiselectBase">
-              <div class="multiselect-header" id="aslHeaderBase">
-                <span class="multiselect-header-text" id="aslHeaderTextBase">Tutte</span>
-                <span class="multiselect-header-arrow" id="aslHeaderArrowBase">▼</span>
-              </div>
-              <div class="multiselect-dropdown" id="aslDropdownBase">
-                <div class="multiselect-option">
-                  <input type="checkbox" id="asl_base_roma1" value="120201">
-                  <label for="asl_base_roma1">Roma 1</label>
-                </div>
-                <div class="multiselect-option">
-                  <input type="checkbox" id="asl_base_roma2" value="120202">
-                  <label for="asl_base_roma2">Roma 2</label>
-                </div>
-                <div class="multiselect-option">
-                  <input type="checkbox" id="asl_base_roma3" value="120203">
-                  <label for="asl_base_roma3">Roma 3</label>
-                </div>
-                <div class="multiselect-option">
-                  <input type="checkbox" id="asl_base_roma4" value="120204">
-                  <label for="asl_base_roma4">Roma 4</label>
-                </div>
-                <div class="multiselect-option">
-                  <input type="checkbox" id="asl_base_roma5" value="120205">
-                  <label for="asl_base_roma5">Roma 5</label>
-                </div>
-                <div class="multiselect-option">
-                  <input type="checkbox" id="asl_base_roma6" value="120206">
-                  <label for="asl_base_roma6">Roma 6</label>
-                </div>
-                <div class="multiselect-option">
-                  <input type="checkbox" id="asl_base_frosinone" value="120207">
-                  <label for="asl_base_frosinone">Frosinone</label>
-                </div>
-                <div class="multiselect-option">
-                  <input type="checkbox" id="asl_base_latina" value="120208">
-                  <label for="asl_base_latina">Latina</label>
-                </div>
-                <div class="multiselect-option">
-                  <input type="checkbox" id="asl_base_rieti" value="120209">
-                  <label for="asl_base_rieti">Rieti</label>
-                </div>
-                <div class="multiselect-option">
-                  <input type="checkbox" id="asl_base_viterbo" value="120210">
-                  <label for="asl_base_viterbo">Viterbo</label>
-                </div>
-              </div>
-            </div>
-            <p class="help-text">Seleziona una o più ASL dalla lista</p>
-          </div>
-
-          <div class="form-group">
-            <label for="cognomi-base">Cognomi</label>
-            <input type="text" id="cognomi-base" name="cognomi-base" placeholder="es. ROSSI, BIANCHI, VERDI, MAGO'">
-            <p class="help-text">Inserisci uno o più cognomi separati da virgola</p>
-          </div>
-        </div>
-
-        <div id="tab-avanzate" class="tab-content">
+        <div>
           <div class="form-group">
             <label for="asl">ASL</label>
             <div class="multiselect-container" id="aslMultiselect">
@@ -1111,9 +1010,6 @@
             <button type="submit" id="submitBtn">🔍 Cerca</button>
           </div>
         </div>
-
-        <!-- Submit button per Base (fuori dal tab) -->
-        <button type="submit" id="submitBtnBase" class="submit-base">🔍 Cerca</button>
       </form>
 
       <div id="loading" style="display: none;" class="loading">
@@ -1261,42 +1157,6 @@
     })();
 
     // Gestione tab
-    const tabButtons = document.querySelectorAll('.tab-button');
-    const tabContents = document.querySelectorAll('.tab-content');
-
-    tabButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        const targetTab = button.dataset.tab;
-
-        // Rimuovi active da tutti i button e content
-        tabButtons.forEach(btn => btn.classList.remove('active'));
-        tabContents.forEach(content => content.classList.remove('active'));
-
-        // Aggiungi active al button cliccato e al suo content
-        button.classList.add('active');
-        document.getElementById(`tab-${targetTab}`).classList.add('active');
-
-        // Reset solo errori e risultati, NON i campi (che sono sincronizzati)
-        hideError();
-        results.style.display = 'none';
-
-        // Gestisci visibilità bottoni submit
-        const submitBtnBase = document.getElementById('submitBtnBase');
-        const submitBtnAvanzate = document.getElementById('submitBtn');
-
-        if (targetTab === 'base') {
-          submitBtnBase.style.display = 'block';
-          // In modalità Base, forza Standard mode
-          document.getElementById('mode-standard').checked = true;
-        } else {
-          submitBtnBase.style.display = 'none';
-        }
-
-        // Ricalcola warning
-        checkCombinationsWarning();
-      });
-    });
-
     function getStatoEmoji(assegnabilita) {
       const stato = assegnabilita.toLowerCase();
       if (stato.includes('assegnazione libera')) return '🟢';
@@ -1433,28 +1293,17 @@
     }
 
     function checkCombinationsWarning() {
-      const activeTab = document.querySelector('.tab-button.active').dataset.tab;
       const searchModeElement = document.querySelector('input[name="searchMode"]:checked');
       const searchMode = searchModeElement ? searchModeElement.value : 'standard';
 
-      let cognomiCount, capCount, nomiCount, aslCount;
+      const cognomi = document.getElementById('cognomi').value.trim();
+      const cap = document.getElementById('cap').value.trim();
+      const nomi = document.getElementById('nomi').value.trim();
 
-      if (activeTab === 'base') {
-        const cognomiBase = document.getElementById('cognomi-base').value.trim();
-        cognomiCount = cognomiBase ? cognomiBase.split(',').filter(c => c.trim()).length : 0;
-        capCount = 0;
-        nomiCount = 0;
-        aslCount = getSelectedAslBase().length;
-      } else {
-        const cognomi = document.getElementById('cognomi').value.trim();
-        const cap = document.getElementById('cap').value.trim();
-        const nomi = document.getElementById('nomi').value.trim();
-
-        cognomiCount = cognomi ? cognomi.split(',').filter(c => c.trim()).length : 0;
-        capCount = cap ? cap.split(',').filter(c => c.trim()).length : 0;
-        nomiCount = nomi ? nomi.split(',').filter(n => n.trim()).length : 0;
-        aslCount = getSelectedAsl().length;
-      }
+      const cognomiCount = cognomi ? cognomi.split(',').filter(c => c.trim()).length : 0;
+      const capCount = cap ? cap.split(',').filter(c => c.trim()).length : 0;
+      const nomiCount = nomi ? nomi.split(',').filter(n => n.trim()).length : 0;
+      const aslCount = getSelectedAsl().length;
 
       // Controlla se l'unico criterio è l'ASL
       const onlyAsl = (cognomiCount === 0 && capCount === 0 && nomiCount === 0 && aslCount > 0);
@@ -1673,73 +1522,41 @@
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      // Determina quale tab è attivo
-      const activeTab = document.querySelector('.tab-button.active').dataset.tab;
-      // In modalità Base, forza sempre Standard
-      const searchMode = activeTab === 'base' ? 'standard' : document.querySelector('input[name="searchMode"]:checked').value;
-
-      let cognomi, cap, nomi;
-      let selectedAsl, aslToSend;
+      const searchMode = document.querySelector('input[name="searchMode"]:checked').value;
 
       // Tipo medico fisso a "Medicina generale"
       const tipo = 'Medicina generale';
 
-      if (activeTab === 'base') {
-        // Tab Base: usa ASL Base
-        selectedAsl = getSelectedAslBase();
-        aslToSend = selectedAsl;
-        const hasAsl = selectedAsl.length > 0;
+      // Usa ASL Avanzate
+      const selectedAsl = getSelectedAsl();
+      let aslToSend = selectedAsl;
+      const hasAsl = selectedAsl.length > 0;
 
-        // Cognomi da tab base
-        cognomi = document.getElementById('cognomi-base').value
-          .split(',')
-          .map(c => c.trim().toUpperCase())
-          .filter(c => c.length > 0);
+      // Campi da form
+      const cognomi = document.getElementById('cognomi').value
+        .split(',')
+        .map(c => c.trim().toUpperCase())
+        .filter(c => c.length > 0);
 
-        cap = [];
-        nomi = [];
+      const cap = document.getElementById('cap').value
+        .split(',')
+        .map(c => c.trim())
+        .filter(c => c.length > 0);
 
-        if (cognomi.length === 0 && !hasAsl) {
-          showError('Inserisci almeno uno tra: Cognomi, ASL');
-          return;
-        }
+      const nomi = document.getElementById('nomi').value
+        .split(',')
+        .map(n => n.trim().toUpperCase())
+        .filter(n => n.length > 0);
 
-        // Ottimizzazione: se tutte ASL selezionate + cognomi compilati, usa ASL vuoto
-        if (selectedAsl.length === ALL_ASL_OPTIONS.length && cognomi.length > 0) {
-          aslToSend = [];
-        }
-      } else {
-        // Tab Avanzate: usa ASL Avanzate
-        selectedAsl = getSelectedAsl();
-        aslToSend = selectedAsl;
-        const hasAsl = selectedAsl.length > 0;
+      if (cognomi.length === 0 && cap.length === 0 && nomi.length === 0 && !hasAsl) {
+        showError('Inserisci almeno uno tra: CAP, Cognomi, Nomi, ASL');
+        return;
+      }
 
-        // Campi da tab avanzate
-        cognomi = document.getElementById('cognomi').value
-          .split(',')
-          .map(c => c.trim().toUpperCase())
-          .filter(c => c.length > 0);
-
-        cap = document.getElementById('cap').value
-          .split(',')
-          .map(c => c.trim())
-          .filter(c => c.length > 0);
-
-        nomi = document.getElementById('nomi').value
-          .split(',')
-          .map(n => n.trim().toUpperCase())
-          .filter(n => n.length > 0);
-
-        if (cognomi.length === 0 && cap.length === 0 && nomi.length === 0 && !hasAsl) {
-          showError('Inserisci almeno uno tra: CAP, Cognomi, Nomi, ASL');
-          return;
-        }
-
-        // Ottimizzazione: se tutte ASL selezionate + almeno un altro campo, usa ASL vuoto
-        const hasOtherFields = cognomi.length > 0 || cap.length > 0 || nomi.length > 0;
-        if (selectedAsl.length === ALL_ASL_OPTIONS.length && hasOtherFields) {
-          aslToSend = [];
-        }
+      // Ottimizzazione: se tutte ASL selezionate + almeno un altro campo, usa ASL vuoto
+      const hasOtherFields = cognomi.length > 0 || cap.length > 0 || nomi.length > 0;
+      if (selectedAsl.length === ALL_ASL_OPTIONS.length && hasOtherFields) {
+        aslToSend = [];
       }
 
       // MODALITÀ BATCH
@@ -1840,61 +1657,14 @@
       '120210': 'Viterbo'
     };
 
-    // Setup multi-select per Base
-    const aslHeaderBase = document.getElementById('aslHeaderBase');
-    const aslHeaderTextBase = document.getElementById('aslHeaderTextBase');
-    const aslHeaderArrowBase = document.getElementById('aslHeaderArrowBase');
-    const aslDropdownBase = document.getElementById('aslDropdownBase');
-    const aslCheckboxesBase = aslDropdownBase.querySelectorAll('input[type="checkbox"]');
-
-    // Setup multi-select per Avanzate
+    // Setup multi-select
     const aslHeader = document.getElementById('aslHeader');
     const aslHeaderText = document.getElementById('aslHeaderText');
     const aslHeaderArrow = document.getElementById('aslHeaderArrow');
     const aslDropdown = document.getElementById('aslDropdown');
     const aslCheckboxes = aslDropdown.querySelectorAll('input[type="checkbox"]');
 
-    // Funzioni per Base
-    function openAslDropdownBase() {
-      aslDropdownBase.classList.add('open');
-      aslHeaderBase.classList.add('open');
-      aslHeaderArrowBase.classList.add('open');
-    }
-
-    function closeAslDropdownBase() {
-      aslDropdownBase.classList.remove('open');
-      aslHeaderBase.classList.remove('open');
-      aslHeaderArrowBase.classList.remove('open');
-    }
-
-    function updateAslHeaderTextBase() {
-      const selected = getSelectedAslBase();
-
-      if (selected.length === 0) {
-        aslHeaderTextBase.textContent = 'Tutte';
-        aslHeaderTextBase.classList.remove('has-selection');
-      } else if (selected.length === ALL_ASL_OPTIONS.length) {
-        aslHeaderTextBase.textContent = 'Tutte';
-        aslHeaderTextBase.classList.remove('has-selection');
-      } else {
-        // Converti codici in nomi per la visualizzazione
-        const names = selected.map(code => ASL_CODE_TO_NAME[code] || code);
-        aslHeaderTextBase.textContent = names.join(', ');
-        aslHeaderTextBase.classList.add('has-selection');
-      }
-    }
-
-    function getSelectedAslBase() {
-      const selected = [];
-      aslCheckboxesBase.forEach(cb => {
-        if (cb.checked) {
-          selected.push(cb.value);
-        }
-      });
-      return selected;
-    }
-
-    // Funzioni per Avanzate
+    // Funzioni multi-select
     function openAslDropdown() {
       aslDropdown.classList.add('open');
       aslHeader.classList.add('open');
@@ -1934,30 +1704,7 @@
       return selected;
     }
 
-    // Event listeners per Base
-    aslHeaderBase.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const isOpen = aslDropdownBase.classList.contains('open');
-      if (isOpen) {
-        closeAslDropdownBase();
-      } else {
-        openAslDropdownBase();
-      }
-    });
-
-    aslCheckboxesBase.forEach(cb => {
-      cb.addEventListener('change', () => {
-        updateAslHeaderTextBase();
-        // Sincronizza con Avanzate
-        syncAslFromBaseToAvanzate();
-      });
-    });
-
-    aslDropdownBase.addEventListener('click', (e) => {
-      e.stopPropagation();
-    });
-
-    // Event listeners per Avanzate
+    // Event listeners
     aslHeader.addEventListener('click', (e) => {
       e.stopPropagation();
       const isOpen = aslDropdown.classList.contains('open');
@@ -1972,8 +1719,6 @@
       cb.addEventListener('change', () => {
         updateAslHeaderText();
         checkCombinationsWarning();
-        // Sincronizza con Base
-        syncAslFromAvanzateToBase();
       });
     });
 
@@ -2014,35 +1759,6 @@
       }
     });
 
-    // ===== SINCRONIZZAZIONE CAMPI TRA BASE E AVANZATE =====
-    function syncAslFromBaseToAvanzate() {
-      aslCheckboxesBase.forEach((cbBase, index) => {
-        aslCheckboxes[index].checked = cbBase.checked;
-      });
-      updateAslHeaderText();
-    }
-
-    function syncAslFromAvanzateToBase() {
-      aslCheckboxes.forEach((cbAvanzate, index) => {
-        aslCheckboxesBase[index].checked = cbAvanzate.checked;
-      });
-      updateAslHeaderTextBase();
-    }
-
-    // Sincronizzazione Cognomi
-    const cognomiBase = document.getElementById('cognomi-base');
-    const cognomiAvanzate = document.getElementById('cognomi');
-
-    cognomiBase.addEventListener('input', () => {
-      cognomiAvanzate.value = cognomiBase.value;
-    });
-
-    cognomiAvanzate.addEventListener('input', () => {
-      cognomiBase.value = cognomiAvanzate.value;
-    });
-
-    // Inizializzazione: nascondi bottone Base all'avvio (parte da tab Base attivo)
-    document.getElementById('submitBtnBase').style.display = 'block';
   </script>
 </body>
 </html>
