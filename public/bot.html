@@ -1188,7 +1188,7 @@
         </div>
 
         <!-- Storia variazioni -->
-        <div id="historySection" class="section" style="display: none;">
+        <div id="historySection" class="section">
           <button class="results-toggle" id="historyToggle">
             <span>📜 Mostra storia variazioni</span>
             <span class="results-toggle-icon">▼</span>
@@ -2179,7 +2179,6 @@
 
         if (history.length === 0) {
           historyList.innerHTML = '<p style="text-align: center; color: #999; padding: 20px; font-style: italic;">Nessuna variazione registrata</p>';
-          document.getElementById('historySection').style.display = 'block';
           return;
         }
 
@@ -2256,12 +2255,10 @@
         });
 
         historyList.innerHTML = html;
-        document.getElementById('historySection').style.display = 'block';
 
       } catch (error) {
         console.error('Error loading variation history:', error);
         historyList.innerHTML = '<p style="text-align: center; color: #ef4444; padding: 20px;">Errore nel caricamento della storia</p>';
-        document.getElementById('historySection').style.display = 'block';
       }
     }
   </script>
