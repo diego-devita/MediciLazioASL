@@ -243,17 +243,18 @@
     }
 
     .cognome-tag {
-      background: #f0f0f0;
-      padding: 10px 12px;
-      border-radius: 8px;
+      background: #667eea;
+      padding: 12px 14px;
+      border-radius: 12px;
       display: inline-flex;
       flex-direction: column;
       gap: 6px;
-      transition: box-shadow 0.2s;
+      transition: all 0.2s;
     }
 
     .cognome-tag:hover {
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+      transform: translateY(-2px);
     }
 
     .cognome-tag-header {
@@ -266,7 +267,7 @@
     .cognome-tag-name {
       font-size: 1rem;
       font-weight: 600;
-      color: #333;
+      color: white;
     }
 
     .cognome-tag-actions {
@@ -277,11 +278,11 @@
 
     .cognome-tag-edit,
     .cognome-tag-remove {
-      background: transparent;
+      background: rgba(255, 255, 255, 0.2);
       border: none;
-      color: #999;
-      width: 20px;
-      height: 20px;
+      color: white;
+      width: 24px;
+      height: 24px;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -289,17 +290,17 @@
       font-size: 0.9rem;
       transition: all 0.2s;
       padding: 0;
-      border-radius: 4px;
+      border-radius: 6px;
     }
 
     .cognome-tag-edit:hover {
-      background: #e0e0e0;
-      color: #667eea;
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.1);
     }
 
     .cognome-tag-remove:hover {
-      background: #ffe0e0;
-      color: #ef4444;
+      background: #ef4444;
+      transform: scale(1.1);
     }
 
     .cognome-tag-details {
@@ -310,11 +311,11 @@
 
     .tag-detail {
       font-size: 0.75rem;
-      font-weight: 400;
-      color: #667eea;
-      background: rgba(102, 126, 234, 0.1);
-      padding: 3px 8px;
-      border-radius: 4px;
+      font-weight: 500;
+      color: white;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 4px 10px;
+      border-radius: 6px;
     }
 
     .cognome-add-btn {
