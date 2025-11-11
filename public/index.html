@@ -1942,9 +1942,11 @@
     document.addEventListener('click', (e) => {
       if (!document.getElementById('aslMultiselectBase').contains(e.target)) {
         closeAslDropdownBase();
+        updateAslHeaderTextBase();
       }
       if (!document.getElementById('aslMultiselect').contains(e.target)) {
         closeAslDropdown();
+        updateAslHeaderText();
       }
     });
 
