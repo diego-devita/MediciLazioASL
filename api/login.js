@@ -1,5 +1,5 @@
 import { createJWT, hashToken } from '../lib/auth.js';
-import { validateWebAuthToken, markWebAuthTokenAsUsed, createSession, logLoginAttempt } from '../lib/database.js';
+import { validateWebAuthToken, markWebAuthTokenAsUsed, createSession, logLoginAttempt, checkRateLimit } from '../lib/database.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -12,6 +12,28 @@ export default async function handler(req, res) {
     // Estrai IP e User Agent per logging
     const ip = req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || req.socket?.remoteAddress || 'unknown';
     const userAgent = req.headers['user-agent'] || 'unknown';
+
+    // Controlla rate limiting PRIMA di validare il token
+    const rateLimit = await checkRateLimit(ip);
+    if (rateLimit.isBlocked) {
+      // Log tentativo bloccato
+      await logLoginAttempt({
+        ip,
+        userAgent,
+        success: false,
+        blocked: true,
+        username: null
+      });
+
+      const minutesRemaining = Math.ceil((rateLimit.nextAttemptAllowed - new Date()) / 60000);
+
+      return res.status(429).json({
+        error: 'Troppi tentativi falliti',
+        message: `Hai superato il numero massimo di tentativi di login (5). Riprova tra ${minutesRemaining} minuti.`,
+        nextAttemptAllowed: rateLimit.nextAttemptAllowed.toISOString(),
+        attemptsCount: rateLimit.attemptsCount
+      });
+    }
 
     if (!token) {
       return res.status(400).json({ error: 'Token richiesto' });
