@@ -101,18 +101,45 @@ async function handler(req, res) {
           }
         }
 
-        console.log(`Checking user ${user.chatId} with ${user.query.cognomi.length} cognomi...`);
+        console.log(`Checking user ${user.chatId} with ${user.query.cognomi.length} queries...`);
 
-        // Esegui ricerca (ASL = Tutte, tipo = MMG)
-        const result = await client.searchMedici(
-          user.query.cognomi,
-          {
-            asl: '',  // Tutte le ASL
-            type: 'MMG'
+        // Esegui una query singola per ogni elemento configurato
+        const allMedici = [];
+        const allQueries = [];
+
+        for (const queryItem of user.query.cognomi) {
+          // Supporto retrocompatibilità: se è una stringa, converti in oggetto query
+          const query = typeof queryItem === 'string'
+            ? { cognome: queryItem }
+            : queryItem;
+
+          console.log(`Executing query for: ${JSON.stringify(query)}`);
+
+          // Esegui ricerca con parametri specifici della query
+          const result = await client.searchMedici(
+            [query.cognome],  // Array con singolo cognome
+            {
+              asl: query.asl || '',  // ASL specifica o tutte
+              type: 'MMG',
+              zip: query.cap || '',
+              name: query.nome || ''
+            }
+          );
+
+          allMedici.push(...result.medici);
+          allQueries.push(...result.singleQueries);
+        }
+
+        // Deduplicazione per codiceFiscale
+        const mediciMap = new Map();
+        allMedici.forEach(m => {
+          if (m.codiceFiscale) {
+            mediciMap.set(m.codiceFiscale, m);
           }
-        );
+        });
+        const medici = Array.from(mediciMap.values());
 
-        const medici = result.medici;
+        console.log(`Total results before dedup: ${allMedici.length}, after dedup: ${medici.length}`);
 
         // Conta assegnabili
         const assegnabili = medici.filter(m => {
