@@ -2181,8 +2181,24 @@
 
         if (history.length === 0) {
           historyList.innerHTML = '<p style="text-align: center; color: #999; padding: 20px; font-style: italic;">Nessuna variazione registrata</p>';
+          document.querySelector('#historyToggle span:first-child').textContent = '📜 Mostra storia variazioni (0)';
           return;
         }
+
+        // Calcola totale variazioni (eventi)
+        let totalVariations = 0;
+        history.forEach(run => {
+          if (run.events && Array.isArray(run.events)) {
+            totalVariations += run.events.length;
+          } else if (run.variations) {
+            totalVariations += (run.variations.new || []).length;
+            totalVariations += (run.variations.removed || []).length;
+            totalVariations += (run.variations.changed || []).length;
+          }
+        });
+
+        // Aggiorna il contatore nel toggle button
+        document.querySelector('#historyToggle span:first-child').textContent = `📜 Mostra storia variazioni (${totalVariations})`;
 
         // Renderizza la storia
         let html = '';
@@ -2200,11 +2216,7 @@
           html += `
             <div style="background: #f9f9f9; border-left: 4px solid #667eea; padding: 15px; margin-bottom: 15px; border-radius: 8px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <strong style="color: #667eea;">Run #${run.runId || 'N/A'}</strong>
-                <span style="color: #999; font-size: 0.9rem;">${formattedDate}</span>
-              </div>
-              <div style="font-size: 0.85rem; color: #666; margin-bottom: 10px;">
-                ${run.eventCount || 0} eventi • ${run.totalResults || 0} medici trovati • ${run.totalAvailable || 0} liberi
+                <strong style="color: #667eea;">${formattedDate}</strong>
               </div>
           `;
 
