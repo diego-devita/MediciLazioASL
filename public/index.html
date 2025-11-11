@@ -140,11 +140,11 @@
       border-bottom: 3px solid transparent;
       border-radius: 0;
       font-size: 1rem;
-      background: none;
+      background: transparent;
     }
 
     .tab-button:hover {
-      background: #f0f0f0;
+      background: rgba(102, 126, 234, 0.05);
       color: #667eea;
     }
 
@@ -152,6 +152,10 @@
       color: #667eea;
       background: white;
       border-bottom-color: #667eea;
+    }
+
+    .tab-button.active:hover {
+      background: white;
     }
 
     .tab-content {
