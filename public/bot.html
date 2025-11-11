@@ -887,6 +887,12 @@
 
     /* Colori per ogni tipo di notifica */
     .notification-toggle.search-completed {
+      background: #e5e7eb;
+      border-color: #6b7280;
+      color: #374151;
+    }
+
+    .notification-toggle.total-available {
       background: #d1fae5;
       border-color: #059669;
       color: #065f46;
@@ -1069,6 +1075,10 @@
           <div class="notification-preferences">
             <div class="notification-toggle active search-completed" data-notification="searchCompleted">
               <span>Ricerca svolta</span>
+              <span class="notification-toggle-icon">✓</span>
+            </div>
+            <div class="notification-toggle active total-available" data-notification="totalAvailable">
+              <span>Totale liberi</span>
               <span class="notification-toggle-icon">✓</span>
             </div>
             <div class="notification-toggle active new-doctors" data-notification="newDoctors">
@@ -1710,6 +1720,7 @@
       try {
         const notifications = {
           searchCompleted: document.querySelector('[data-notification="searchCompleted"]').classList.contains('active'),
+          totalAvailable: document.querySelector('[data-notification="totalAvailable"]').classList.contains('active'),
           newDoctors: document.querySelector('[data-notification="newDoctors"]').classList.contains('active'),
           removedDoctors: document.querySelector('[data-notification="removedDoctors"]').classList.contains('active'),
           statusChanged: document.querySelector('[data-notification="statusChanged"]').classList.contains('active'),
@@ -2041,6 +2052,7 @@
         // ===== CARICA PREFERENZE NOTIFICHE =====
         const notifications = data.user.notifications || {
           searchCompleted: true,
+          totalAvailable: true,
           newDoctors: true,
           removedDoctors: true,
           statusChanged: true,
@@ -2065,6 +2077,7 @@
 
         // Imposta stato iniziale di tutti i toggle
         setToggleState('[data-notification="searchCompleted"]', notifications.searchCompleted);
+        setToggleState('[data-notification="totalAvailable"]', notifications.totalAvailable);
         setToggleState('[data-notification="newDoctors"]', notifications.newDoctors);
         setToggleState('[data-notification="removedDoctors"]', notifications.removedDoctors);
         setToggleState('[data-notification="statusChanged"]', notifications.statusChanged);

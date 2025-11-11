@@ -282,6 +282,31 @@ Usa /medici per vedere i dettagli.
           }
         }
 
+        // Notifica totale liberi (se abilitata)
+        if (notifications.totalAvailable) {
+          // Filtra solo i medici con "Assegnazione libera"
+          const liberi = medici.filter(m => {
+            if (!m.assegnabilita) return false;
+            const stato = m.assegnabilita.toLowerCase();
+            return stato.includes('assegnazione libera');
+          });
+
+          if (liberi.length > 0) {
+            const message = `
+🟢 Totale medici con assegnazione libera: ${liberi.length}
+
+Usa /medici per vedere i dettagli.
+            `.trim();
+
+            const result = await sendNotificationSafe(user.chatId, message);
+            if (!result.success) {
+              console.log(`Skipping user ${user.chatId} - blocked or deleted`);
+              continue;
+            }
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
+        }
+
         // === NOTIFICHE DIFF ===
 
         // Notifica nuovi medici (se abilitata)

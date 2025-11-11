@@ -18,7 +18,7 @@ async function handler(req, res) {
     }
 
     // Valida che i campi siano booleani
-    const validKeys = ['searchCompleted', 'newDoctors', 'removedDoctors', 'statusChanged', 'onlyToAssignable'];
+    const validKeys = ['searchCompleted', 'totalAvailable', 'newDoctors', 'removedDoctors', 'statusChanged', 'onlyToAssignable'];
     for (const key of validKeys) {
       if (notifications[key] !== undefined && typeof notifications[key] !== 'boolean') {
         return res.status(400).json({
@@ -40,6 +40,7 @@ async function handler(req, res) {
     // Merge con le notifiche esistenti (default a true se non esistono)
     const currentNotifications = user.notifications || {
       searchCompleted: true,
+      totalAvailable: true,
       newDoctors: true,
       removedDoctors: true,
       statusChanged: true,
