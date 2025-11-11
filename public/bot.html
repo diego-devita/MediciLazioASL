@@ -243,37 +243,78 @@
     }
 
     .cognome-tag {
-      background: #667eea;
-      color: white;
-      padding: 6px 12px 6px 14px;
-      border-radius: 20px;
-      font-size: 0.9rem;
-      font-weight: 600;
+      background: #f0f0f0;
+      padding: 10px 12px;
+      border-radius: 8px;
       display: inline-flex;
-      align-items: center;
-      gap: 8px;
+      flex-direction: column;
+      gap: 6px;
+      transition: box-shadow 0.2s;
     }
 
+    .cognome-tag:hover {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .cognome-tag-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .cognome-tag-name {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .cognome-tag-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .cognome-tag-edit,
     .cognome-tag-remove {
-      background: rgba(255, 255, 255, 0.3);
+      background: transparent;
       border: none;
-      color: white;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
+      color: #999;
+      width: 20px;
+      height: 20px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.75rem;
-      font-weight: bold;
+      font-size: 0.9rem;
       transition: all 0.2s;
       padding: 0;
+      border-radius: 4px;
+    }
+
+    .cognome-tag-edit:hover {
+      background: #e0e0e0;
+      color: #667eea;
     }
 
     .cognome-tag-remove:hover {
-      background: rgba(255, 255, 255, 0.5);
-      transform: scale(1.1);
+      background: #ffe0e0;
+      color: #ef4444;
+    }
+
+    .cognome-tag-details {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tag-detail {
+      font-size: 0.75rem;
+      font-weight: 400;
+      color: #667eea;
+      background: rgba(102, 126, 234, 0.1);
+      padding: 3px 8px;
+      border-radius: 4px;
     }
 
     .cognome-add-btn {
@@ -1191,12 +1232,32 @@
           </button>
         `;
       } else {
-        const tagsHtml = cognomi.map(cognome => `
-          <span class="cognome-tag">
-            <span>${cognome}</span>
-            <button class="cognome-tag-remove" data-cognome="${cognome}">×</button>
-          </span>
-        `).join('');
+        const tagsHtml = cognomi.map(query => {
+          // Costruisci i dettagli (nome, cap, asl)
+          const details = [];
+          if (query.nome) details.push(`<span class="tag-detail">${query.nome}</span>`);
+          if (query.cap) details.push(`<span class="tag-detail">${query.cap}</span>`);
+          if (query.asl) details.push(`<span class="tag-detail">${query.asl}</span>`);
+
+          const detailsHtml = details.length > 0
+            ? `<div class="cognome-tag-details">${details.join('')}</div>`
+            : '';
+
+          const queryJson = JSON.stringify(query).replace(/"/g, '&quot;');
+
+          return `
+            <div class="cognome-tag">
+              <div class="cognome-tag-header">
+                <span class="cognome-tag-name">${query.cognome || query}</span>
+                <div class="cognome-tag-actions">
+                  <button class="cognome-tag-edit" data-query="${queryJson}" title="Modifica">✎</button>
+                  <button class="cognome-tag-remove" data-query="${queryJson}" title="Elimina">×</button>
+                </div>
+              </div>
+              ${detailsHtml}
+            </div>
+          `;
+        }).join('');
 
         cognomiTags.innerHTML = `
           ${tagsHtml}
@@ -1210,10 +1271,19 @@
       // Aggiungi event listeners
       document.getElementById('addCognomeBtn').addEventListener('click', openAddCognomeModal);
 
+      document.querySelectorAll('.cognome-tag-edit').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const queryJson = e.target.dataset.query;
+          const query = JSON.parse(queryJson.replace(/&quot;/g, '"'));
+          openEditCognomeModal(query);
+        });
+      });
+
       document.querySelectorAll('.cognome-tag-remove').forEach(btn => {
         btn.addEventListener('click', async (e) => {
-          const cognome = e.target.dataset.cognome;
-          await removeCognome(cognome);
+          const queryJson = e.target.dataset.query;
+          const query = JSON.parse(queryJson.replace(/&quot;/g, '"'));
+          await removeCognome(query);
         });
       });
     }
@@ -1287,7 +1357,42 @@
       }
     }
 
-    async function removeCognome(cognome) {
+    async function editCognome(originalQuery, cognome, nome, cap, asl) {
+      try {
+        const newQuery = { cognome };
+        if (nome) newQuery.nome = nome;
+        if (cap) newQuery.cap = cap;
+        if (asl) newQuery.asl = asl;
+
+        const response = await fetch('/api/user/cognomi', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include',
+          body: JSON.stringify({ originalQuery, newQuery })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          showModalError(data.error || 'Errore nella modifica del cognome');
+          return false;
+        }
+
+        showToast(data.message);
+        renderCognomi(data.cognomi);
+        updateNextCheckDisplay(data.cognomi.length);
+        return true;
+
+      } catch (error) {
+        console.error('Error editing cognome:', error);
+        showModalError('Errore di connessione');
+        return false;
+      }
+    }
+
+    async function removeCognome(query) {
       try {
         const response = await fetch('/api/user/cognomi', {
           method: 'DELETE',
@@ -1295,7 +1400,7 @@
             'Content-Type': 'application/json'
           },
           credentials: 'include',
-          body: JSON.stringify({ cognome })
+          body: JSON.stringify({ query })
         });
 
         const data = await response.json();
@@ -1334,10 +1439,28 @@
 
     function openAddCognomeModal() {
       modal.classList.add('active');
+      modal.dataset.mode = 'add';
+      modal.dataset.originalQuery = '';
       cognomeInput.value = '';
       document.getElementById('nomeInput').value = '';
       document.getElementById('capInput').value = '';
       document.getElementById('aslInput').value = '';
+      document.querySelector('.modal-header').textContent = 'Aggiungi cognome';
+      document.getElementById('modalConfirmBtn').textContent = 'Aggiungi';
+      hideModalError();
+      cognomeInput.focus();
+    }
+
+    function openEditCognomeModal(query) {
+      modal.classList.add('active');
+      modal.dataset.mode = 'edit';
+      modal.dataset.originalQuery = JSON.stringify(query);
+      cognomeInput.value = query.cognome || '';
+      document.getElementById('nomeInput').value = query.nome || '';
+      document.getElementById('capInput').value = query.cap || '';
+      document.getElementById('aslInput').value = query.asl || '';
+      document.querySelector('.modal-header').textContent = 'Modifica cognome';
+      document.getElementById('modalConfirmBtn').textContent = 'Salva';
       hideModalError();
       cognomeInput.focus();
     }
@@ -1366,8 +1489,17 @@
         return;
       }
 
-      // Tenta l'aggiunta con tutti i campi
-      const success = await addCognome(cognome, nome, cap, asl);
+      const mode = modal.dataset.mode || 'add';
+      let success = false;
+
+      if (mode === 'edit') {
+        // Modalità modifica
+        const originalQuery = JSON.parse(modal.dataset.originalQuery);
+        success = await editCognome(originalQuery, cognome, nome, cap, asl);
+      } else {
+        // Modalità aggiunta
+        success = await addCognome(cognome, nome, cap, asl);
+      }
 
       // Chiudi modal solo se successo
       if (success) {
