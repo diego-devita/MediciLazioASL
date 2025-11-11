@@ -760,6 +760,12 @@
       border-color: #667eea;
     }
 
+    .modal-separator {
+      border: none;
+      border-top: 1px solid #e0e0e0;
+      margin: 20px 0;
+    }
+
     .modal-buttons {
       display: flex;
       gap: 10px;
@@ -936,19 +942,11 @@
 
       <div id="configContent" style="display: none;">
         <div class="info-box">
-          <div class="info-box-grid">
-            <div class="info-box-col">
-              <p><strong>Tipo:</strong> Medicina Generale (MMG)</p>
-              <p><strong>ASL:</strong> Tutte le ASL del Lazio</p>
-            </div>
-            <div class="info-box-col">
-              <div id="cognomiTags" class="cognomi-tags">
-                <button class="cognome-add-btn" id="addCognomeBtn">
-                  <span>+</span>
-                  <span>Aggiungi</span>
-                </button>
-              </div>
-            </div>
+          <div id="cognomiTags" class="cognomi-tags">
+            <button class="cognome-add-btn" id="addCognomeBtn">
+              <span>+</span>
+              <span>Aggiungi</span>
+            </button>
           </div>
         </div>
 
@@ -1077,6 +1075,34 @@
         placeholder="Inserisci il cognome..."
         maxlength="50"
       />
+      <hr class="modal-separator">
+      <input
+        type="text"
+        class="modal-input"
+        id="nomeInput"
+        placeholder="Nome (opzionale)"
+        maxlength="50"
+      />
+      <input
+        type="text"
+        class="modal-input"
+        id="capInput"
+        placeholder="CAP (opzionale)"
+        maxlength="5"
+      />
+      <select class="modal-input" id="aslInput">
+        <option value="">ASL (opzionale)</option>
+        <option value="Roma 1">Roma 1</option>
+        <option value="Roma 2">Roma 2</option>
+        <option value="Roma 3">Roma 3</option>
+        <option value="Roma 4">Roma 4</option>
+        <option value="Roma 5">Roma 5</option>
+        <option value="Roma 6">Roma 6</option>
+        <option value="Frosinone">Frosinone</option>
+        <option value="Latina">Latina</option>
+        <option value="Rieti">Rieti</option>
+        <option value="Viterbo">Viterbo</option>
+      </select>
       <div class="modal-error" id="modalError"></div>
       <div class="modal-buttons">
         <button class="modal-btn modal-btn-cancel" id="modalCancelBtn">Annulla</button>
@@ -1225,15 +1251,20 @@
       }
     }
 
-    async function addCognome(cognome) {
+    async function addCognome(cognome, nome, cap, asl) {
       try {
+        const query = { cognome };
+        if (nome) query.nome = nome;
+        if (cap) query.cap = cap;
+        if (asl) query.asl = asl;
+
         const response = await fetch('/api/user/cognomi', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
           credentials: 'include',
-          body: JSON.stringify({ cognome })
+          body: JSON.stringify({ query })
         });
 
         const data = await response.json();
@@ -1304,6 +1335,9 @@
     function openAddCognomeModal() {
       modal.classList.add('active');
       cognomeInput.value = '';
+      document.getElementById('nomeInput').value = '';
+      document.getElementById('capInput').value = '';
+      document.getElementById('aslInput').value = '';
       hideModalError();
       cognomeInput.focus();
     }
@@ -1315,6 +1349,9 @@
 
     async function handleAddCognome() {
       const cognome = cognomeInput.value.trim();
+      const nome = document.getElementById('nomeInput').value.trim();
+      const cap = document.getElementById('capInput').value.trim();
+      const asl = document.getElementById('aslInput').value;
 
       if (!cognome) {
         showModalError('Il cognome non può essere vuoto');
@@ -1329,8 +1366,8 @@
         return;
       }
 
-      // Tenta l'aggiunta
-      const success = await addCognome(cognome);
+      // Tenta l'aggiunta con tutti i campi
+      const success = await addCognome(cognome, nome, cap, asl);
 
       // Chiudi modal solo se successo
       if (success) {
