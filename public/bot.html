@@ -1058,7 +1058,23 @@
 
       <div id="configContent" style="display: none;">
         <div class="section">
-          <h2>Cognomi</h2>
+          <h2>
+            Cognomi
+            <button id="copyCognomiBtn" style="
+              margin-left: 15px;
+              padding: 6px 12px;
+              background: #f0f0f0;
+              border: 1px solid #d0d0d0;
+              border-radius: 6px;
+              color: #667eea;
+              font-size: 0.85rem;
+              font-weight: 500;
+              cursor: pointer;
+              transition: all 0.2s;
+            " onmouseover="this.style.background='#e0e0e0'" onmouseout="this.style.background='#f0f0f0'">
+              Copia
+            </button>
+          </h2>
           <div class="info-box">
             <div id="cognomiTags" class="cognomi-tags">
               <button class="cognome-add-btn" id="addCognomeBtn">
@@ -1297,6 +1313,9 @@
   <script src="/auth-check.js"></script>
 
   <script>
+    // ===== VARIABILI GLOBALI =====
+    let currentCognomi = [];
+
     // ===== TOAST NOTIFICATIONS =====
     function showToast(message, isError = false) {
       const toast = document.createElement('div');
@@ -1467,6 +1486,7 @@
         }
 
         showToast(data.message);
+        currentCognomi = data.cognomi; // Aggiorna globalmente
         renderCognomi(data.cognomi);
         updateNextCheckDisplay(data.cognomi.length);
         return true;
@@ -1502,6 +1522,7 @@
         }
 
         showToast(data.message);
+        currentCognomi = data.cognomi; // Aggiorna globalmente
         renderCognomi(data.cognomi);
         updateNextCheckDisplay(data.cognomi.length);
         return true;
@@ -1532,6 +1553,7 @@
         }
 
         showToast(data.message);
+        currentCognomi = data.cognomi; // Aggiorna globalmente
         renderCognomi(data.cognomi);
         updateNextCheckDisplay(data.cognomi.length);
 
@@ -1827,6 +1849,31 @@
       });
     });
 
+    // ===== COPIA COGNOMI =====
+    document.getElementById('copyCognomiBtn').addEventListener('click', async () => {
+      if (!currentCognomi || currentCognomi.length === 0) {
+        showToast('Nessun cognome da copiare', true);
+        return;
+      }
+
+      // Serializza i cognomi come lista separata da virgola
+      const cognomiList = currentCognomi.map(query => {
+        if (typeof query === 'string') {
+          return query;
+        }
+        return query.cognome;
+      }).join(', ');
+
+      try {
+        // Copia nella clipboard
+        await navigator.clipboard.writeText(cognomiList);
+        showToast(`${currentCognomi.length} cognomi copiati nella clipboard`);
+      } catch (error) {
+        console.error('Error copying to clipboard:', error);
+        showToast('Errore nella copia', true);
+      }
+    });
+
     // Gestione toggle risultati
     const toggleButtons = [
       { button: 'resultsToggle', container: 'resultsListContainer' },
@@ -1879,6 +1926,7 @@
 
         // Mostra cognomi
         const cognomi = data.user.query.cognomi || [];
+        currentCognomi = cognomi; // Salva globalmente
         renderCognomi(cognomi);
 
         // Mostra intervallo minimo
