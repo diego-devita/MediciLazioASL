@@ -1114,6 +1114,9 @@
 
   <!-- Auth check -->
   <script src="/auth-check.js"></script>
+  <script src="/lib/template-engine.js"></script>
+  <script src="/lib/medici-visualizer-presets.js"></script>
+  <script src="/lib/medici-visualizer.js"></script>
 
   <script type="module">
     import { BatchSearchClient } from '/batch-search-client.js';
@@ -1137,6 +1140,9 @@
     let timerInterval = null;
     let startTime = null;
     let batchClient = null;
+
+    // Inizializza visualizer per risultati
+    let mediciVisualizer = null;
 
     // Check if user is admin and show admin link
     (async function checkIfAdmin() {
@@ -1366,145 +1372,10 @@
       }
     });
 
-    function sortData(column) {
-      if (!currentData) return;
-
-      if (sortColumn === column) {
-        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-      } else {
-        sortColumn = column;
-        sortDirection = 'asc';
-      }
-
-      currentData.results.sort((a, b) => {
-        let aVal = a[column] || '';
-        let bVal = b[column] || '';
-
-        // Conversione a lowercase per stringhe
-        if (typeof aVal === 'string') aVal = aVal.toLowerCase();
-        if (typeof bVal === 'string') bVal = bVal.toLowerCase();
-
-        if (sortDirection === 'asc') {
-          return aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
-        } else {
-          return aVal < bVal ? 1 : aVal > bVal ? -1 : 0;
-        }
-      });
-
-      renderTable(currentData);
-    }
-
-    function renderCards(data) {
-      const mediciList = document.getElementById('mediciList');
-
-      const cardsContainer = document.createElement('div');
-      cardsContainer.className = 'results-cards';
-
-      data.results.forEach(medico => {
-        const emoji = getStatoEmoji(medico.assegnabilita);
-
-        const card = document.createElement('div');
-        card.className = 'result-card';
-
-        card.innerHTML = `
-          <div class="card-header">
-            <div class="card-emoji">${emoji}</div>
-            <div class="card-name">${medico.cognome} ${medico.nome}</div>
-          </div>
-          <div class="card-footer">
-            <div class="card-stato">${medico.assegnabilita}</div>
-            <div class="card-asl">${medico.asl}</div>
-          </div>
-        `;
-
-        cardsContainer.appendChild(card);
-      });
-
-      mediciList.appendChild(cardsContainer);
-    }
-
-    function renderTable(data) {
-      const mediciList = document.getElementById('mediciList');
-      mediciList.innerHTML = '';
-
-      // Render tabella desktop
-      const table = document.createElement('table');
-      table.className = 'results-table';
-
-      const columns = [
-        { key: 'assegnabilita', label: '', isEmoji: true },
-        { key: 'cognome', label: 'Cognome' },
-        { key: '', label: '', isHidden: true }, // Colonna fittizia per tooltip
-        { key: 'nome', label: 'Nome' },
-        { key: 'asl', label: 'ASL' },
-        { key: 'assegnabilita', label: 'Stato' }
-      ];
-
-      table.innerHTML = `
-        <thead>
-          <tr>
-            ${columns.map(col => {
-              if (col.isHidden) {
-                return `<th style="width: 0; padding: 0; border: none;"></th>`;
-              }
-              const sortClass = sortColumn === col.key ? `sort-${sortDirection}` : '';
-              return `<th class="${sortClass}" data-column="${col.key}">${col.label}</th>`;
-            }).join('')}
-          </tr>
-        </thead>
-        <tbody>
-            ${data.results.map(medico => {
-              const emoji = getStatoEmoji(medico.assegnabilita);
-
-              // Costruisci tooltip con tutti i dati disponibili
-              let tooltipContent = `
-                <div class="tooltip-title">Dettagli completi</div>
-                ${medico.codiceFiscale ? `<div class="tooltip-row"><span class="tooltip-label">Codice Fiscale:</span><span class="tooltip-value">${medico.codiceFiscale}</span></div>` : ''}
-                ${medico.email ? `<div class="tooltip-row"><span class="tooltip-label">Email:</span><span class="tooltip-value">${medico.email}</span></div>` : ''}
-                ${medico.indirizzo ? `<div class="tooltip-row"><span class="tooltip-label">Indirizzo:</span><span class="tooltip-value">${medico.indirizzo}</span></div>` : ''}
-                ${medico.luogo ? `<div class="tooltip-row"><span class="tooltip-label">Luogo:</span><span class="tooltip-value">${medico.luogo}</span></div>` : ''}
-                ${medico.luogoNascita ? `<div class="tooltip-row"><span class="tooltip-label">Luogo Nascita:</span><span class="tooltip-value">${medico.luogoNascita}</span></div>` : ''}
-                ${medico.identificativo ? `<div class="tooltip-row"><span class="tooltip-label">Identificativo:</span><span class="tooltip-value">${medico.identificativo}</span></div>` : ''}
-                ${medico.codiceDistretto ? `<div class="tooltip-row"><span class="tooltip-label">Codice Distretto:</span><span class="tooltip-value">${medico.codiceDistretto}</span></div>` : ''}
-                ${medico.descrizioneDistretto ? `<div class="tooltip-row"><span class="tooltip-label">Distretto:</span><span class="tooltip-value">${medico.descrizioneDistretto}</span></div>` : ''}
-              `;
-
-              return `
-                <tr>
-                  <td class="emoji-cell">${emoji}</td>
-                  <td class="nome-cell">${medico.cognome}</td>
-                  <td style="position: relative; width: 0; padding: 0;">
-                    <div class="tooltip">${tooltipContent}</div>
-                  </td>
-                  <td>${medico.nome}</td>
-                  <td>${medico.asl}</td>
-                  <td>${medico.assegnabilita}</td>
-                </tr>
-              `;
-            }).join('')}
-          </tbody>
-        `;
-
-      mediciList.appendChild(table);
-
-      // Aggiungi event listener per il sorting (desktop)
-      table.querySelectorAll('th[data-column]').forEach(th => {
-        th.addEventListener('click', () => {
-          sortData(th.dataset.column);
-        });
-      });
-
-      // Render cards mobile
-      renderCards(data);
-    }
-
     function displayResults(data) {
       currentData = data;
-      sortColumn = null;
-      sortDirection = 'asc';
 
-      // Calcola i contatori per categoria
-      // Usa i contatori dall'API
+      // Aggiorna contatori summary
       document.getElementById('totalCount').textContent = data.counters.totali;
       document.getElementById('liberiCount').textContent = data.counters.assegnabili;
       document.getElementById('derogaCount').textContent = data.counters.conDeroga;
@@ -1513,7 +1384,16 @@
       if (data.results.length === 0) {
         document.getElementById('mediciList').innerHTML = '<p style="text-align: center; color: #777; padding: 20px;">Nessun medico trovato con i criteri specificati.</p>';
       } else {
-        renderTable(data);
+        // Crea o aggiorna visualizer
+        if (mediciVisualizer) {
+          mediciVisualizer.destroy();
+        }
+
+        mediciVisualizer = new MediciVisualizer({
+          preset: 'MAIN_SEARCH',
+          container: '#mediciList',
+          data: data.results
+        });
       }
 
       results.style.display = 'block';
@@ -1744,8 +1624,8 @@
     let mobileSortDirection = 'asc';
 
     mobileSortSelect.addEventListener('change', () => {
-      if (currentData) {
-        sortData(mobileSortSelect.value);
+      if (mediciVisualizer) {
+        mediciVisualizer.sort(mobileSortSelect.value, mobileSortDirection);
       }
     });
 
@@ -1753,9 +1633,9 @@
       mobileSortDirection = mobileSortDirection === 'asc' ? 'desc' : 'asc';
       mobileSortToggle.textContent = mobileSortDirection === 'asc' ? '↑ ASC' : '↓ DESC';
 
-      if (currentData) {
-        sortDirection = mobileSortDirection;
-        sortData(sortColumn || mobileSortSelect.value);
+      if (mediciVisualizer) {
+        const column = mediciVisualizer.state.sortColumn || mobileSortSelect.value;
+        mediciVisualizer.sort(column, mobileSortDirection);
       }
     });
 

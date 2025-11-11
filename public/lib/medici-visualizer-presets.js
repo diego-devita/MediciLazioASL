@@ -7,62 +7,34 @@ const MediciVisualizerPresets = {
   /**
    * MAIN_SEARCH - Pagina ricerca principale (index.html)
    * Tabella desktop + card mobile, sort, hover tooltip, summary
+   * REPLICA ESATTA del rendering esistente
    */
   MAIN_SEARCH: {
     layout: {
-      main: `
-        <div class="{{classes.root}}">
-          {{slot:summary}}
-          {{slot:content}}
-        </div>
-      `,
+      main: `{{slot:content}}`,
 
       slots: {
-        summary: {
-          enabled: true,
-          template: `
-            <div class="results-summary">
-              <div class="summary-item">
-                <div class="summary-number">{{countTotal}}</div>
-                <div class="summary-label">Totali</div>
-              </div>
-              <div class="summary-item">
-                <div class="summary-number" style="color: #22c55e;">{{countLiberi}}</div>
-                <div class="summary-label">Assegnabili liberamente</div>
-              </div>
-              <div class="summary-item">
-                <div class="summary-number" style="color: #f59e0b;">{{countDeroga}}</div>
-                <div class="summary-label">Con deroga</div>
-              </div>
-              <div class="summary-item">
-                <div class="summary-number" style="color: #ef4444;">{{countAltri}}</div>
-                <div class="summary-label">Altro</div>
-              </div>
-            </div>
-          `
-        },
-
         content: {
           enabled: true,
           template: `
-            {{#if items}}
+            {{#if allItems}}
               <!-- Desktop table -->
               <table class="results-table">
                 <thead>
                   <tr>
-                    <th style="width: 60px;"></th>
-                    <th style="width: 250px;">Cognome</th>
+                    <th class="{{sortClassFor 'assegnabilita'}}" data-column="assegnabilita"></th>
+                    <th class="{{sortClassFor 'cognome'}}" data-column="cognome">Cognome</th>
                     <th style="width: 0; padding: 0; border: none;"></th>
-                    <th style="width: 180px;">Nome</th>
-                    <th style="width: 100px;">ASL</th>
-                    <th style="width: 250px;">Stato</th>
+                    <th class="{{sortClassFor 'nome'}}" data-column="nome">Nome</th>
+                    <th class="{{sortClassFor 'asl'}}" data-column="asl">ASL</th>
+                    <th class="{{sortClassFor 'assegnabilita'}}" data-column="assegnabilita">Stato</th>
                   </tr>
                 </thead>
                 <tbody>
                   {{#each items}}
                     <tr>
                       <td class="emoji-cell">{{emoji this.assegnabilita}}</td>
-                      <td class="nome-cell"><strong>{{uppercase this.cognome}}</strong></td>
+                      <td class="nome-cell">{{this.cognome}}</td>
                       <td style="position: relative; width: 0; padding: 0;">
                         <div class="tooltip">
                           <div class="tooltip-title">Dettagli completi</div>
@@ -130,7 +102,7 @@ const MediciVisualizerPresets = {
                   <div class="result-card">
                     <div class="card-header">
                       <div class="card-emoji">{{emoji this.assegnabilita}}</div>
-                      <div class="card-name">{{uppercase this.cognome}} {{this.nome}}</div>
+                      <div class="card-name">{{this.cognome}} {{this.nome}}</div>
                     </div>
                     <div class="card-footer">
                       <div class="card-stato">{{this.assegnabilita}}</div>
@@ -140,25 +112,18 @@ const MediciVisualizerPresets = {
                 {{/each}}
               </div>
             {{/if}}
-
-            {{#if items}}{{/if}}
-            <div style="display: none;">
-              {{#if items}}{{/if}}
-              <p style="text-align: center; color: #777; padding: 20px;">
-                Nessun medico trovato con i criteri specificati.
-              </p>
-            </div>
           `
         }
       }
     },
 
     classes: {
-      root: 'medici-visualizer-main'
+      root: ''
     },
 
     sorting: {
-      enabled: false
+      enabled: true,
+      caseSensitive: false
     },
 
     pagination: {

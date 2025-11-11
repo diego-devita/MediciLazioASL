@@ -346,6 +346,14 @@ class MediciVisualizer {
           self.setPageSize(size);
         });
         return `mediciVisualizer.triggerEvent('${id}', event)`;
+      },
+
+      // === SORT CLASS HELPER ===
+      sortClassFor: function(column) {
+        if (self.state.sortColumn === column) {
+          return `sort-${self.state.sortDirection}`;
+        }
+        return '';
       }
     };
   }
@@ -495,6 +503,18 @@ class MediciVisualizer {
   _attachDOMEventListeners() {
     // Expose instance globally per event handlers
     window.mediciVisualizer = this;
+
+    // Sort headers (TH con data-column)
+    if (this.config.sorting.enabled) {
+      this.container.querySelectorAll('th[data-column]').forEach(th => {
+        th.addEventListener('click', () => {
+          const column = th.dataset.column;
+          this.sort(column);
+        });
+        // Cursor pointer per indicare clickability
+        th.style.cursor = 'pointer';
+      });
+    }
 
     // Row click handlers
     if (typeof this.config.onRowClick === 'function') {
