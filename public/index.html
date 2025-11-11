@@ -1134,18 +1134,19 @@
       <!-- Batch Progress Bar -->
       <div id="batchProgress" style="display: none;" class="batch-progress">
         <h3>🔄 Ricerca batch in corso...</h3>
-        <div class="progress-bar-container">
-          <div id="progressBarFill" class="progress-bar-fill" style="width: 0%;">0%</div>
+        <div style="margin-bottom: 8px;">
+          <div style="font-size: 0.9rem; margin-bottom: 4px; color: #666;">📊 Combinazioni: <strong id="progressQueries">0/0</strong></div>
+          <div class="progress-bar-container">
+            <div id="progressBarFill" class="progress-bar-fill" style="width: 0%;">0%</div>
+          </div>
+        </div>
+        <div id="pagesProgressContainer" style="display: none; margin-bottom: 8px;">
+          <div style="font-size: 0.9rem; margin-bottom: 4px; color: #666;">📄 Pagine (query corrente): <strong id="progressPages">0/0</strong></div>
+          <div class="progress-bar-container">
+            <div id="progressBarFillPages" class="progress-bar-fill" style="width: 0%; background: linear-gradient(90deg, #28a745 0%, #20c997 100%);">0%</div>
+          </div>
         </div>
         <div class="progress-stats">
-          <div class="progress-stat">
-            <span>📊 Progresso:</span>
-            <strong id="progressQueries">0/0 query</strong>
-          </div>
-          <div class="progress-stat" id="progressPagesStat" style="display: none;">
-            <span>📄 Pagine:</span>
-            <strong id="progressPages">-</strong>
-          </div>
           <div class="progress-stat">
             <span>🌐 Richieste:</span>
             <strong id="progressTotalRequests">0</strong>
@@ -1387,9 +1388,11 @@
       // Log per debug
       console.log('Progress update:', progress);
 
+      // Progress bar principale (combinazioni)
       document.getElementById('progressBarFill').style.width = `${progress.percentage}%`;
       document.getElementById('progressBarFill').textContent = `${progress.percentage}%`;
-      document.getElementById('progressQueries').textContent = `${progress.completed}/${progress.total} query`;
+      document.getElementById('progressQueries').textContent = `${progress.completed}/${progress.total}`;
+
       // Il tempo viene gestito dal setInterval in showBatchProgress
       document.getElementById('progressResults').textContent = `${progress.results} medici`;
       document.getElementById('progressErrors').textContent = progress.errors;
@@ -1399,14 +1402,21 @@
         document.getElementById('progressTotalRequests').textContent = progress.totalRequests;
       }
 
-      // Mostra/nascondi progresso pagine
-      const pagesStat = document.getElementById('progressPagesStat');
+      // Mostra/nascondi e aggiorna progress bar pagine
+      const pagesContainer = document.getElementById('pagesProgressContainer');
       const pagesElement = document.getElementById('progressPages');
+      const pagesBarFill = document.getElementById('progressBarFillPages');
+
       if (progress.currentPage && progress.totalPagesForCombination) {
-        pagesStat.style.display = '';
+        pagesContainer.style.display = '';
         pagesElement.textContent = `${progress.currentPage}/${progress.totalPagesForCombination}`;
+
+        // Calcola percentuale pagine
+        const pagesPercentage = Math.round((progress.currentPage / progress.totalPagesForCombination) * 100);
+        pagesBarFill.style.width = `${pagesPercentage}%`;
+        pagesBarFill.textContent = `${pagesPercentage}%`;
       } else {
-        pagesStat.style.display = 'none';
+        pagesContainer.style.display = 'none';
       }
     }
 
