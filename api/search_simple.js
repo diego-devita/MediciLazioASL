@@ -80,11 +80,12 @@ async function handler(req, res) {
   // Accumula tutti gli errori di validazione
   const validationErrors = [];
 
-  // Validazione: almeno uno tra cognome, cap, nome deve essere presente
-  if (!params.cognome && !params.cap && !params.nome) {
+  // Validazione: almeno uno tra cognome, cap, nome, asl deve essere presente
+  const hasAsl = params.asl && params.asl !== '';
+  if (!params.cognome && !params.cap && !params.nome && !hasAsl) {
     validationErrors.push({
-      field: 'cognome/cap/nome',
-      message: 'At least one of the following parameters is required: cognome, cap, nome'
+      field: 'cognome/cap/nome/asl',
+      message: 'At least one of the following parameters is required: cognome, cap, nome, asl'
     });
   }
 
