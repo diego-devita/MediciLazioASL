@@ -1,4 +1,4 @@
-import { getAllUsers, saveResults, markSuccessfulContact, markFailedContact, saveCronLog, saveVariationHistory } from '../lib/database.js';
+import { getAllUsers, saveResults, markSuccessfulContact, markFailedContact, saveCronLog, saveVariationHistory, getSystemSettings } from '../lib/database.js';
 import { sendNotification } from '../lib/telegram.js';
 import { MediciSearchClient } from '../lib/medici/client.js';
 
@@ -50,6 +50,29 @@ async function handler(req, res) {
   const startTime = Date.now();
 
   try {
+    // Check global system settings first
+    const systemSettings = await getSystemSettings();
+    if (systemSettings.cronEnabled === false) {
+      console.log('Cron globally disabled - skipping all users');
+
+      // Salva log anche se disabilitato
+      await saveCronLog({
+        success: true,
+        usersChecked: 0,
+        usersSuccessful: 0,
+        usersErrors: 0,
+        duration: Date.now() - startTime,
+        skipped: true,
+        reason: 'globally_disabled'
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: 'Cron monitoring is globally disabled',
+        skipped: true
+      });
+    }
+
     // Ottieni tutti gli utenti
     const users = await getAllUsers();
     console.log(`Found ${users.length} users`);
@@ -82,6 +105,12 @@ async function handler(req, res) {
     // Processa ogni utente
     for (const user of users) {
       try {
+        // Skip se il monitoraggio è disabilitato
+        if (user.cronEnabled === false) {
+          console.log(`Skipping user ${user.chatId} - monitoring disabled`);
+          continue;
+        }
+
         // Skip se non ha cognomi configurati
         if (!user.query.cognomi || user.query.cognomi.length === 0) {
           console.log(`Skipping user ${user.chatId} - no cognomi configured`);
