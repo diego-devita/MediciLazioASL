@@ -1594,11 +1594,11 @@
         `;
       } else {
         const tagsHtml = cognomi.map(query => {
-          // Costruisci i dettagli nell'ordine: asl, cap, nome
+          // Costruisci i dettagli nell'ordine: nome, asl, cap
           const details = [];
+          if (query.nome) details.push(`<span class="tag-detail">${query.nome}</span>`);
           if (query.asl) details.push(`<span class="tag-detail">${query.asl}</span>`);
           if (query.cap) details.push(`<span class="tag-detail">${query.cap}</span>`);
-          if (query.nome) details.push(`<span class="tag-detail">${query.nome}</span>`);
 
           const detailsHtml = details.length > 0
             ? `<div class="cognome-tag-details">${details.join('')}</div>`
@@ -1950,12 +1950,12 @@
 
       try {
         const response = await fetch('/api/user?action=interval', {
-          method: 'PUT',
+          method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
           credentials: 'include',
-          body: JSON.stringify({ minutes })
+          body: JSON.stringify({ minIntervalMinutes: minutes })
         });
 
         const data = await response.json();
