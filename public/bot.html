@@ -1039,6 +1039,8 @@
       display: inline-block;
       width: 60px;
       height: 23px;
+      line-height: 0;
+      vertical-align: middle;
     }
 
     .toggle-switch input {
@@ -1168,7 +1170,7 @@
           <div class="detail">
             <span class="label">Intervallo minimo:</span>
             <span class="value">
-              <span id="intervalValue">30</span> minuti
+              <span id="intervalValue">30</span> min.
               <button class="edit-btn" id="changeIntervalBtn">Cambia</button>
             </span>
           </div>
@@ -1592,11 +1594,11 @@
         `;
       } else {
         const tagsHtml = cognomi.map(query => {
-          // Costruisci i dettagli (nome, cap, asl)
+          // Costruisci i dettagli nell'ordine: asl, cap, nome
           const details = [];
-          if (query.nome) details.push(`<span class="tag-detail">${query.nome}</span>`);
-          if (query.cap) details.push(`<span class="tag-detail">${query.cap}</span>`);
           if (query.asl) details.push(`<span class="tag-detail">${query.asl}</span>`);
+          if (query.cap) details.push(`<span class="tag-detail">${query.cap}</span>`);
+          if (query.nome) details.push(`<span class="tag-detail">${query.nome}</span>`);
 
           const detailsHtml = details.length > 0
             ? `<div class="cognome-tag-details">${details.join('')}</div>`
