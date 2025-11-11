@@ -2,421 +2,33 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Medici ASL Lazio API",
-    "description": "API per la ricerca di medici di medicina generale e pediatri nelle ASL del Lazio",
-    "version": "1.0.0"
+    "description": "API per la ricerca di medici di medicina generale e pediatri nelle ASL del Lazio. Utilizza parametri singoli per query semplici ed efficienti, con supporto per paginazione.",
+    "version": "2.0.0",
+    "contact": {
+      "name": "API Support"
+    }
   },
   "servers": [
     {
       "url": "https://medici-lazio-asl.vercel.app",
       "description": "Production server"
+    },
+    {
+      "url": "http://localhost:3000",
+      "description": "Development server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Ricerca",
+      "description": "Endpoint per la ricerca di medici"
     }
   ],
   "paths": {
-    "/api/search": {
-      "get": {
-        "summary": "Ricerca medici (GET)",
-        "description": "Ricerca medici attraverso il portale Salute Lazio. I filtri a testo libero supportano valori multipli che saranno tradotti in una quantità di query distinte pari al loro prodotto cartesiano. Richiesto almeno uno tra i filtri: cap, cognomi, nomi, asl.",
-        "operationId": "searchMediciGet",
-        "tags": ["Ricerca"],
-        "security": [
-          {
-            "cookieAuth": []
-          },
-          {
-            "apiKeyAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "tipo",
-            "in": "query",
-            "required": false,
-            "description": "Tipo di medico",
-            "schema": {
-              "type": "string",
-              "enum": ["Medicina generale", "Pediatra"],
-              "default": "Medicina generale"
-            }
-          },
-          {
-            "name": "asl",
-            "in": "query",
-            "required": false,
-            "description": "ASL del Lazio. Supporta valori multipli separati da virgola. Lasciare vuoto per cercare in tutte le ASL. Se specificata almeno una ASL, può soddisfare da sola il requisito 'almeno un parametro'.",
-            "schema": {
-              "type": "string",
-              "pattern": "^(120201|120202|120203|120204|120205|120206|120207|120208|120209|120210)(,(120201|120202|120203|120204|120205|120206|120207|120208|120209|120210))*$",
-              "example": "120201,120202"
-            }
-          },
-          {
-            "name": "cap",
-            "in": "query",
-            "required": false,
-            "description": "CAP da cercare, separati da virgola (ogni CAP deve essere di 5 cifre - gli spazi prima e dopo saranno trimmati)",
-            "schema": {
-              "type": "string",
-              "pattern": "^(\\d{5})(,\\d{5})*$",
-              "example": "00100,00118"
-            }
-          },
-          {
-            "name": "cognomi",
-            "in": "query",
-            "required": false,
-            "description": "Cognomi da cercare, separati da virgola (ogni cognome può contenere solo lettere, spazi o apostrofi - gli spazi prima e dopo saranno trimmati, quelli in mezzo se multipli verranno appiattiti e le minuscole rese maiuscole)",
-            "schema": {
-              "type": "string",
-              "pattern": "^[A-Z'\\s,]+$",
-              "example": "ROSSI,BIANCHI,DE LUCA,MAGO'"
-            }
-          },
-          {
-            "name": "nomi",
-            "in": "query",
-            "required": false,
-            "description": "Nomi da cercare, separati da virgola (ogni nome può contenere solo lettere, spazi o apostrofi - gli spazi prima e dopo saranno trimmati, quelli in mezzo se multipli verranno appiattiti e le minuscole rese maiuscole)",
-            "schema": {
-              "type": "string",
-              "pattern": "^[A-Z'\\s,]+$",
-              "example": "MARIO,LUIGI,MARIA ROSA"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Ricerca completata con successo",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SearchResponse"
-                },
-                "example": {
-                  "success": true,
-                  "timestamp": "2025-11-07T00:23:00.341Z",
-                  "query": {
-                    "tipo": "Medicina generale",
-                    "asl": [],
-                    "cap": ["00173"],
-                    "cognomi": [],
-                    "nomi": []
-                  },
-                  "singleQueries": [
-                    {
-                      "type": "MMG",
-                      "asl": "",
-                      "zip": "00173",
-                      "surname": "",
-                      "name": ""
-                    }
-                  ],
-                  "counters": {
-                    "totali": 28,
-                    "assegnabili": 14,
-                    "conDeroga": 13,
-                    "nonAssegnabili": 1
-                  },
-                  "results": [
-                    {
-                      "nome": "MARIO",
-                      "cognome": "ROSSI",
-                      "asl": "ROMA2",
-                      "assegnabilita": "Assegnazione libera",
-                      "tipo": "MMG",
-                      "codiceFiscale": "RSSMRA80A01H501X",
-                      "email": "mario.rossi@example.com",
-                      "indirizzo": "VIA ROMA 123",
-                      "luogo": "ROMA",
-                      "identificativo": "598219",
-                      "luogoNascita": "MESSINA",
-                      "codiceDistretto": "607",
-                      "descrizioneDistretto": "RM2-7"
-                    }
-                  ]
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Parametri non validi",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationErrorResponse"
-                },
-                "examples": {
-                  "singleError": {
-                    "summary": "Singolo errore di validazione",
-                    "value": {
-                      "success": false,
-                      "error": "Validation failed",
-                      "errors": [
-                        {
-                          "field": "cognomi/cap/nomi/asl",
-                          "message": "At least one of the following parameters is required: cognomi, cap, nomi, asl"
-                        }
-                      ]
-                    }
-                  },
-                  "multipleErrors": {
-                    "summary": "Errori multipli di validazione",
-                    "value": {
-                      "success": false,
-                      "error": "Validation failed",
-                      "errors": [
-                        {
-                          "field": "tipo",
-                          "value": "invalid",
-                          "message": "Invalid tipo. Must be one of: Medicina generale, Pediatra"
-                        },
-                        {
-                          "field": "asl",
-                          "value": "Roma 99",
-                          "message": "Invalid asl. Must be one of: Roma 1, Roma 2, Roma 3, Roma 4, Roma 5, Roma 6, Frosinone, Latina, Rieti, Viterbo"
-                        },
-                        {
-                          "field": "cognomi",
-                          "value": "123",
-                          "message": "Each cognome must contain only uppercase letters, apostrophes and spaces."
-                        },
-                        {
-                          "field": "nomi",
-                          "value": "mario123",
-                          "message": "Each nome must contain only uppercase letters, apostrophes and spaces."
-                        },
-                        {
-                          "field": "cap",
-                          "value": "123",
-                          "message": "Each CAP must be exactly 5 digits."
-                        }
-                      ]
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Autenticazione richiesta",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "success": false,
-                  "error": "Authentication required. Provide either a valid session cookie or X-API-Key header."
-                }
-              }
-            }
-          },
-          "405": {
-            "description": "Metodo non permesso",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "success": false,
-                  "error": "Method not allowed. Use GET or POST."
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Errore interno del server",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "summary": "Ricerca medici (POST)",
-        "description": "Ricerca medici attraverso il portale Salute Lazio. I filtri a testo libero supportano valori multipli che saranno tradotti in una quantità di query distinte pari al loro prodotto cartesiano. Richiesto almeno uno tra i filtri: cap, cognomi, nomi, asl.",
-        "operationId": "searchMediciPost",
-        "tags": ["Ricerca"],
-        "security": [
-          {
-            "cookieAuth": []
-          },
-          {
-            "apiKeyAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SearchRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Ricerca completata con successo",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SearchResponse"
-                },
-                "example": {
-                  "success": true,
-                  "timestamp": "2025-11-07T00:23:00.341Z",
-                  "query": {
-                    "tipo": "Medicina generale",
-                    "asl": [],
-                    "cap": ["00173"],
-                    "cognomi": [],
-                    "nomi": []
-                  },
-                  "singleQueries": [
-                    {
-                      "type": "MMG",
-                      "asl": "",
-                      "zip": "00173",
-                      "surname": "",
-                      "name": ""
-                    }
-                  ],
-                  "counters": {
-                    "totali": 28,
-                    "assegnabili": 14,
-                    "conDeroga": 13,
-                    "nonAssegnabili": 1
-                  },
-                  "results": [
-                    {
-                      "nome": "MARIO",
-                      "cognome": "ROSSI",
-                      "asl": "ROMA2",
-                      "assegnabilita": "Assegnazione libera",
-                      "tipo": "MMG",
-                      "codiceFiscale": "RSSMRA80A01H501X",
-                      "email": "mario.rossi@example.com",
-                      "indirizzo": "VIA ROMA 123",
-                      "luogo": "ROMA",
-                      "identificativo": "598219",
-                      "luogoNascita": "MESSINA",
-                      "codiceDistretto": "607",
-                      "descrizioneDistretto": "RM2-7"
-                    }
-                  ]
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Parametri non validi",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationErrorResponse"
-                },
-                "examples": {
-                  "singleError": {
-                    "summary": "Singolo errore di validazione",
-                    "value": {
-                      "success": false,
-                      "error": "Validation failed",
-                      "errors": [
-                        {
-                          "field": "cognomi/cap/nomi/asl",
-                          "message": "At least one of the following parameters is required: cognomi, cap, nomi, asl"
-                        }
-                      ]
-                    }
-                  },
-                  "multipleErrors": {
-                    "summary": "Errori multipli di validazione",
-                    "value": {
-                      "success": false,
-                      "error": "Validation failed",
-                      "errors": [
-                        {
-                          "field": "tipo",
-                          "value": "invalid",
-                          "message": "Invalid tipo. Must be one of: Medicina generale, Pediatra"
-                        },
-                        {
-                          "field": "asl",
-                          "value": "Roma 99",
-                          "message": "Invalid asl. Must be one of: Roma 1, Roma 2, Roma 3, Roma 4, Roma 5, Roma 6, Frosinone, Latina, Rieti, Viterbo"
-                        },
-                        {
-                          "field": "cognomi",
-                          "value": "123",
-                          "message": "Each cognome must contain only uppercase letters, apostrophes and spaces."
-                        },
-                        {
-                          "field": "nomi",
-                          "value": "mario123",
-                          "message": "Each nome must contain only uppercase letters, apostrophes and spaces."
-                        },
-                        {
-                          "field": "cap",
-                          "value": "123",
-                          "message": "Each CAP must be exactly 5 digits."
-                        }
-                      ]
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Autenticazione richiesta",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "success": false,
-                  "error": "Authentication required. Provide either a valid session cookie or X-API-Key header."
-                }
-              }
-            }
-          },
-          "405": {
-            "description": "Metodo non permesso",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "success": false,
-                  "error": "Method not allowed. Use GET or POST."
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Errore interno del server",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/search_simple": {
       "get": {
-        "summary": "Ricerca medici semplificata (GET)",
-        "description": "Ricerca medici con parametri singoli (non liste). Utile per evitare timeout con ricerche complesse. I parametri cap, cognome, nome accettano un solo valore. Richiesto almeno uno tra: cap, cognome, nome.",
+        "summary": "Ricerca medici",
+        "description": "Ricerca medici con parametri singoli (non liste). Supporta paginazione opzionale. Richiesto almeno uno tra: asl, cap, cognome, nome.",
         "operationId": "searchMediciSimpleGet",
         "tags": ["Ricerca"],
         "security": [
@@ -432,7 +44,7 @@
             "name": "tipo",
             "in": "query",
             "required": false,
-            "description": "Tipo di medico",
+            "description": "Tipo di medico da cercare",
             "schema": {
               "type": "string",
               "enum": ["Medicina generale", "Pediatra"],
@@ -443,17 +55,18 @@
             "name": "asl",
             "in": "query",
             "required": false,
-            "description": "ASL del Lazio. Specificare un codice ASL (120201-120210) oppure lasciare vuoto per cercare in tutte le ASL. Se specificata una ASL concreta, può soddisfare da sola il requisito 'almeno un parametro'.",
+            "description": "Codice ASL del Lazio (120201-120210). Se specificata, può soddisfare da sola il requisito 'almeno un parametro'.",
             "schema": {
               "type": "string",
-              "enum": ["120201", "120202", "120203", "120204", "120205", "120206", "120207", "120208", "120209", "120210"]
+              "enum": ["120201", "120202", "120203", "120204", "120205", "120206", "120207", "120208", "120209", "120210"],
+              "example": "120201"
             }
           },
           {
             "name": "cap",
             "in": "query",
             "required": false,
-            "description": "CAP singolo (5 cifre - gli spazi prima e dopo saranno trimmati)",
+            "description": "CAP singolo (5 cifre). Gli spazi prima e dopo saranno trimmati.",
             "schema": {
               "type": "string",
               "pattern": "^\\d{5}$",
@@ -464,10 +77,10 @@
             "name": "cognome",
             "in": "query",
             "required": false,
-            "description": "Cognome singolo da cercare (può contenere solo lettere, spazi o apostrofi - gli spazi prima e dopo saranno trimmati, quelli in mezzo se multipli verranno appiattiti e le minuscole rese maiuscole)",
+            "description": "Cognome singolo da cercare. Solo lettere, spazi o apostrofi. Gli spazi vengono normalizzati e il testo convertito in maiuscolo.",
             "schema": {
               "type": "string",
-              "pattern": "^[A-Z'\\s]+$",
+              "pattern": "^[A-Za-z'\\s]+$",
               "example": "ROSSI"
             }
           },
@@ -475,10 +88,10 @@
             "name": "nome",
             "in": "query",
             "required": false,
-            "description": "Nome singolo da cercare (può contenere solo lettere, spazi o apostrofi - gli spazi prima e dopo saranno trimmati, quelli in mezzo se multipli verranno appiattiti e le minuscole rese maiuscole)",
+            "description": "Nome singolo da cercare. Solo lettere, spazi o apostrofi. Gli spazi vengono normalizzati e il testo convertito in maiuscolo.",
             "schema": {
               "type": "string",
-              "pattern": "^[A-Z'\\s]+$",
+              "pattern": "^[A-Za-z'\\s]+$",
               "example": "MARIO"
             }
           },
@@ -486,7 +99,7 @@
             "name": "page",
             "in": "query",
             "required": false,
-            "description": "Numero di pagina da recuperare (opzionale). Se specificato, restituisce solo quella pagina e include informazioni di paginazione (currentPage, totalPages). Se omesso, restituisce tutti i risultati disponibili (fino al limite di 10 pagine con 75 risultati ciascuna).",
+            "description": "Numero di pagina da recuperare. Se specificato, restituisce solo quella pagina con informazioni di paginazione. Se omesso, restituisce tutti i risultati disponibili (fino a 10 pagine con 75 risultati ciascuna).",
             "schema": {
               "type": "integer",
               "minimum": 1,
@@ -500,47 +113,150 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SearchSimpleResponse"
+                  "$ref": "#/components/schemas/SearchResponse"
+                },
+                "examples": {
+                  "withPagination": {
+                    "summary": "Ricerca con paginazione",
+                    "value": {
+                      "success": true,
+                      "timestamp": "2025-01-11T12:00:00.000Z",
+                      "query": {
+                        "cognome": "ROSSI",
+                        "asl": "120201",
+                        "tipo": "Medicina generale",
+                        "cap": "",
+                        "nome": ""
+                      },
+                      "singleQueries": [
+                        {
+                          "cognome": "ROSSI",
+                          "asl": "120201",
+                          "tipo": "Medicina generale",
+                          "cap": "",
+                          "nome": ""
+                        }
+                      ],
+                      "results": [
+                        {
+                          "nome": "MARIO",
+                          "cognome": "ROSSI",
+                          "asl": "Roma 1",
+                          "assegnabilita": "Assegnazione libera",
+                          "tipo": "Medicina generale",
+                          "codiceFiscale": "RSSMRA80A01H501Z",
+                          "identificativo": "12345",
+                          "email": "mario.rossi@example.com",
+                          "indirizzo": "Via Roma 1",
+                          "luogo": "Roma",
+                          "codiceDistretto": "001",
+                          "descrizioneDistretto": "Distretto 1"
+                        }
+                      ],
+                      "counters": {
+                        "totali": 75,
+                        "assegnabili": 25,
+                        "conDeroga": 10,
+                        "nonAssegnabili": 40
+                      },
+                      "pagination": {
+                        "currentPage": 1,
+                        "totalPages": 15
+                      }
+                    }
+                  },
+                  "withoutPagination": {
+                    "summary": "Ricerca senza paginazione (tutti i risultati)",
+                    "value": {
+                      "success": true,
+                      "timestamp": "2025-01-11T12:00:00.000Z",
+                      "query": {
+                        "cognome": "BIANCHI",
+                        "asl": "",
+                        "tipo": "Medicina generale",
+                        "cap": "00100",
+                        "nome": ""
+                      },
+                      "singleQueries": [
+                        {
+                          "cognome": "BIANCHI",
+                          "asl": "",
+                          "tipo": "Medicina generale",
+                          "cap": "00100",
+                          "nome": ""
+                        }
+                      ],
+                      "results": [
+                        {
+                          "nome": "LUCA",
+                          "cognome": "BIANCHI",
+                          "asl": "Roma 2",
+                          "assegnabilita": "Con deroga",
+                          "tipo": "Medicina generale",
+                          "codiceFiscale": "BNCLCU85B15H501W",
+                          "identificativo": "67890"
+                        }
+                      ],
+                      "counters": {
+                        "totali": 3,
+                        "assegnabili": 1,
+                        "conDeroga": 1,
+                        "nonAssegnabili": 1
+                      }
+                    }
+                  }
                 }
               }
             }
           },
           "400": {
-            "description": "Errore di validazione",
+            "description": "Errore di validazione parametri",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "example": {
+                  "success": false,
+                  "error": "Validazione fallita: parametri non validi.",
+                  "timestamp": "2025-01-11T12:00:00.000Z",
+                  "validationErrors": [
+                    {
+                      "field": "cap",
+                      "value": "123",
+                      "message": "CAP deve essere di 5 cifre."
+                    }
+                  ]
                 }
               }
             }
           },
           "401": {
-            "description": "Autenticazione richiesta",
+            "description": "Non autenticato",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "405": {
-            "description": "Metodo non consentito",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "success": false,
+                  "error": "Non autenticato. Effettua il login.",
+                  "timestamp": "2025-01-11T12:00:00.000Z"
                 }
               }
             }
           },
           "500": {
-            "description": "Errore interno del server",
+            "description": "Errore del server",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "success": false,
+                  "error": "Errore interno del server.",
+                  "timestamp": "2025-01-11T12:00:00.000Z"
                 }
               }
             }
@@ -548,8 +264,8 @@
         }
       },
       "post": {
-        "summary": "Ricerca medici semplificata (POST)",
-        "description": "Ricerca medici con parametri singoli (non liste). Utile per evitare timeout con ricerche complesse. I parametri cap, cognome, nome accettano un solo valore. Richiesto almeno uno tra: cap, cognome, nome.",
+        "summary": "Ricerca medici (POST)",
+        "description": "Stessa funzionalità della GET, ma con parametri nel body JSON. Utile per query complesse o per evitare limitazioni di lunghezza URL.",
         "operationId": "searchMediciSimplePost",
         "tags": ["Ricerca"],
         "security": [
@@ -565,7 +281,31 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SearchSimpleRequest"
+                "$ref": "#/components/schemas/SearchRequest"
+              },
+              "examples": {
+                "basic": {
+                  "summary": "Ricerca base per cognome",
+                  "value": {
+                    "cognome": "ROSSI",
+                    "tipo": "Medicina generale"
+                  }
+                },
+                "withPagination": {
+                  "summary": "Ricerca con paginazione",
+                  "value": {
+                    "cognome": "ROSSI",
+                    "asl": "120201",
+                    "page": 1
+                  }
+                },
+                "byASL": {
+                  "summary": "Ricerca solo per ASL",
+                  "value": {
+                    "asl": "120201",
+                    "tipo": "Medicina generale"
+                  }
+                }
               }
             }
           }
@@ -576,84 +316,37 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SearchSimpleResponse"
-                },
-                "example": {
-                  "success": true,
-                  "timestamp": "2025-11-07T01:00:00.000Z",
-                  "query": {
-                    "tipo": "Medicina generale",
-                    "asl": "",
-                    "cap": "00173",
-                    "cognome": "",
-                    "nome": ""
-                  },
-                  "singleQueries": [
-                    {
-                      "type": "MMG",
-                      "asl": "",
-                      "zip": "00173",
-                      "surname": "",
-                      "name": ""
-                    }
-                  ],
-                  "counters": {
-                    "totali": 28,
-                    "assegnabili": 14,
-                    "conDeroga": 13,
-                    "nonAssegnabili": 1
-                  },
-                  "results": [
-                    {
-                      "nome": "MARIO",
-                      "cognome": "ROSSI",
-                      "codiceFiscale": "RSSMRA80A01H501X",
-                      "email": "mario.rossi@example.com",
-                      "indirizzo": "VIA ROMA 123",
-                      "asl": "ROMA2",
-                      "assegnabilita": "Assegnazione libera"
-                    }
-                  ]
+                  "$ref": "#/components/schemas/SearchResponse"
                 }
               }
             }
           },
           "400": {
-            "description": "Errore di validazione",
+            "description": "Errore di validazione parametri",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                  "$ref": "#/components/schemas/ValidationError"
                 }
               }
             }
           },
           "401": {
-            "description": "Autenticazione richiesta",
+            "description": "Non autenticato",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "405": {
-            "description": "Metodo non consentito",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
           },
           "500": {
-            "description": "Errore interno del server",
+            "description": "Errore del server",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
@@ -668,306 +361,19 @@
         "type": "apiKey",
         "in": "cookie",
         "name": "auth_token",
-        "description": "Cookie JWT per autenticazione browser"
+        "description": "Token JWT memorizzato nei cookie"
       },
       "apiKeyAuth": {
         "type": "apiKey",
         "in": "header",
-        "name": "X-API-Key",
-        "description": "API Key per chiamate programmatiche"
+        "name": "Authorization",
+        "description": "API Key in formato 'Bearer <token>'"
       }
     },
     "schemas": {
       "SearchRequest": {
         "type": "object",
-        "description": "Richiesto almeno uno tra: cognomi, cap, nomi, asl. Tipo ha un valore di default.",
-        "properties": {
-          "tipo": {
-            "type": "string",
-            "enum": ["Medicina generale", "Pediatra"],
-            "default": "Medicina generale",
-            "description": "Tipo di medico"
-          },
-          "asl": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "enum": ["120201", "120202", "120203", "120204", "120205", "120206", "120207", "120208", "120209", "120210"]
-            },
-            "description": "Array di ASL del Lazio. Lasciare vuoto per cercare in tutte le ASL. Se specificata almeno una ASL, può soddisfare da sola il requisito 'almeno un parametro'.",
-            "example": ["120201", "120202"]
-          },
-          "cap": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "pattern": "^\\d{5}$"
-            },
-            "description": "Array di CAP (ogni CAP deve essere di 5 cifre - gli spazi prima e dopo saranno trimmati)",
-            "example": ["00100", "00118"]
-          },
-          "cognomi": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "pattern": "^[A-Z'\\s]+$"
-            },
-            "description": "Array di cognomi da cercare (ogni cognome può contenere solo lettere, spazi o apostrofi - gli spazi prima e dopo saranno trimmati, quelli in mezzo se multipli verranno appiattiti e le minuscole rese maiuscole)",
-            "example": ["ROSSI", "BIANCHI", "DE LUCA", "MAGO'"]
-          },
-          "nomi": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "pattern": "^[A-Z'\\s]+$"
-            },
-            "description": "Array di nomi da cercare (ogni nome può contenere solo lettere, spazi o apostrofi - gli spazi prima e dopo saranno trimmati, quelli in mezzo se multipli verranno appiattiti e le minuscole rese maiuscole)",
-            "example": ["MARIO", "LUIGI", "MARIA ROSA"]
-          }
-        }
-      },
-      "SearchResponse": {
-        "type": "object",
-        "properties": {
-          "success": {
-            "type": "boolean",
-            "example": true
-          },
-          "timestamp": {
-            "type": "string",
-            "format": "date-time",
-            "example": "2025-01-06T10:30:00.000Z"
-          },
-          "query": {
-            "type": "object",
-            "description": "Echo dei parametri di ricerca normalizzati",
-            "properties": {
-              "tipo": {
-                "type": "string",
-                "description": "Tipo di medico utilizzato nella ricerca",
-                "example": "Medicina generale"
-              },
-              "asl": {
-                "type": "array",
-                "description": "Array di ASL utilizzate nella ricerca",
-                "items": {
-                  "type": "string"
-                },
-                "example": []
-              },
-              "cap": {
-                "type": "array",
-                "description": "Array di CAP utilizzati nella ricerca",
-                "items": {
-                  "type": "string"
-                },
-                "example": ["00173"]
-              },
-              "cognomi": {
-                "type": "array",
-                "description": "Array di cognomi utilizzati nella ricerca (normalizzati in uppercase)",
-                "items": {
-                  "type": "string"
-                },
-                "example": []
-              },
-              "nomi": {
-                "type": "array",
-                "description": "Array di nomi utilizzati nella ricerca (normalizzati in uppercase)",
-                "items": {
-                  "type": "string"
-                },
-                "example": []
-              }
-            }
-          },
-          "singleQueries": {
-            "type": "array",
-            "description": "Tutte le query effettive inviate al portale Lazio (prodotto cartesiano di cognomi x nomi x CAP)",
-            "items": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "description": "Tipo di medico (codice interno: MMG o PLS)",
-                  "example": "MMG"
-                },
-                "asl": {
-                  "type": "string",
-                  "description": "Codice ASL interno",
-                  "example": "120201"
-                },
-                "zip": {
-                  "type": "string",
-                  "description": "CAP cercato (può essere vuoto)",
-                  "example": "00100"
-                },
-                "surname": {
-                  "type": "string",
-                  "description": "Cognome cercato",
-                  "example": "ROSSI"
-                },
-                "name": {
-                  "type": "string",
-                  "description": "Nome cercato (può essere vuoto)",
-                  "example": "MARIO"
-                }
-              }
-            }
-          },
-          "results": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Medico"
-            }
-          },
-          "counters": {
-            "type": "object",
-            "description": "Contatori per categoria di assegnabilità",
-            "properties": {
-              "totali": {
-                "type": "integer",
-                "description": "Numero totale di medici trovati",
-                "example": 150
-              },
-              "assegnabili": {
-                "type": "integer",
-                "description": "Numero di medici con assegnazione libera",
-                "example": 25
-              },
-              "conDeroga": {
-                "type": "integer",
-                "description": "Numero di medici assegnabili solo con deroga",
-                "example": 10
-              },
-              "nonAssegnabili": {
-                "type": "integer",
-                "description": "Numero di medici non assegnabili",
-                "example": 115
-              }
-            }
-          }
-        }
-      },
-      "Medico": {
-        "type": "object",
-        "description": "Informazioni su un medico di medicina generale o pediatra",
-        "properties": {
-          "nome": {
-            "type": "string",
-            "description": "Nome del medico",
-            "example": "MARIO"
-          },
-          "cognome": {
-            "type": "string",
-            "description": "Cognome del medico",
-            "example": "ROSSI"
-          },
-          "codiceFiscale": {
-            "type": "string",
-            "description": "Codice fiscale del medico",
-            "example": "RSSMRA80A01H501X"
-          },
-          "asl": {
-            "type": "string",
-            "description": "ASL di appartenenza",
-            "example": "ROMA2"
-          },
-          "tipo": {
-            "type": "string",
-            "description": "Tipo di medico (MMG = Medicina Generale, PLS = Pediatra)",
-            "example": "MMG"
-          },
-          "assegnabilita": {
-            "type": "string",
-            "description": "Stato di assegnabilità del medico",
-            "example": "Assegnazione libera"
-          },
-          "email": {
-            "type": "string",
-            "description": "Indirizzo email del medico (se disponibile)",
-            "nullable": true,
-            "example": "mario.rossi@example.com"
-          },
-          "indirizzo": {
-            "type": "string",
-            "description": "Indirizzo dello studio medico (se disponibile)",
-            "nullable": true,
-            "example": "VIA ROMA 123"
-          },
-          "luogo": {
-            "type": "string",
-            "description": "Città dello studio medico (se disponibile)",
-            "nullable": true,
-            "example": "ROMA"
-          },
-          "luogoNascita": {
-            "type": "string",
-            "description": "Luogo di nascita del medico (se disponibile)",
-            "nullable": true,
-            "example": "MESSINA"
-          },
-          "identificativo": {
-            "type": "string",
-            "description": "Codice identificativo interno del medico (se disponibile)",
-            "nullable": true,
-            "example": "598219"
-          },
-          "codiceDistretto": {
-            "type": "string",
-            "description": "Codice del distretto sanitario (se disponibile)",
-            "nullable": true,
-            "example": "607"
-          },
-          "descrizioneDistretto": {
-            "type": "string",
-            "description": "Descrizione del distretto sanitario (se disponibile)",
-            "nullable": true,
-            "example": "RM2-7"
-          }
-        }
-      },
-      "ValidationErrorResponse": {
-        "type": "object",
-        "properties": {
-          "success": {
-            "type": "boolean",
-            "example": false
-          },
-          "error": {
-            "type": "string",
-            "example": "Validation failed"
-          },
-          "errors": {
-            "type": "array",
-            "description": "Array di errori di validazione",
-            "items": {
-              "type": "object",
-              "properties": {
-                "field": {
-                  "type": "string",
-                  "description": "Nome del campo che ha fallito la validazione",
-                  "example": "cognomi"
-                },
-                "value": {
-                  "type": "string",
-                  "description": "Valore non valido (opzionale)",
-                  "example": "123"
-                },
-                "message": {
-                  "type": "string",
-                  "description": "Messaggio di errore descrittivo",
-                  "example": "Each cognome must contain only uppercase letters, apostrophes and spaces."
-                }
-              },
-              "required": ["field", "message"]
-            }
-          }
-        }
-      },
-      "SearchSimpleRequest": {
-        "type": "object",
-        "description": "Richiesto almeno uno tra cognome, cap, nome. Tipo e ASL sono opzionali con valori di default. I parametri sono stringhe singole, non array.",
+        "description": "Parametri di ricerca. Richiesto almeno uno tra: asl, cap, cognome, nome.",
         "properties": {
           "tipo": {
             "type": "string",
@@ -978,112 +384,76 @@
           "asl": {
             "type": "string",
             "enum": ["120201", "120202", "120203", "120204", "120205", "120206", "120207", "120208", "120209", "120210"],
-            "description": "ASL del Lazio (opzionale, lasciare vuoto per cercare in tutte)"
+            "description": "Codice ASL del Lazio",
+            "example": "120201"
           },
           "cap": {
             "type": "string",
             "pattern": "^\\d{5}$",
-            "description": "CAP singolo (deve essere di 5 cifre - gli spazi prima e dopo saranno trimmati)",
+            "description": "CAP (5 cifre)",
             "example": "00173"
           },
           "cognome": {
             "type": "string",
-            "pattern": "^[A-Z'\\s]+$",
-            "description": "Cognome singolo da cercare (può contenere solo lettere, spazi o apostrofi - gli spazi prima e dopo saranno trimmati, quelli in mezzo se multipli verranno appiattiti e le minuscole rese maiuscole)",
+            "pattern": "^[A-Za-z'\\s]+$",
+            "description": "Cognome da cercare",
             "example": "ROSSI"
           },
           "nome": {
             "type": "string",
-            "pattern": "^[A-Z'\\s]+$",
-            "description": "Nome singolo da cercare (può contenere solo lettere, spazi o apostrofi - gli spazi prima e dopo saranno trimmati, quelli in mezzo se multipli verranno appiattiti e le minuscole rese maiuscole)",
+            "pattern": "^[A-Za-z'\\s]+$",
+            "description": "Nome da cercare",
             "example": "MARIO"
           },
           "page": {
             "type": "integer",
             "minimum": 1,
-            "description": "Numero di pagina da recuperare (opzionale). Se specificato, restituisce solo quella pagina e include informazioni di paginazione (currentPage, totalPages). Se omesso, restituisce tutti i risultati disponibili (fino al limite di 10 pagine con 75 risultati ciascuna).",
+            "description": "Numero di pagina (opzionale)",
             "example": 1
           }
         }
       },
-      "SearchSimpleResponse": {
+      "SearchResponse": {
         "type": "object",
+        "required": ["success", "timestamp", "query", "results", "counters"],
         "properties": {
           "success": {
             "type": "boolean",
+            "description": "Indica se la ricerca è andata a buon fine",
             "example": true
           },
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "example": "2025-11-07T01:00:00.000Z"
+            "description": "Timestamp ISO 8601 della risposta",
+            "example": "2025-01-11T12:00:00.000Z"
           },
           "query": {
             "type": "object",
-            "description": "Echo dei parametri di ricerca normalizzati",
+            "description": "Parametri di ricerca utilizzati (normalizzati)",
             "properties": {
-              "tipo": {
-                "type": "string",
-                "description": "Tipo di medico utilizzato nella ricerca",
-                "example": "Medicina generale"
+              "cognome": {
+                "type": "string"
               },
               "asl": {
-                "type": "array",
-                "description": "Array di ASL utilizzate nella ricerca",
-                "items": {
-                  "type": "string"
-                },
-                "example": []
+                "type": "string"
+              },
+              "tipo": {
+                "type": "string"
               },
               "cap": {
-                "type": "string",
-                "description": "CAP singolo utilizzato nella ricerca",
-                "example": "00173"
-              },
-              "cognome": {
-                "type": "string",
-                "description": "Cognome singolo utilizzato nella ricerca (normalizzato in uppercase)",
-                "example": ""
+                "type": "string"
               },
               "nome": {
-                "type": "string",
-                "description": "Nome singolo utilizzato nella ricerca (normalizzato in uppercase)",
-                "example": ""
+                "type": "string"
               }
             }
           },
           "singleQueries": {
             "type": "array",
-            "description": "Array delle query effettive inviate al portale Salute Lazio (con codici interni)",
+            "description": "Array delle query singole eseguite (utile per debug)",
             "items": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "description": "Codice tipo medico (MMG o PLS)",
-                  "example": "MMG"
-                },
-                "asl": {
-                  "type": "string",
-                  "description": "Codice ASL interno",
-                  "example": ""
-                },
-                "zip": {
-                  "type": "string",
-                  "description": "CAP utilizzato",
-                  "example": "00173"
-                },
-                "surname": {
-                  "type": "string",
-                  "description": "Cognome utilizzato",
-                  "example": ""
-                },
-                "name": {
-                  "type": "string",
-                  "description": "Nome utilizzato",
-                  "example": ""
-                }
-              }
+              "type": "object"
             }
           },
           "results": {
@@ -1095,33 +465,35 @@
           },
           "counters": {
             "type": "object",
-            "description": "Contatori per categoria di assegnabilità",
+            "description": "Contatori aggregati per categoria",
+            "required": ["totali", "assegnabili", "conDeroga", "nonAssegnabili"],
             "properties": {
               "totali": {
                 "type": "integer",
                 "description": "Numero totale di medici trovati",
-                "example": 28
+                "example": 75
               },
               "assegnabili": {
                 "type": "integer",
                 "description": "Numero di medici con assegnazione libera",
-                "example": 14
+                "example": 25
               },
               "conDeroga": {
                 "type": "integer",
-                "description": "Numero di medici assegnabili con deroga",
-                "example": 13
+                "description": "Numero di medici con deroga",
+                "example": 10
               },
               "nonAssegnabili": {
                 "type": "integer",
                 "description": "Numero di medici non assegnabili",
-                "example": 1
+                "example": 40
               }
             }
           },
           "pagination": {
             "type": "object",
             "description": "Informazioni di paginazione (presente solo se è stato specificato il parametro 'page')",
+            "required": ["currentPage", "totalPages"],
             "properties": {
               "currentPage": {
                 "type": "integer",
@@ -1137,16 +509,154 @@
           }
         }
       },
-      "ErrorResponse": {
+      "Medico": {
         "type": "object",
+        "description": "Informazioni su un medico",
+        "required": ["nome", "cognome", "asl", "assegnabilita", "tipo"],
+        "properties": {
+          "nome": {
+            "type": "string",
+            "description": "Nome del medico",
+            "example": "MARIO"
+          },
+          "cognome": {
+            "type": "string",
+            "description": "Cognome del medico",
+            "example": "ROSSI"
+          },
+          "asl": {
+            "type": "string",
+            "description": "ASL di appartenenza (descrizione)",
+            "example": "Roma 1"
+          },
+          "assegnabilita": {
+            "type": "string",
+            "description": "Stato di assegnabilità",
+            "enum": ["Assegnazione libera", "Con deroga", "Non assegnabile"],
+            "example": "Assegnazione libera"
+          },
+          "tipo": {
+            "type": "string",
+            "description": "Tipo di medico",
+            "enum": ["Medicina generale", "Pediatra"],
+            "example": "Medicina generale"
+          },
+          "codiceFiscale": {
+            "type": "string",
+            "description": "Codice fiscale del medico",
+            "example": "RSSMRA80A01H501Z",
+            "nullable": true
+          },
+          "identificativo": {
+            "type": "string",
+            "description": "Identificativo univoco del medico nel sistema ASL",
+            "example": "12345",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email del medico",
+            "example": "mario.rossi@example.com",
+            "nullable": true
+          },
+          "indirizzo": {
+            "type": "string",
+            "description": "Indirizzo dello studio",
+            "example": "Via Roma 1",
+            "nullable": true
+          },
+          "luogo": {
+            "type": "string",
+            "description": "Località dello studio",
+            "example": "Roma",
+            "nullable": true
+          },
+          "luogoNascita": {
+            "type": "string",
+            "description": "Luogo di nascita",
+            "example": "Roma",
+            "nullable": true
+          },
+          "codiceDistretto": {
+            "type": "string",
+            "description": "Codice del distretto sanitario",
+            "example": "001",
+            "nullable": true
+          },
+          "descrizioneDistretto": {
+            "type": "string",
+            "description": "Descrizione del distretto sanitario",
+            "example": "Distretto 1",
+            "nullable": true
+          }
+        }
+      },
+      "ValidationError": {
+        "type": "object",
+        "required": ["success", "error", "timestamp"],
         "properties": {
           "success": {
             "type": "boolean",
+            "description": "Sempre false per errori",
             "example": false
           },
           "error": {
             "type": "string",
-            "example": "Internal server error"
+            "description": "Messaggio di errore generale",
+            "example": "Validazione fallita: parametri non validi."
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp ISO 8601 della risposta",
+            "example": "2025-01-11T12:00:00.000Z"
+          },
+          "validationErrors": {
+            "type": "array",
+            "description": "Array di errori di validazione specifici",
+            "items": {
+              "type": "object",
+              "required": ["field", "message"],
+              "properties": {
+                "field": {
+                  "type": "string",
+                  "description": "Nome del campo che ha fallito la validazione",
+                  "example": "cap"
+                },
+                "value": {
+                  "description": "Valore fornito (può essere di qualsiasi tipo)",
+                  "example": "123"
+                },
+                "message": {
+                  "type": "string",
+                  "description": "Messaggio di errore specifico",
+                  "example": "CAP deve essere di 5 cifre."
+                }
+              }
+            }
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": ["success", "error", "timestamp"],
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Sempre false per errori",
+            "example": false
+          },
+          "error": {
+            "type": "string",
+            "description": "Messaggio di errore",
+            "example": "Errore interno del server."
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp ISO 8601 della risposta",
+            "example": "2025-01-11T12:00:00.000Z"
           }
         }
       }

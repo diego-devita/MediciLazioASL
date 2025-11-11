@@ -1241,7 +1241,6 @@
     let timerInterval = null;
     let startTime = null;
     let batchClient = null;
-    let standardAbortController = null;
 
     // Check if user is admin and show admin link
     (async function checkIfAdmin() {
@@ -1511,8 +1510,8 @@
 
     // Cancel button (standard)
     cancelBtnStandard.addEventListener('click', () => {
-      if (standardAbortController) {
-        standardAbortController.abort();
+      if (batchClient) {
+        batchClient.abort();
         hideLoading();
         showError('Ricerca annullata dall\'utente.');
       }
@@ -1785,56 +1784,38 @@
         return;
       }
 
-      // MODALITÀ STANDARD
+      // MODALITÀ STANDARD (usa BatchSearchClient senza progress UI)
       showLoading();
 
       try {
-        standardAbortController = new AbortController();
-
-        const response = await fetch('/api/search', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          credentials: 'include',
-          signal: standardAbortController.signal,
-          body: JSON.stringify({
-            cognomi,
-            asl: aslToSend,
-            tipo,
-            cap,
-            nomi
-          })
+        batchClient = new BatchSearchClient({
+          parallelism: 5
+          // Nessun onProgress callback per Standard mode
         });
 
-        const data = await response.json();
+        const result = await batchClient.search({
+          cognomi,
+          cap,
+          nomi,
+          tipo,
+          asl: aslToSend
+        });
 
         hideLoading();
 
-        if (!response.ok) {
-          if (response.status === 401) {
-            // Non autenticato - redirect a login
-            window.location.href = '/login';
-            return;
-          } else {
-            showError(data.error || 'Errore durante la ricerca.');
-          }
+        if (!result.success) {
+          showError(result.error || 'Errore durante la ricerca.');
           return;
         }
 
-        if (!data.success) {
-          showError(data.error || 'Errore durante la ricerca.');
-          return;
-        }
-
-        // Nascondi batch info se standard mode
+        // Nascondi batch info in standard mode
         batchInfo.style.display = 'none';
 
-        displayResults(data);
+        displayResults(result);
       } catch (err) {
         hideLoading();
         if (err.name === 'AbortError') {
-          // Ricerca annullata, non mostrare errore (già gestito nel click handler)
+          // Ricerca annullata, non mostrare errore
           return;
         }
         showError('Errore di connessione. Riprova più tardi.');

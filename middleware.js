@@ -41,7 +41,6 @@ export const config = {
     '/admin',
     '/bot',
     '/swagger',
-    '/api/search',
     '/api/search_simple',
     '/api/admin/:path*',
   ],
