@@ -505,6 +505,49 @@
       align-items: center;
       flex: 1;
       min-width: 0;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .stat-compact:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .stat-compact::before {
+      content: '';
+      width: 16px;
+      height: 16px;
+      border: 2px solid #999;
+      border-radius: 3px;
+      display: inline-block;
+      margin-right: 4px;
+      transition: all 0.2s;
+    }
+
+    .stat-compact.active::before {
+      background: #667eea;
+      border-color: #667eea;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+      background-size: 12px;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    .stat-compact.stat-success.active::before {
+      background-color: #22c55e;
+      border-color: #22c55e;
+    }
+
+    .stat-compact.stat-warning.active::before {
+      background-color: #f59e0b;
+      border-color: #f59e0b;
+    }
+
+    .stat-compact.stat-info.active::before {
+      background-color: #ef4444;
+      border-color: #ef4444;
     }
 
     .stat-compact.stat-success {
@@ -646,7 +689,7 @@
       background: #667eea;
       color: white;
       border: none;
-      padding: 12px 20px;
+      padding: 16px 20px;
       border-radius: 8px;
       font-weight: 600;
       cursor: pointer;
@@ -1057,6 +1100,24 @@
       <div id="configError" class="error-message" style="display: none;"></div>
 
       <div id="configContent" style="display: none;">
+        <div class="last-run-info">
+          <div class="detail">
+            <span class="label">Ultimo controllo:</span>
+            <span class="value" id="lastCheckTime">-</span>
+          </div>
+          <div class="detail">
+            <span class="label">Prossimo controllo:</span>
+            <span class="value" id="nextCheckTime">Dipende dal cron esterno</span>
+          </div>
+          <div class="detail">
+            <span class="label">Intervallo minimo:</span>
+            <span class="value">
+              <span id="intervalValue">30</span> minuti
+              <button class="edit-btn" id="changeIntervalBtn">Cambia</button>
+            </span>
+          </div>
+        </div>
+
         <div class="section">
           <h2>
             Cognomi
@@ -1082,24 +1143,6 @@
                 <span>Aggiungi</span>
               </button>
             </div>
-          </div>
-        </div>
-
-        <div class="last-run-info">
-          <div class="detail">
-            <span class="label">Ultimo controllo:</span>
-            <span class="value" id="lastCheckTime">-</span>
-          </div>
-          <div class="detail">
-            <span class="label">Prossimo controllo:</span>
-            <span class="value" id="nextCheckTime">Dipende dal cron esterno</span>
-          </div>
-          <div class="detail">
-            <span class="label">Intervallo minimo:</span>
-            <span class="value">
-              <span id="intervalValue">30</span> minuti
-              <button class="edit-btn" id="changeIntervalBtn">Cambia</button>
-            </span>
           </div>
         </div>
 
@@ -1142,19 +1185,19 @@
         <div id="statsSection" class="section" style="display: none;">
           <h2>Ultima ricerca</h2>
           <div class="stats-compact">
-            <div class="stat-compact">
+            <div class="stat-compact active" data-filter="totale">
               <span class="stat-compact-value" id="statTotal">0</span>
               <span class="stat-compact-label">Totale</span>
             </div>
-            <div class="stat-compact stat-success">
+            <div class="stat-compact stat-success active" data-filter="libero">
               <span class="stat-compact-value" id="statLiberi">0</span>
               <span class="stat-compact-label">Liberi</span>
             </div>
-            <div class="stat-compact stat-warning">
+            <div class="stat-compact stat-warning active" data-filter="deroga">
               <span class="stat-compact-value" id="statDeroga">0</span>
               <span class="stat-compact-label">Con deroga</span>
             </div>
-            <div class="stat-compact stat-info">
+            <div class="stat-compact stat-info active" data-filter="altro">
               <span class="stat-compact-value" id="statAltri">0</span>
               <span class="stat-compact-label">Altri</span>
             </div>
@@ -1315,6 +1358,7 @@
   <script>
     // ===== VARIABILI GLOBALI =====
     let currentCognomi = [];
+    let allResults = []; // Tutti i risultati dell'ultima ricerca
 
     // ===== TOAST NOTIFICATIONS =====
     function showToast(message, isError = false) {
@@ -1345,6 +1389,74 @@
           toast.parentNode.removeChild(toast);
         }
       }, 300);
+    }
+
+    // ===== FILTRO RISULTATI =====
+    function getCategoryForMedico(medico) {
+      const isLibero = medico.assegnabilita && medico.assegnabilita.toLowerCase().includes('assegnazione libera');
+      const isDeroga = medico.assegnabilita && medico.assegnabilita.toLowerCase().includes('deroga') && !isLibero;
+
+      if (isLibero) return 'libero';
+      if (isDeroga) return 'deroga';
+      return 'altro';
+    }
+
+    function renderFilteredResults() {
+      const activeFilters = [];
+      const filterElements = document.querySelectorAll('.stat-compact[data-filter]');
+
+      filterElements.forEach(el => {
+        if (el.classList.contains('active')) {
+          activeFilters.push(el.dataset.filter);
+        }
+      });
+
+      // Se "totale" è attivo, mostra tutto
+      let filteredResults;
+      if (activeFilters.includes('totale')) {
+        filteredResults = allResults;
+      } else {
+        // Altrimenti filtra in base alle categorie selezionate
+        filteredResults = allResults.filter(medico => {
+          const category = getCategoryForMedico(medico);
+          return activeFilters.includes(category);
+        });
+      }
+
+      // Aggiorna il contatore
+      document.getElementById('resultsCount').textContent = `${filteredResults.length} / ${allResults.length}`;
+
+      // Renderizza i risultati filtrati
+      const resultsList = document.getElementById('resultsList');
+      if (filteredResults.length > 0) {
+        resultsList.innerHTML = filteredResults.map(medico => {
+          const isLibero = medico.assegnabilita && medico.assegnabilita.toLowerCase().includes('assegnazione libera');
+          const isDeroga = medico.assegnabilita && medico.assegnabilita.toLowerCase().includes('deroga') && !isLibero;
+
+          let badgeText = 'Altro';
+          let itemClass = '';
+          let badgeClass = '';
+
+          if (isLibero) {
+            badgeText = 'Assegnabile';
+            itemClass = 'libero';
+            badgeClass = 'libero';
+          } else if (isDeroga) {
+            badgeText = 'Con deroga';
+            itemClass = 'deroga';
+            badgeClass = 'deroga';
+          }
+
+          return `
+            <div class="result-item ${itemClass}">
+              <div class="result-item-name">${medico.cognome || '-'} ${medico.nome || ''} ${medico.asl ? `<span style="color: #999; font-size: 0.85em;">• ${medico.asl}</span>` : ''}</div>
+              <div class="result-item-badge ${badgeClass}">${badgeText}</div>
+            </div>
+          `;
+        }).join('');
+      } else {
+        resultsList.innerHTML = '<p style="color: #999; font-style: italic; padding: 10px;">Nessun medico corrisponde ai filtri selezionati</p>';
+      }
     }
 
     // ===== VALIDAZIONE COGNOMI =====
@@ -1947,7 +2059,7 @@
         // Controlla se ci sono cognomi configurati
         if (cognomi.length === 0) {
           // Nessun cognome configurato - mostra badge rosso di errore
-          nextCheckElement.innerHTML = '<span style="background: #ef4444; color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.85em; font-weight: 600;">⚠️ La lista cognomi non può essere vuota</span>';
+          nextCheckElement.innerHTML = '<span style="background: rgb(239 68 68 / 80%); color: white; padding: 2px 10px 4px 10px; border-radius: 12px; font-size: 0.85em; font-weight: 600;">⚠️ La lista cognomi non può essere vuota</span>';
         } else {
           // Ci sono cognomi - calcola prossimo controllo
           let nextCheckDate;
@@ -2004,39 +2116,9 @@
 
         document.getElementById('statsSection').style.display = 'block';
 
-        // Popola lista risultati
-        document.getElementById('resultsCount').textContent = lastResults.length;
-        const resultsList = document.getElementById('resultsList');
-
-        if (lastResults.length > 0) {
-          resultsList.innerHTML = lastResults.map(medico => {
-            const isLibero = medico.assegnabilita && medico.assegnabilita.toLowerCase().includes('assegnazione libera');
-            const isDeroga = medico.assegnabilita && medico.assegnabilita.toLowerCase().includes('deroga') && !isLibero;
-
-            let badgeText = 'Altro';
-            let itemClass = '';
-            let badgeClass = '';
-
-            if (isLibero) {
-              badgeText = 'Assegnabile';
-              itemClass = 'libero';
-              badgeClass = 'libero';
-            } else if (isDeroga) {
-              badgeText = 'Con deroga';
-              itemClass = 'deroga';
-              badgeClass = 'deroga';
-            }
-
-            return `
-              <div class="result-item ${itemClass}">
-                <div class="result-item-name">${medico.cognome || '-'} ${medico.nome || ''} ${medico.asl ? `<span style="color: #999; font-size: 0.85em;">• ${medico.asl}</span>` : ''}</div>
-                <div class="result-item-badge ${badgeClass}">${badgeText}</div>
-              </div>
-            `;
-          }).join('');
-        } else {
-          resultsList.innerHTML = '<p style="color: #999; font-style: italic; padding: 10px;">Nessun medico trovato</p>';
-        }
+        // Salva risultati globalmente e renderizza con filtri
+        allResults = lastResults;
+        renderFilteredResults();
 
         document.getElementById('resultsSection').style.display = 'block';
 
@@ -2372,6 +2454,48 @@
         historyList.innerHTML = '<p style="text-align: center; color: #ef4444; padding: 20px;">Errore nel caricamento della storia</p>';
       }
     }
+
+    // ===== EVENT LISTENERS PER FILTRI =====
+    // Gestione click sui filtri stat-compact
+    document.querySelectorAll('.stat-compact[data-filter]').forEach(filterEl => {
+      filterEl.addEventListener('click', () => {
+        const filterType = filterEl.dataset.filter;
+
+        if (filterType === 'totale') {
+          // Toggle "Totale" controlla tutti gli altri
+          const isActive = filterEl.classList.contains('active');
+          const allFilters = document.querySelectorAll('.stat-compact[data-filter]');
+
+          if (isActive) {
+            // Se Totale è attivo, disattivalo (e disattiva anche gli altri)
+            allFilters.forEach(f => f.classList.remove('active'));
+          } else {
+            // Se Totale è inattivo, attivalo (e attiva anche gli altri)
+            allFilters.forEach(f => f.classList.add('active'));
+          }
+        } else {
+          // Toggle per singola categoria
+          filterEl.classList.toggle('active');
+
+          // Controlla se devono essere tutti attivi
+          const libero = document.querySelector('[data-filter="libero"]').classList.contains('active');
+          const deroga = document.querySelector('[data-filter="deroga"]').classList.contains('active');
+          const altro = document.querySelector('[data-filter="altro"]').classList.contains('active');
+          const totaleFilter = document.querySelector('[data-filter="totale"]');
+
+          // Se tutti e 3 sono attivi, attiva anche Totale
+          if (libero && deroga && altro) {
+            totaleFilter.classList.add('active');
+          } else {
+            // Altrimenti disattiva Totale
+            totaleFilter.classList.remove('active');
+          }
+        }
+
+        // Ri-renderizza i risultati con i nuovi filtri
+        renderFilteredResults();
+      });
+    });
   </script>
 </body>
 </html>
