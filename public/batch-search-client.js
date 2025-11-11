@@ -66,7 +66,7 @@ export class BatchSearchClient {
               cognome: cognome || '',
               cap: c || '',
               nome: nome || '',
-              asl: aslValue || ''
+              asl: aslValue || 'Tutte'
             });
           }
         }
