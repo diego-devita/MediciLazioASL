@@ -493,9 +493,6 @@
       border: 2px solid #e0e0e0;
       border-radius: 8px;
       padding: 8px 12px;
-      display: flex;
-      gap: 8px;
-      align-items: center;
       flex: 1;
       min-width: 0;
       cursor: pointer;
@@ -559,7 +556,7 @@
     }
 
     .stat-compact-value {
-      font-size: 1.25rem;
+      font-size: 1.7em;
       font-weight: 700;
       color: #667eea;
     }
@@ -580,6 +577,7 @@
       color: #666;
       font-size: 0.8rem;
       font-weight: 600;
+      vertical-align: text-bottom;
     }
 
     .last-check-compact {
@@ -1269,7 +1267,7 @@
             </div>
             <div class="stat-compact stat-warning active" data-filter="deroga">
               <span class="stat-compact-value" id="statDeroga">0</span>
-              <span class="stat-compact-label">Con deroga</span>
+              <span class="stat-compact-label">Deroga</span>
             </div>
             <div class="stat-compact stat-info active" data-filter="altro">
               <span class="stat-compact-value" id="statAltri">0</span>
@@ -1559,7 +1557,7 @@
             itemClass = 'libero';
             badgeClass = 'libero';
           } else if (isDeroga) {
-            badgeText = 'Con deroga';
+            badgeText = 'Deroga';
             itemClass = 'deroga';
             badgeClass = 'deroga';
           }
@@ -1988,7 +1986,7 @@
             hour: '2-digit',
             minute: '2-digit'
           });
-          document.getElementById('nextCheckTime').textContent = `A partire dalle ${formattedNextCheck}`;
+          document.getElementById('nextCheckTime').innerHTML = `<span>A partire dalle</span><br class="mobile-only-br"><span>${formattedNextCheck}</span>`;
         }
 
         closeChangeIntervalModal();
@@ -2207,7 +2205,7 @@
             hour: '2-digit',
             minute: '2-digit'
           });
-          nextCheckElement.textContent = `A partire dalle ${formattedNextCheck}`;
+          nextCheckElement.innerHTML = `<span>A partire dalle</span><br class="mobile-only-br"><span>${formattedNextCheck}</span>`;
         }
 
         // Mostra ultimo controllo (senza secondi)
@@ -2275,7 +2273,7 @@
               itemClass = 'libero';
               badgeClass = 'libero';
             } else if (isDeroga) {
-              badgeText = 'Con deroga';
+              badgeText = 'Deroga';
               itemClass = 'deroga';
               badgeClass = 'deroga';
             }
@@ -2311,7 +2309,7 @@
               itemClass = 'libero';
               badgeClass = 'libero';
             } else if (isDeroga) {
-              badgeText = 'Con deroga';
+              badgeText = 'Deroga';
               itemClass = 'deroga';
               badgeClass = 'deroga';
             }
