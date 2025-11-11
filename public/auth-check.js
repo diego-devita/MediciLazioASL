@@ -5,7 +5,7 @@
 
 (async function checkAuth() {
   try {
-    const response = await fetch('/api/user/me', {
+    const response = await fetch('/api/user?action=me', {
       credentials: 'include'
     });
 
@@ -49,7 +49,7 @@
  */
 async function requireAdmin() {
   try {
-    const response = await fetch('/api/user/me', {
+    const response = await fetch('/api/user?action=me', {
       credentials: 'include'
     });
 
