@@ -967,26 +967,23 @@
       color: #9a3412;
     }
 
-    .notification-toggle.only-assignable {
-      background: #fef3c7;
-      border-color: #f59e0b;
-      color: #92400e;
-    }
-
     .notification-toggle-icon {
       font-size: 1.2rem;
       font-weight: bold;
     }
 
-    /* Opzione annidata */
-    .notification-nested {
-      margin-left: 24px;
-      margin-top: 8px;
+    /* Condizione integrata nel toggle */
+    .notification-condition {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
     }
 
-    .notification-nested .notification-toggle {
-      font-size: 0.9rem;
-      padding: 10px 14px;
+    .condition-checkbox {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: #667eea;
     }
 
     .notification-item span {
@@ -1229,16 +1226,16 @@
               <span>Medici rimossi</span>
               <span class="notification-toggle-icon">✓</span>
             </div>
-            <div>
-              <div class="notification-toggle active status-changed" data-notification="statusChanged">
+            <div class="notification-toggle active status-changed" data-notification="statusChanged">
+              <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
                 <span>Stato cambiato</span>
                 <span class="notification-toggle-icon">✓</span>
               </div>
-              <div class="notification-nested">
-                <div class="notification-toggle active only-assignable" data-notification="onlyToAssignable">
+              <div class="notification-condition">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem;">
+                  <input type="checkbox" id="onlyToAssignableCheckbox" class="condition-checkbox" checked>
                   <span>Solo verso assegnabilità libera</span>
-                  <span class="notification-toggle-icon">✓</span>
-                </div>
+                </label>
               </div>
             </div>
             <div class="notification-toggle active total-available" data-notification="totalAvailable">
@@ -2016,13 +2013,15 @@
     // ===== SALVATAGGIO PREFERENZE NOTIFICHE =====
     async function saveNotificationPreferences() {
       try {
+        const onlyToAssignableCheckbox = document.getElementById('onlyToAssignableCheckbox');
+
         const notifications = {
           searchCompleted: document.querySelector('[data-notification="searchCompleted"]').classList.contains('active'),
           totalAvailable: document.querySelector('[data-notification="totalAvailable"]').classList.contains('active'),
           newDoctors: document.querySelector('[data-notification="newDoctors"]').classList.contains('active'),
           removedDoctors: document.querySelector('[data-notification="removedDoctors"]').classList.contains('active'),
           statusChanged: document.querySelector('[data-notification="statusChanged"]').classList.contains('active'),
-          onlyToAssignable: document.querySelector('[data-notification="onlyToAssignable"]').classList.contains('active')
+          onlyToAssignable: onlyToAssignableCheckbox ? onlyToAssignableCheckbox.checked : true
         };
 
         const response = await fetch('/api/user?action=notifications', {
@@ -2374,37 +2373,45 @@
         setToggleState('[data-notification="newDoctors"]', notifications.newDoctors);
         setToggleState('[data-notification="removedDoctors"]', notifications.removedDoctors);
         setToggleState('[data-notification="statusChanged"]', notifications.statusChanged);
-        setToggleState('[data-notification="onlyToAssignable"]', notifications.onlyToAssignable);
 
-        // Funzione per aggiornare lo stato child in base al parent
-        function updateChildToggle() {
+        // Imposta stato checkbox "onlyToAssignable"
+        const onlyToAssignableCheckbox = document.getElementById('onlyToAssignableCheckbox');
+        if (onlyToAssignableCheckbox) {
+          onlyToAssignableCheckbox.checked = notifications.onlyToAssignable !== false;
+        }
+
+        // Funzione per aggiornare lo stato checkbox in base al parent
+        function updateCheckboxState() {
           const parentActive = document.querySelector('[data-notification="statusChanged"]').classList.contains('active');
-          const childToggle = document.querySelector('[data-notification="onlyToAssignable"]');
+          const checkbox = document.getElementById('onlyToAssignableCheckbox');
 
           if (!parentActive) {
-            // Se parent è disattivo, disabilita anche child
-            childToggle.style.opacity = '0.2';
-            childToggle.style.pointerEvents = 'none';
-
-            // Se il child era attivo, disattivalo visivamente
-            if (childToggle.classList.contains('active')) {
-              childToggle.classList.remove('active');
-              childToggle.classList.add('inactive');
-              childToggle.querySelector('.notification-toggle-icon').textContent = '✕';
-            }
+            // Se parent è disattivo, disabilita checkbox
+            checkbox.disabled = true;
+            checkbox.parentElement.style.opacity = '0.5';
           } else {
-            // Se parent è attivo, ripristina child
-            childToggle.style.opacity = '';
-            childToggle.style.pointerEvents = '';
+            // Se parent è attivo, abilita checkbox
+            checkbox.disabled = false;
+            checkbox.parentElement.style.opacity = '1';
           }
         }
 
-        // Aggiorna stato iniziale del child
-        updateChildToggle();
+        // Aggiorna stato iniziale del checkbox
+        updateCheckboxState();
+
+        // Event listener per il checkbox
+        onlyToAssignableCheckbox.addEventListener('change', function() {
+          saveNotificationPreferences();
+        });
 
         // Aggiungi event listeners per tutti i toggle
         document.querySelectorAll('.notification-toggle').forEach(toggle => {
-          toggle.addEventListener('click', function() {
+          toggle.addEventListener('click', function(e) {
+            // Previeni il toggle se si clicca sul checkbox o sulla label
+            if (e.target.closest('.notification-condition')) {
+              return;
+            }
+
             const isActive = this.classList.contains('active');
 
             // Toggle stato
@@ -2418,12 +2425,12 @@
               this.querySelector('.notification-toggle-icon').textContent = '✓';
             }
 
-            // Se è il parent "statusChanged", aggiorna il child
+            // Se è il parent "statusChanged", aggiorna il checkbox
             if (this.dataset.notification === 'statusChanged') {
-              updateChildToggle();
+              updateCheckboxState();
             }
 
-            // Salva preferenze (include anche lo stato del child se modificato)
+            // Salva preferenze
             saveNotificationPreferences();
           });
         });
