@@ -1783,6 +1783,20 @@
     // ===== MULTI-SELECT ASL DROPDOWN =====
     const ALL_ASL_OPTIONS = ['120201', '120202', '120203', '120204', '120205', '120206', '120207', '120208', '120209', '120210'];
 
+    // Mapping codice -> descrizione per mostrare i nomi leggibili
+    const ASL_CODE_TO_NAME = {
+      '120201': 'Roma 1',
+      '120202': 'Roma 2',
+      '120203': 'Roma 3',
+      '120204': 'Roma 4',
+      '120205': 'Roma 5',
+      '120206': 'Roma 6',
+      '120207': 'Frosinone',
+      '120208': 'Latina',
+      '120209': 'Rieti',
+      '120210': 'Viterbo'
+    };
+
     // Setup multi-select per Base
     const aslHeaderBase = document.getElementById('aslHeaderBase');
     const aslHeaderTextBase = document.getElementById('aslHeaderTextBase');
@@ -1820,7 +1834,9 @@
         aslHeaderTextBase.textContent = 'Tutte';
         aslHeaderTextBase.classList.remove('has-selection');
       } else {
-        aslHeaderTextBase.textContent = selected.join(', ');
+        // Converti codici in nomi per la visualizzazione
+        const names = selected.map(code => ASL_CODE_TO_NAME[code] || code);
+        aslHeaderTextBase.textContent = names.join(', ');
         aslHeaderTextBase.classList.add('has-selection');
       }
     }
@@ -1858,7 +1874,9 @@
         aslHeaderText.textContent = 'Tutte';
         aslHeaderText.classList.remove('has-selection');
       } else {
-        aslHeaderText.textContent = selected.join(', ');
+        // Converti codici in nomi per la visualizzazione
+        const names = selected.map(code => ASL_CODE_TO_NAME[code] || code);
+        aslHeaderText.textContent = names.join(', ');
         aslHeaderText.classList.add('has-selection');
       }
     }
