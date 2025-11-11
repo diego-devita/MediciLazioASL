@@ -33,11 +33,25 @@
 
 export class BatchSearchClient {
   constructor(options = {}) {
-    this.baseUrl = options.baseUrl || '';
+    // Use ENV_CONFIG if available (injected by config.js)
+    const envConfig = typeof window !== 'undefined' && window.ENV_CONFIG;
+
+    this.baseUrl = options.baseUrl || (envConfig ? envConfig.apiBaseUrl : '');
     this.parallelism = options.parallelism || 5;
     this.onProgress = options.onProgress || null;
     this.abortController = null;
     this.ALL_ASL_OPTIONS = ['120201', '120202', '120203', '120204', '120205', '120206', '120207', '120208', '120209', '120210'];
+
+    // Debug mode from environment
+    this.debug = envConfig ? envConfig.debug : false;
+
+    if (this.debug) {
+      console.log('🔍 BatchSearchClient initialized:', {
+        baseUrl: this.baseUrl,
+        parallelism: this.parallelism,
+        environment: envConfig ? envConfig.environment : 'unknown'
+      });
+    }
   }
 
   /**
