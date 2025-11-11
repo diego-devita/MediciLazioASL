@@ -310,13 +310,19 @@ async function handleDeleteUser(req, res) {
 
     // Revoca tutte le sessioni dell'utente
     const deletedSessions = await deleteUserSessions(chatId);
-    console.log(`Deleted user ${chatId} and revoked ${deletedSessions} session(s)`);
+
+    // Cancella tutte le entry nella storia variazioni dell'utente
+    const variationsCollection = db.collection(DATABASE.COLLECTIONS.VARIATIONS_HISTORY);
+    const deletedVariations = await variationsCollection.deleteMany({ chatId: String(chatId) });
+
+    console.log(`Deleted user ${chatId}, revoked ${deletedSessions} session(s), and deleted ${deletedVariations.deletedCount} variation history entries`);
 
     return res.status(200).json({
       success: true,
       message: 'User deleted successfully',
       chatId,
-      sessionsRevoked: deletedSessions
+      sessionsRevoked: deletedSessions,
+      variationsDeleted: deletedVariations.deletedCount
     });
 
   } catch (error) {
