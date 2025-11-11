@@ -1578,6 +1578,7 @@
 
       const columns = [
         { key: 'assegnabilita', label: '', isEmoji: true },
+        { key: '', label: '', isHidden: true }, // Colonna fittizia per tooltip
         { key: 'cognome', label: 'Cognome' },
         { key: 'nome', label: 'Nome' },
         { key: 'asl', label: 'ASL' },
@@ -1588,6 +1589,9 @@
         <thead>
           <tr>
             ${columns.map(col => {
+              if (col.isHidden) {
+                return `<th style="width: 0; padding: 0; border: none;"></th>`;
+              }
               const sortClass = sortColumn === col.key ? `sort-${sortDirection}` : '';
               return `<th class="${sortClass}" data-column="${col.key}">${col.label}</th>`;
             }).join('')}
@@ -1613,13 +1617,13 @@
               return `
                 <tr>
                   <td class="emoji-cell">${emoji}</td>
+                  <td style="position: relative; width: 0; padding: 0;">
+                    <div class="tooltip">${tooltipContent}</div>
+                  </td>
                   <td class="nome-cell">${medico.cognome}</td>
                   <td>${medico.nome}</td>
                   <td>${medico.asl}</td>
                   <td>${medico.assegnabilita}</td>
-                  <td style="position: relative;">
-                    <div class="tooltip">${tooltipContent}</div>
-                  </td>
                 </tr>
               `;
             }).join('')}
