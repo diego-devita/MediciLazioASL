@@ -965,6 +965,7 @@
       background: #fed7aa;
       border-color: #ea580c;
       color: #9a3412;
+      display: block;
     }
 
     .notification-toggle-icon {
@@ -975,6 +976,11 @@
     /* Condizione integrata nel toggle */
     .notification-condition {
       margin-top: 8px;
+    }
+
+    .notification-condition label {
+      display: inline-flex;
+      width: fit-content;
     }
 
     .condition-checkbox {
@@ -1230,7 +1236,7 @@
                 <span class="notification-toggle-icon">✓</span>
               </div>
               <div class="notification-condition">
-                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem; margin-left: 12px;">
+                <label style="align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem; margin-left: 12px;">
                   <input type="checkbox" id="onlyToAssignableCheckbox" class="condition-checkbox" checked>
                   <span>Solo verso assegnabilità libera</span>
                 </label>
