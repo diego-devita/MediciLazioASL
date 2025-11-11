@@ -380,6 +380,17 @@
       margin: 20px 0;
     }
 
+    .highlight .config-link {
+      color: #667eea;
+      font-weight: 600;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .highlight .config-link:hover {
+      color: #764ba2;
+    }
+
     .loading {
       text-align: center;
       padding: 40px;
@@ -911,7 +922,7 @@
       </div>
 
       <div class="highlight">
-        <strong>💡 Nota:</strong> Il sistema cerca automaticamente medici di Medicina Generale (MMG) in tutte le ASL del Lazio. Le notifiche vengono inviate quando ci sono nuovi medici disponibili o cambiamenti di stato.
+        <strong>💡 Nota:</strong> Il sistema cerca automaticamente medici di Medicina Generale (MMG) in tutte le ASL del Lazio. Le notifiche vengono inviate quando ci sono nuovi medici disponibili o cambiamenti di stato. Quest'attività gira tutti i giorni dalle 7am alle 23pm ogni 10 minuti. Visitare la scheda di <a href="#" class="config-link" onclick="document.querySelector('[data-tab=config]').click(); return false;">Configurazione</a> per maggiori dettagli.
       </div>
     </div>
 
