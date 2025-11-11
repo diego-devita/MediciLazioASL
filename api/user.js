@@ -12,7 +12,8 @@ async function handler(req, res) {
     });
   }
 
-  req.user = authResult.payload;
+  // Usa l'utente completo dal DB (non solo il payload JWT)
+  req.user = authResult.user;
 
   const { action } = req.query;
 
