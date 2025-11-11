@@ -2171,7 +2171,9 @@
         });
 
         if (!response.ok) {
-          throw new Error('Errore nel caricamento della storia');
+          const errorText = await response.text();
+          console.error('API Error:', response.status, errorText);
+          throw new Error(`Errore ${response.status}: ${response.statusText}`);
         }
 
         const data = await response.json();
