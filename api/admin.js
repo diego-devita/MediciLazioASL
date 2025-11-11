@@ -1,5 +1,5 @@
 import { requireAdmin } from '../lib/auth.js';
-import { connectToDatabase, getAllSessions, deleteSession, deleteUserSessions } from '../lib/database.js';
+import { connectToDatabase, getAllSessions, deleteSession, deleteUserSessions, getSystemSettings, updateSystemSettings, getCronLogs, getCronStats } from '../lib/database.js';
 import { DATABASE, LOGGING } from '../lib/config.js';
 
 async function handler(req, res) {
@@ -8,7 +8,7 @@ async function handler(req, res) {
   if (!action) {
     return res.status(400).json({
       success: false,
-      error: 'Missing action parameter. Use ?action=stats|users|sessions|login-attempts|cron-logs|collection'
+      error: 'Missing action parameter. Use ?action=stats|users|sessions|login-attempts|cron-logs|cron-logs-get|system-settings|collection'
     });
   }
 
@@ -23,6 +23,10 @@ async function handler(req, res) {
       return handleLoginAttempts(req, res);
     case 'cron-logs':
       return handleCronLogs(req, res);
+    case 'cron-logs-get':
+      return handleCronLogsGet(req, res);
+    case 'system-settings':
+      return handleSystemSettings(req, res);
     case 'collection':
       return handleCollection(req, res);
     default:
@@ -609,6 +613,110 @@ async function handleCollection(req, res) {
     return res.status(500).json({
       success: false,
       error: `Failed to fetch collection: ${error.message}`
+    });
+  }
+}
+
+// ===== CRON LOGS GET =====
+async function handleCronLogsGet(req, res) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  try {
+    const { stats, page = '1', limit = '50' } = req.query;
+
+    // Se richiede statistiche
+    if (stats === 'true') {
+      const cronStats = await getCronStats();
+      return res.status(200).json({
+        success: true,
+        stats: cronStats
+      });
+    }
+
+    // Altrimenti ritorna i log con paginazione
+    const result = await getCronLogs(parseInt(page), parseInt(limit));
+
+    return res.status(200).json({
+      success: true,
+      ...result
+    });
+
+  } catch (error) {
+    console.error('Error fetching cron logs:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+}
+
+// ===== SYSTEM SETTINGS =====
+async function handleSystemSettings(req, res) {
+  if (req.method === 'GET') {
+    // GET: Ottieni le impostazioni di sistema
+    try {
+      const settings = await getSystemSettings();
+
+      return res.status(200).json({
+        success: true,
+        settings: settings
+      });
+
+    } catch (error) {
+      console.error('Error getting system settings:', error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Internal server error'
+      });
+    }
+
+  } else if (req.method === 'POST') {
+    // POST: Aggiorna le impostazioni di sistema
+    try {
+      const updates = req.body;
+
+      // Validazione: accetta solo cronEnabled per ora
+      const allowedFields = ['cronEnabled'];
+      const filteredUpdates = {};
+
+      for (const field of allowedFields) {
+        if (field in updates) {
+          filteredUpdates[field] = updates[field];
+        }
+      }
+
+      if (Object.keys(filteredUpdates).length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'No valid fields to update'
+        });
+      }
+
+      const success = await updateSystemSettings(filteredUpdates);
+
+      if (!success) {
+        throw new Error('Failed to update system settings');
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: 'System settings updated successfully'
+      });
+
+    } catch (error) {
+      console.error('Error updating system settings:', error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Internal server error'
+      });
+    }
+
+  } else {
+    return res.status(405).json({
+      success: false,
+      error: 'Method not allowed. Use GET or POST.'
     });
   }
 }

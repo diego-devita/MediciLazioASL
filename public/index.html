@@ -1246,7 +1246,7 @@
     // Check if user is admin and show admin link
     (async function checkIfAdmin() {
       try {
-        const response = await fetch('/api/user/me', {
+        const response = await fetch('/api/user?action=me', {
           credentials: 'include'
         });
 

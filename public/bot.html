@@ -1143,7 +1143,7 @@
 
       <div id="configContent" style="display: none;">
         <div class="last-run-info">
-          <h2>Attività Pianificata</h2>
+          <h2 style="color: #555; font-size: 1.75rem;">Attività Pianificata</h2>
           <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: #fff3cd; border-radius: 8px; margin-bottom: 15px;">
             <label style="font-weight: 600; font-size: 0.95rem; flex: 1;">
               Monitoraggio automatico abilitato
@@ -1451,7 +1451,7 @@
         toggle.disabled = true;
 
         const token = localStorage.getItem('token');
-        const response = await fetch('/api/user/cron-enabled', {
+        const response = await fetch('/api/user?action=cron-enabled', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -1672,7 +1672,7 @@
         if (cap) query.cap = cap;
         if (asl) query.asl = asl;
 
-        const response = await fetch('/api/user/cognomi', {
+        const response = await fetch('/api/user?action=cognomi', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -1709,7 +1709,7 @@
         if (cap) newQuery.cap = cap;
         if (asl) newQuery.asl = asl;
 
-        const response = await fetch('/api/user/cognomi', {
+        const response = await fetch('/api/user?action=cognomi', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json'
@@ -1740,7 +1740,7 @@
 
     async function removeCognome(query) {
       try {
-        const response = await fetch('/api/user/cognomi', {
+        const response = await fetch('/api/user?action=cognomi', {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json'
@@ -1927,7 +1927,7 @@
       }
 
       try {
-        const response = await fetch('/api/user/interval', {
+        const response = await fetch('/api/user?action=interval', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json'
@@ -2002,7 +2002,7 @@
           onlyToAssignable: document.querySelector('[data-notification="onlyToAssignable"]').classList.contains('active')
         };
 
-        const response = await fetch('/api/user/notifications', {
+        const response = await fetch('/api/user?action=notifications', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json'
@@ -2109,7 +2109,7 @@
       configContent.style.display = 'none';
 
       try {
-        const response = await fetch('/api/user/me', {
+        const response = await fetch('/api/user?action=me', {
           credentials: 'include'
         });
 
@@ -2419,7 +2419,7 @@
       historyList.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">Caricamento storia...</p>';
 
       try {
-        const response = await fetch('/api/user/variations?limit=50', {
+        const response = await fetch('/api/user?action=variations?limit=50', {
           credentials: 'include'
         });
 

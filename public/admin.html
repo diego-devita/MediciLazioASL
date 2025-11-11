@@ -1746,7 +1746,7 @@
       content.style.display = 'none';
 
       try {
-        const response = await fetch('/api/admin/cron-logs?action=stats', {
+        const response = await fetch('/api/admin?action=cron-logs-get&stats=true', {
           credentials: 'include'
         });
 
@@ -1790,7 +1790,7 @@
     async function loadGlobalCronStatus() {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('/api/admin/system-settings', {
+        const response = await fetch('/api/admin?action=system-settings', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -1821,7 +1821,7 @@
         toggle.disabled = true;
 
         const token = localStorage.getItem('token');
-        const response = await fetch('/api/admin/system-settings', {
+        const response = await fetch('/api/admin?action=system-settings', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -1894,7 +1894,7 @@
       content.style.display = 'none';
 
       try {
-        const response = await fetch(`/api/admin/cron-logs?page=${page}&limit=20`, {
+        const response = await fetch(`/api/admin?action=cron-logs-get&page=${page}&limit=20`, {
           credentials: 'include'
         });
 
