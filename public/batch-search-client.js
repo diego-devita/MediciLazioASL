@@ -8,7 +8,7 @@
  * - Genera prodotto cartesiano delle combinazioni
  * - Esegue chiamate in batch paralleli (default: 5 alla volta)
  * - Progress tracking real-time tramite callback
- * - Deduplicazione risultati per codiceFiscale
+ * - Deduplicazione risultati per identificativo
  * - Aggregazione counters finali
  * - Formato response compatibile con /api/search
  *
@@ -114,7 +114,7 @@ export class BatchSearchClient {
     const startTime = Date.now();
 
     // Accumula tutti i risultati e query
-    const allResults = new Map(); // key: codiceFiscale, value: medico (per dedup)
+    const allResults = new Map(); // key: identificativo, value: medico (per dedup)
     const allSingleQueries = [];
     const errors = [];
     let totalResultsBeforeDedup = 0; // Conta risultati prima della dedup
@@ -149,9 +149,9 @@ export class BatchSearchClient {
         if (firstPageResult.results && Array.isArray(firstPageResult.results)) {
           totalResultsBeforeDedup += firstPageResult.results.length;
           firstPageResult.results.forEach(medico => {
-            if (medico.codiceFiscale) {
-              if (!allResults.has(medico.codiceFiscale)) {
-                allResults.set(medico.codiceFiscale, medico);
+            if (medico.identificativo) {
+              if (!allResults.has(medico.identificativo)) {
+                allResults.set(medico.identificativo, medico);
               }
             } else {
               const uniqueKey = `${medico.nome}_${medico.cognome}_${medico.indirizzo}_${Date.now()}_${Math.random()}`;
@@ -205,9 +205,9 @@ export class BatchSearchClient {
             if (pageResult.results && Array.isArray(pageResult.results)) {
               totalResultsBeforeDedup += pageResult.results.length;
               pageResult.results.forEach(medico => {
-                if (medico.codiceFiscale) {
-                  if (!allResults.has(medico.codiceFiscale)) {
-                    allResults.set(medico.codiceFiscale, medico);
+                if (medico.identificativo) {
+                  if (!allResults.has(medico.identificativo)) {
+                    allResults.set(medico.identificativo, medico);
                   }
                 } else {
                   const uniqueKey = `${medico.nome}_${medico.cognome}_${medico.indirizzo}_${Date.now()}_${Math.random()}`;
