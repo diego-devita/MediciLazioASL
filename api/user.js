@@ -1,7 +1,19 @@
-import { requireAuth } from '../lib/auth.js';
+import { verifySession } from '../lib/auth.js';
 import { updateUser, getUser, getVariationHistory } from '../lib/database.js';
 
 async function handler(req, res) {
+  // Verifica autenticazione
+  const user = await verifySession(req);
+
+  if (!user) {
+    return res.status(401).json({
+      success: false,
+      error: 'Not authenticated'
+    });
+  }
+
+  req.user = user;
+
   const { action } = req.query;
 
   if (!action) {
@@ -452,4 +464,4 @@ async function handleVariations(req, res) {
   }
 }
 
-export default requireAuth(handler);
+export default handler;
