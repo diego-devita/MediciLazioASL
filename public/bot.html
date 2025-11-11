@@ -993,6 +993,17 @@
       color: #333;
     }
 
+    /* Nascondi il br su desktop, mostralo solo su mobile */
+    .mobile-only-br {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-only-br {
+        display: inline;
+      }
+    }
+
     @media (max-width: 768px) {
       body {
         padding: 10px;
@@ -1670,7 +1681,7 @@
           hour: '2-digit',
           minute: '2-digit'
         });
-        nextCheckElement.innerHTML = `<div style="font-size: .9em; padding: 0; line-height: 1em;">A partire dalle</div><div>${formattedNextCheck}</div>`;
+        nextCheckElement.innerHTML = `<span>A partire dalle</span><br class="mobile-only-br"><span>${formattedNextCheck}</span>`;
       }
     }
 
