@@ -656,11 +656,21 @@
       justify-content: space-between;
       transition: all 0.2s;
       margin-bottom: 15px;
+      text-align: left;
     }
 
     .results-toggle:hover {
       background: #5568d3;
       transform: translateY(-1px);
+    }
+
+    .results-toggle-emoji {
+      color: white;
+      background: white;
+      padding: 0.2em 0.2em 0.4em;
+      border-radius: 5px;
+      display: inline-block;
+      margin-right: 8px;
     }
 
     .results-toggle-icon {
@@ -1138,7 +1148,10 @@
         <!-- Lista risultati espandibile -->
         <div id="resultsSection" class="section" style="display: none;">
           <button class="results-toggle" id="resultsToggle">
-            <span>📋 Mostra dettaglio medici (<span id="resultsCount">0</span>)</span>
+            <span>
+              <span class="results-toggle-emoji">📋</span>
+              Mostra dettaglio medici (<span id="resultsCount">0</span>)
+            </span>
             <span class="results-toggle-icon">▼</span>
           </button>
           <div class="results-list-container" id="resultsListContainer">
@@ -1153,7 +1166,10 @@
         <!-- Medici aggiunti -->
         <div id="addedSection" class="section" style="display: none;">
           <button class="results-toggle" id="addedToggle">
-            <span>➕ Mostra medici aggiunti (<span id="addedCount">0</span>)</span>
+            <span>
+              <span class="results-toggle-emoji">➕</span>
+              Mostra medici aggiunti (<span id="addedCount">0</span>)
+            </span>
             <span class="results-toggle-icon">▼</span>
           </button>
           <div class="results-list-container" id="addedListContainer">
@@ -1164,7 +1180,10 @@
         <!-- Medici rimossi -->
         <div id="removedSection" class="section" style="display: none;">
           <button class="results-toggle" id="removedToggle">
-            <span>➖ Mostra medici rimossi (<span id="removedCount">0</span>)</span>
+            <span>
+              <span class="results-toggle-emoji">➖</span>
+              Mostra medici rimossi (<span id="removedCount">0</span>)
+            </span>
             <span class="results-toggle-icon">▼</span>
           </button>
           <div class="results-list-container" id="removedListContainer">
@@ -1175,7 +1194,10 @@
         <!-- Differenze assegnabilità -->
         <div id="changedSection" class="section" style="display: none;">
           <button class="results-toggle" id="changedToggle">
-            <span>🔄 Mostra differenze assegnabilità (<span id="changedCount">0</span>)</span>
+            <span>
+              <span class="results-toggle-emoji">🔄</span>
+              Mostra differenze assegnabilità (<span id="changedCount">0</span>)
+            </span>
             <span class="results-toggle-icon">▼</span>
           </button>
           <div class="results-list-container" id="changedListContainer">
@@ -1190,7 +1212,10 @@
         <!-- Storia variazioni -->
         <div id="historySection" class="section">
           <button class="results-toggle" id="historyToggle">
-            <span>📜 Mostra storia variazioni</span>
+            <span>
+              <span class="results-toggle-emoji">📜</span>
+              Mostra storia variazioni
+            </span>
             <span class="results-toggle-icon">▼</span>
           </button>
           <div class="results-list-container" id="historyListContainer">
@@ -1792,6 +1817,12 @@
         // Carica configurazione quando si apre il tab
         if (targetTab === 'config') {
           loadConfiguration();
+          // Carica anche la storia variazioni subito
+          const historyContainer = document.getElementById('historyListContainer');
+          if (!historyContainer.dataset.loaded) {
+            loadVariationHistory();
+            historyContainer.dataset.loaded = 'true';
+          }
         }
       });
     });
@@ -1812,12 +1843,6 @@
         btn.addEventListener('click', () => {
           btn.classList.toggle('expanded');
           cont.classList.toggle('expanded');
-
-          // Se è il toggle della storia e non è mai stata caricata, caricala
-          if (button === 'historyToggle' && !cont.dataset.loaded) {
-            loadVariationHistory();
-            cont.dataset.loaded = 'true';
-          }
         });
       }
     });
