@@ -433,7 +433,62 @@
       font-size: 0.9rem;
     }
 
+    /* Responsive Cards per Collections Table */
+    .collection-card {
+      display: none;
+      background: white;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .collection-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .collection-card-name {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #333;
+    }
+
+    .collection-card-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      font-size: 0.9rem;
+    }
+
+    .collection-card-label {
+      color: #666;
+      font-weight: 600;
+    }
+
+    .collection-card-value {
+      color: #333;
+      text-align: right;
+    }
+
+    .collection-card-actions {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #f0f0f0;
+    }
+
     @media (max-width: 768px) {
+      #collectionsTable {
+        display: none;
+      }
+
+      .collection-card {
+        display: block;
+      }
       body {
         padding: 10px;
       }
@@ -695,6 +750,7 @@
               </thead>
               <tbody id="collectionsTableBody"></tbody>
             </table>
+            <div id="collectionsCards"></div>
           </div>
 
           <div class="section" id="collectionContentSection" style="display: none;">
@@ -1286,6 +1342,33 @@
             <button class="action-btn" style="background: #667eea;" onclick="loadCollectionContent('${c.name}', 1)">View</button>
           </td>
         </tr>
+      `).join('');
+
+      // Render collections cards (mobile)
+      const cardsContainer = document.getElementById('collectionsCards');
+      cardsContainer.innerHTML = database.collections.map(c => `
+        <div class="collection-card">
+          <div class="collection-card-header">
+            <div class="collection-card-name">${c.name}</div>
+          </div>
+          <div class="collection-card-row">
+            <span class="collection-card-label">Documenti:</span>
+            <span class="collection-card-value">${c.count.toLocaleString()}</span>
+          </div>
+          <div class="collection-card-row">
+            <span class="collection-card-label">Indici:</span>
+            <span class="collection-card-value">${c.indexCount}</span>
+          </div>
+          ${c.indexes.length > 0 ? `
+          <div class="collection-card-row">
+            <span class="collection-card-label" style="font-size: 0.8rem; color: #999;">Nomi indici:</span>
+            <span class="collection-card-value" style="font-size: 0.8rem; color: #999;">${c.indexes.map(idx => idx.name).join(', ')}</span>
+          </div>
+          ` : ''}
+          <div class="collection-card-actions">
+            <button class="action-btn" style="background: #667eea; width: 100%;" onclick="loadCollectionContent('${c.name}', 1)">View</button>
+          </div>
+        </div>
       `).join('');
     }
 
