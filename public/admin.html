@@ -1061,7 +1061,15 @@
       tbody.innerHTML = users.map(user => {
         const createdAt = new Date(user.createdAt).toLocaleString('it-IT');
         const lastCheck = user.lastCheck ? new Date(user.lastCheck).toLocaleString('it-IT') : 'Mai';
-        const cognomi = user.query.cognomi.length > 0 ? user.query.cognomi.join(', ') : '-';
+
+        // Estrai solo i cognomi dall'array (supporta sia stringhe che oggetti)
+        const cognomiList = user.query.cognomi.map(item => {
+          if (typeof item === 'string') {
+            return item; // Vecchio formato: stringa semplice
+          }
+          return item.cognome; // Nuovo formato: oggetto con cognome e altri filtri
+        });
+        const cognomi = cognomiList.length > 0 ? cognomiList.join(', ') : '-';
 
         return `
           <tr>
@@ -1083,7 +1091,15 @@
       cardsContainer.innerHTML = users.map(user => {
         const createdAt = new Date(user.createdAt).toLocaleString('it-IT');
         const lastCheck = user.lastCheck ? new Date(user.lastCheck).toLocaleString('it-IT') : 'Mai';
-        const cognomi = user.query.cognomi.length > 0 ? user.query.cognomi.join(', ') : '-';
+
+        // Estrai solo i cognomi dall'array (supporta sia stringhe che oggetti)
+        const cognomiList = user.query.cognomi.map(item => {
+          if (typeof item === 'string') {
+            return item; // Vecchio formato: stringa semplice
+          }
+          return item.cognome; // Nuovo formato: oggetto con cognome e altri filtri
+        });
+        const cognomi = cognomiList.length > 0 ? cognomiList.join(', ') : '-';
 
         return `
           <div class="mobile-card">
