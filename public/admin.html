@@ -173,9 +173,9 @@
     }
 
     .section h2 {
-      font-size: 1.5rem;
+      font-size: 1.75rem;
       margin-bottom: 20px;
-      color: #333;
+      color: #555;
     }
 
     .controls {
@@ -517,12 +517,12 @@
           <div class="stats-grid" id="statsGrid"></div>
 
           <div class="section">
-            <h2>📊 Login Attempts - Ultimi 7 giorni</h2>
+            <h2>Login Attempts - Ultimi 7 giorni</h2>
             <div class="chart-container" id="loginsByDayChart"></div>
           </div>
 
           <div class="section">
-            <h2>🚫 Top IP con tentativi falliti</h2>
+            <h2>Top IP con tentativi falliti</h2>
             <div class="chart-container" id="topFailedIPsChart"></div>
           </div>
         </div>
@@ -637,14 +637,14 @@
       <!-- Tab Cron History -->
       <div id="tab-cron" class="tab-content">
         <div class="section">
-          <h2>📊 Statistiche Cron (Ultimi 7 giorni)</h2>
+          <h2>Statistiche Cron (Ultimi 7 giorni)</h2>
           <div id="cronStatsLoading" class="loading">Caricamento statistiche...</div>
           <div id="cronStatsError" class="error" style="display: none;"></div>
           <div id="cronStatsContent" class="stats-grid" style="display: none;"></div>
         </div>
 
         <div class="section">
-          <h2>📜 Storia Esecuzioni</h2>
+          <h2>Storia Esecuzioni</h2>
           <div class="controls">
             <button onclick="loadCronLogs()">🔄 Aggiorna</button>
           </div>
@@ -678,12 +678,12 @@
         <div id="databaseError" class="error" style="display: none;"></div>
         <div id="databaseContent" style="display: none;">
           <div class="section">
-            <h2>📊 Sintesi Database</h2>
+            <h2>Sintesi Database</h2>
             <div class="info-grid" id="databaseSummary"></div>
           </div>
 
           <div class="section">
-            <h2>📋 Collections</h2>
+            <h2>Collections</h2>
             <table id="collectionsTable">
               <thead>
                 <tr>
@@ -701,7 +701,7 @@
           </div>
 
           <div class="section" id="collectionContentSection" style="display: none;">
-            <h2 id="collectionContentTitle">📄 Contenuto Collection</h2>
+            <h2 id="collectionContentTitle">Contenuto Collection</h2>
             <button onclick="closeCollectionContent()" style="margin-bottom: 15px;">✕ Chiudi</button>
             <div id="collectionContentLoading" class="loading">Caricamento contenuto...</div>
             <div id="collectionContentError" class="error" style="display: none;"></div>
@@ -1253,7 +1253,6 @@
       // Render summary
       summary.innerHTML = `
         <div class="info-card">
-          <h3>🗄️ Database</h3>
           <div class="info-row">
             <span class="info-label">Nome:</span>
             <span class="info-value">${database.name}</span>
