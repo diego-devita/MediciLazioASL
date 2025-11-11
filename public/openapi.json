@@ -45,8 +45,8 @@
             "description": "ASL del Lazio. Supporta valori multipli separati da virgola. Lasciare vuoto per cercare in tutte le ASL. Se specificata almeno una ASL, può soddisfare da sola il requisito 'almeno un parametro'.",
             "schema": {
               "type": "string",
-              "pattern": "^(Roma 1|Roma 2|Roma 3|Roma 4|Roma 5|Roma 6|Frosinone|Latina|Rieti|Viterbo)(,(Roma 1|Roma 2|Roma 3|Roma 4|Roma 5|Roma 6|Frosinone|Latina|Rieti|Viterbo))*$",
-              "example": "Roma 1,Roma 2"
+              "pattern": "^(120201|120202|120203|120204|120205|120206|120207|120208|120209|120210)(,(120201|120202|120203|120204|120205|120206|120207|120208|120209|120210))*$",
+              "example": "120201,120202"
             }
           },
           {
@@ -446,7 +446,7 @@
             "description": "ASL del Lazio. Specificare una ASL particolare oppure lasciare vuoto/'Tutte' per cercare in tutte le ASL. Se specificata una ASL concreta, può soddisfare da sola il requisito 'almeno un parametro'.",
             "schema": {
               "type": "string",
-              "enum": ["Tutte", "Roma 1", "Roma 2", "Roma 3", "Roma 4", "Roma 5", "Roma 6", "Frosinone", "Latina", "Rieti", "Viterbo"]
+              "enum": ["120201", "120202", "120203", "120204", "120205", "120206", "120207", "120208", "120209", "120210"]
             }
           },
           {
@@ -681,10 +681,10 @@
             "type": "array",
             "items": {
               "type": "string",
-              "enum": ["Roma 1", "Roma 2", "Roma 3", "Roma 4", "Roma 5", "Roma 6", "Frosinone", "Latina", "Rieti", "Viterbo"]
+              "enum": ["120201", "120202", "120203", "120204", "120205", "120206", "120207", "120208", "120209", "120210"]
             },
             "description": "Array di ASL del Lazio. Lasciare vuoto per cercare in tutte le ASL. Se specificata almeno una ASL, può soddisfare da sola il requisito 'almeno un parametro'.",
-            "example": ["Roma 1", "Roma 2"]
+            "example": ["120201", "120202"]
           },
           "cap": {
             "type": "array",
@@ -966,7 +966,7 @@
           },
           "asl": {
             "type": "string",
-            "enum": ["Tutte", "Roma 1", "Roma 2", "Roma 3", "Roma 4", "Roma 5", "Roma 6", "Frosinone", "Latina", "Rieti", "Viterbo"],
+            "enum": ["120201", "120202", "120203", "120204", "120205", "120206", "120207", "120208", "120209", "120210"],
             "default": "Tutte",
             "description": "ASL del Lazio"
           },
