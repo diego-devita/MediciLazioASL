@@ -688,10 +688,7 @@
               <thead>
                 <tr>
                   <th>Nome</th>
-                  <th>Tipo</th>
                   <th>Documenti</th>
-                  <th>Dimensione</th>
-                  <th>Storage</th>
                   <th>Indici</th>
                   <th>Azioni</th>
                 </tr>
@@ -1280,16 +1277,13 @@
       tbody.innerHTML = database.collections.map(c => `
         <tr>
           <td><strong>${c.name}</strong></td>
-          <td><span class="badge info">${c.type}</span></td>
           <td>${c.count.toLocaleString()}</td>
-          <td>${formatBytes(c.size)}</td>
-          <td>${formatBytes(c.storageSize)}</td>
           <td>
             ${c.indexCount}
             ${c.indexes.length > 0 ? `<span style="font-size: 0.75rem; color: #999;" title="${c.indexes.map(idx => idx.name).join(', ')}">(${c.indexes.map(idx => idx.name).join(', ')})</span>` : ''}
           </td>
           <td>
-            <button class="action-btn" style="background: #667eea;" onclick="loadCollectionContent('${c.name}', 1)">👁️ Vedi</button>
+            <button class="action-btn" style="background: #667eea;" onclick="loadCollectionContent('${c.name}', 1)">View</button>
           </td>
         </tr>
       `).join('');
