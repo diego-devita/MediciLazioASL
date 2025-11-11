@@ -1,18 +1,18 @@
-import { verifySession } from '../lib/auth.js';
+import { validateJWT } from '../lib/auth.js';
 import { updateUser, getUser, getVariationHistory } from '../lib/database.js';
 
 async function handler(req, res) {
   // Verifica autenticazione
-  const user = await verifySession(req);
+  const authResult = await validateJWT(req);
 
-  if (!user) {
+  if (!authResult.valid) {
     return res.status(401).json({
       success: false,
-      error: 'Not authenticated'
+      error: authResult.error || 'Not authenticated'
     });
   }
 
-  req.user = user;
+  req.user = authResult.payload;
 
   const { action } = req.query;
 
