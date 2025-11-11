@@ -1447,13 +1447,14 @@
       const searchModeElement = document.querySelector('input[name="searchMode"]:checked');
       const searchMode = searchModeElement ? searchModeElement.value : 'standard';
 
-      let cognomiCount, capCount, nomiCount;
+      let cognomiCount, capCount, nomiCount, aslCount;
 
       if (activeTab === 'base') {
         const cognomiBase = document.getElementById('cognomi-base').value.trim();
         cognomiCount = cognomiBase ? cognomiBase.split(',').filter(c => c.trim()).length : 0;
         capCount = 0;
         nomiCount = 0;
+        aslCount = getSelectedAslBase().length;
       } else {
         const cognomi = document.getElementById('cognomi').value.trim();
         const cap = document.getElementById('cap').value.trim();
@@ -1462,6 +1463,16 @@
         cognomiCount = cognomi ? cognomi.split(',').filter(c => c.trim()).length : 0;
         capCount = cap ? cap.split(',').filter(c => c.trim()).length : 0;
         nomiCount = nomi ? nomi.split(',').filter(n => n.trim()).length : 0;
+        aslCount = getSelectedAsl().length;
+      }
+
+      // Controlla se l'unico criterio è l'ASL
+      const onlyAsl = (cognomiCount === 0 && capCount === 0 && nomiCount === 0 && aslCount > 0);
+
+      if (onlyAsl && searchMode === 'standard') {
+        warningBox.innerHTML = `⚠️ Ricerca solo per ASL <strong>andrà in timeout con modalità Standard</strong>. Usa <strong>modalità Batch</strong>.`;
+        warningBox.style.display = 'block';
+        return;
       }
 
       // Calcola combinazioni (almeno 1 per ogni dimensione)
@@ -1491,6 +1502,11 @@
 
     document.querySelectorAll('input[name="searchMode"]').forEach(radio => {
       radio.addEventListener('change', checkCombinationsWarning);
+    });
+
+    // Event listener per checkbox ASL
+    document.querySelectorAll('input[type="checkbox"][id^="asl_"]').forEach(checkbox => {
+      checkbox.addEventListener('change', checkCombinationsWarning);
     });
 
     // Cancel button (batch)
