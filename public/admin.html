@@ -757,7 +757,6 @@
                   <th>IP</th>
                   <th>Success</th>
                   <th>Blocked</th>
-                  <th>API Key</th>
                   <th>User Agent</th>
                 </tr>
               </thead>
@@ -1363,7 +1362,6 @@
                 ${attempt.blocked ? '🚫 Sì' : '-'}
               </span>
             </td>
-            <td>${attempt.apiKeyPartial || '-'}</td>
             <td style="font-size: 0.75rem;">${userAgent}</td>
           </tr>
         `;
@@ -1394,10 +1392,6 @@
                   ${attempt.blocked ? '🚫 Sì' : 'No'}
                 </span>
               </span>
-            </div>
-            <div class="mobile-card-row">
-              <span class="mobile-card-label">API Key:</span>
-              <span class="mobile-card-value">${attempt.apiKeyPartial || '-'}</span>
             </div>
             <div class="mobile-card-row">
               <span class="mobile-card-label">User Agent:</span>
