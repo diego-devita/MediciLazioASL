@@ -168,6 +168,11 @@
       opacity: 0.8;
     }
 
+    .stat-card .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
     .section {
       margin-bottom: 40px;
     }
@@ -176,6 +181,10 @@
       font-size: 1.75rem;
       margin-bottom: 20px;
       color: #555;
+    }
+
+    #tab-overview .section h2 {
+      font-size: 1.1rem;
     }
 
     .controls {
@@ -716,23 +725,7 @@
       <div id="tab-login-attempts" class="tab-content">
         <div class="section">
           <div class="controls">
-            <select id="attemptsSuccessFilter">
-              <option value="">Tutti</option>
-              <option value="false">Solo falliti</option>
-              <option value="true">Solo riusciti</option>
-            </select>
-            <select id="attemptsBlockedFilter">
-              <option value="">Tutti</option>
-              <option value="true">Solo bloccati</option>
-            </select>
-            <select id="attemptsDaysFilter">
-              <option value="7">Ultimi 7 giorni</option>
-              <option value="30" selected>Ultimi 30 giorni</option>
-              <option value="90">Ultimi 90 giorni</option>
-            </select>
-            <input type="text" id="attemptsIpFilter" placeholder="Filtra per IP">
-            <button onclick="loadLoginAttempts()">Applica filtri</button>
-            <button onclick="loadLoginAttempts()" style="margin-left: auto;">Aggiorna</button>
+            <button onclick="loadLoginAttempts()">Aggiorna</button>
             <button class="danger" onclick="cleanupOldAttempts()">Svuota log</button>
           </div>
 
