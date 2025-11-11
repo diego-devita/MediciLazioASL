@@ -154,8 +154,8 @@ class MediciProgress {
             <div style="font-size: 0.9rem; margin-bottom: 4px; color: #666;">
               📊 Combinazioni: <strong>${ctx.completed}/${ctx.total}</strong>
             </div>
-            <div class="${this.config.classes.bar}">
-              <div class="${this.config.classes.fill}" style="width: ${ctx.percentage}%;">
+            <div class="${this.config.classes.bar}" style="background: #e0e0e0; border-radius: 4px; overflow: hidden; height: 24px; position: relative; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);">
+              <div class="${this.config.classes.fill}" style="width: ${ctx.percentage}%; height: 100%; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.95rem; min-width: fit-content; padding: 0 8px; transition: width 0.3s ease;">
                 ${ctx.percentage}%
               </div>
             </div>
