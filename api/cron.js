@@ -325,14 +325,26 @@ Usa /medici per vedere i dettagli.
             return '🔴';
           };
 
-          let cambiatoMsg = `🔄 Medici che hanno cambiato stato (${medicinCambiati.length}):\n\n`;
-          medicinCambiati.forEach(m => {
-            const emoji = getEmoji(m.assegnabilita);
-            cambiatoMsg += `${emoji} ${m.cognome} ${m.nome}\n`;
-          });
+          // Filtra in base a onlyToAssignable se abilitato
+          let medicinDaNotificare = medicinCambiati;
+          if (notifications.onlyToAssignable) {
+            // Mostra solo i cambiamenti verso "Assegnazione libera"
+            medicinDaNotificare = medicinCambiati.filter(item => {
+              const statoNuovo = item.statoNuovo?.toLowerCase() || '';
+              return statoNuovo.includes('assegnazione libera');
+            });
+          }
 
-          await sendNotificationSafe(user.chatId, cambiatoMsg.trim());
-          await new Promise(resolve => setTimeout(resolve, 500));
+          if (medicinDaNotificare.length > 0) {
+            let cambiatoMsg = `🔄 Medici che hanno cambiato stato (${medicinDaNotificare.length}):\n\n`;
+            medicinDaNotificare.forEach(item => {
+              const emoji = getEmoji(item.statoNuovo);
+              cambiatoMsg += `${emoji} ${item.cognome} ${item.nome}\n`;
+            });
+
+            await sendNotificationSafe(user.chatId, cambiatoMsg.trim());
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
         }
 
         successCount++;
