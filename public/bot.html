@@ -2105,6 +2105,13 @@
             // Se parent è disattivo, disabilita anche child
             childToggle.style.opacity = '0.2';
             childToggle.style.pointerEvents = 'none';
+
+            // Se il child era attivo, disattivalo visivamente
+            if (childToggle.classList.contains('active')) {
+              childToggle.classList.remove('active');
+              childToggle.classList.add('inactive');
+              childToggle.querySelector('.notification-toggle-icon').textContent = '✕';
+            }
           } else {
             // Se parent è attivo, ripristina child
             childToggle.style.opacity = '';
