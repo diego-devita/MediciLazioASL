@@ -974,9 +974,7 @@
 
     /* Condizione integrata nel toggle */
     .notification-condition {
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px solid rgba(255, 255, 255, 0.2);
+      margin-top: 8px;
     }
 
     .condition-checkbox {
@@ -1227,12 +1225,12 @@
               <span class="notification-toggle-icon">✓</span>
             </div>
             <div class="notification-toggle active status-changed" data-notification="statusChanged">
-              <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+              <div style="display: flex; align-items: center; justify-content: space-between; flex: 0 0 100%;">
                 <span>Stato cambiato</span>
                 <span class="notification-toggle-icon">✓</span>
               </div>
               <div class="notification-condition">
-                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem; margin-left: 12px;">
                   <input type="checkbox" id="onlyToAssignableCheckbox" class="condition-checkbox" checked>
                   <span>Solo verso assegnabilità libera</span>
                 </label>
