@@ -2200,18 +2200,42 @@
           html += `
             <div style="background: #f9f9f9; border-left: 4px solid #667eea; padding: 15px; margin-bottom: 15px; border-radius: 8px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <strong style="color: #667eea;">Run #${run.runId}</strong>
+                <strong style="color: #667eea;">Run #${run.runId || 'N/A'}</strong>
                 <span style="color: #999; font-size: 0.9rem;">${formattedDate}</span>
               </div>
               <div style="font-size: 0.85rem; color: #666; margin-bottom: 10px;">
-                ${run.eventCount} eventi • ${run.totalResults} medici trovati • ${run.totalAvailable} liberi
+                ${run.eventCount || 0} eventi • ${run.totalResults || 0} medici trovati • ${run.totalAvailable || 0} liberi
               </div>
           `;
 
-          // Raggruppa eventi per tipo
-          const newEvents = run.events.filter(e => e.type === 'new');
-          const removedEvents = run.events.filter(e => e.type === 'removed');
-          const changedEvents = run.events.filter(e => e.type === 'changed');
+          // Compatibilità: gestisci sia la nuova struttura (events) che la vecchia (variations)
+          let newEvents = [];
+          let removedEvents = [];
+          let changedEvents = [];
+
+          if (run.events && Array.isArray(run.events)) {
+            // Nuova struttura con events array
+            newEvents = run.events.filter(e => e.type === 'new');
+            removedEvents = run.events.filter(e => e.type === 'removed');
+            changedEvents = run.events.filter(e => e.type === 'changed');
+          } else if (run.variations) {
+            // Vecchia struttura con variations object
+            newEvents = (run.variations.new || []).map((m, idx) => ({ seq: idx + 1, type: 'new', medico: m }));
+            removedEvents = (run.variations.removed || []).map((m, idx) => ({ seq: idx + 1, type: 'removed', medico: m }));
+            changedEvents = (run.variations.changed || []).map((m, idx) => ({
+              seq: idx + 1,
+              type: 'changed',
+              medico: {
+                codiceFiscale: m.codiceFiscale,
+                cognome: m.cognome,
+                nome: m.nome,
+                assegnabilita: m.statoNuovo,
+                asl: m.asl
+              },
+              statoVecchio: m.statoVecchio,
+              statoNuovo: m.statoNuovo
+            }));
+          }
 
           if (newEvents.length > 0) {
             html += `<div style="margin-top: 10px;">`;
