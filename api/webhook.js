@@ -23,6 +23,24 @@ export default async function handler(req, res) {
 
   try {
     const update = req.body;
+    const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN);
+
+    // Handle callback queries (inline button clicks)
+    if (update.callback_query) {
+      const callbackQuery = update.callback_query;
+      const chatId = callbackQuery.message.chat.id;
+      const data = callbackQuery.data;
+
+      // Answer callback query to remove loading state
+      await bot.answerCallbackQuery(callbackQuery.id);
+
+      // Handle button actions
+      if (data === 'cmd_otp') {
+        await handleOtp(bot, chatId);
+      }
+
+      return res.status(200).json({ ok: true });
+    }
 
     // Ignore non-message updates
     if (!update.message || !update.message.text) {
@@ -38,9 +56,6 @@ export default async function handler(req, res) {
     const parts = text.split(/\s+/);
     const command = parts[0].toLowerCase();
     const args = parts.slice(1);
-
-    // Initialize bot
-    const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN);
 
     // Route commands
     switch (command) {
