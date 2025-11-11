@@ -917,22 +917,22 @@
 
       grid.innerHTML = `
         <div class="stat-card">
-          <h3><span style="font-size: 1.75rem;">👥</span> <span style="font-size: 1.2rem;">Utenti Totali</span></h3>
+          <h3><span style="font-size: 1.75rem;">👥</span> <span style="font-size: 1.1rem;">Utenti Totali</span></h3>
           <div class="value">${users.total}</div>
           <div class="subtitle">Utenti bot Telegram</div>
         </div>
         <div class="stat-card">
-          <h3><span style="font-size: 1.75rem;">📈</span> <span style="font-size: 1.2rem;">Nuovi Utenti</span> <span style="font-size: 0.8rem;">(7g)</span></h3>
+          <h3><span style="font-size: 1.75rem;">📈</span> <span style="font-size: 1.1rem;">Nuovi Utenti</span> <span style="font-size: 0.8rem;">(7g)</span></h3>
           <div class="value">${users.recentNew}</div>
           <div class="subtitle">Ultimi 7 giorni</div>
         </div>
         <div class="stat-card">
-          <h3><span style="font-size: 1.75rem;">🔐</span> <span style="font-size: 1.2rem;">Login Attempts</span> <span style="font-size: 0.8rem;">(30g)</span></h3>
+          <h3><span style="font-size: 1.75rem;">🔐</span> <span style="font-size: 1.1rem;">Login Attempts</span> <span style="font-size: 0.8rem;">(30g)</span></h3>
           <div class="value">${loginAttempts.total}</div>
           <div class="subtitle">${loginAttempts.successful} riusciti, ${loginAttempts.failed} falliti</div>
         </div>
         <div class="stat-card">
-          <h3><span style="font-size: 1.75rem;">🚫</span> <span style="font-size: 1.2rem;">Tentativi Bloccati</span></h3>
+          <h3><span style="font-size: 1.75rem;">🚫</span> <span style="font-size: 1.1rem;">Tentativi Bloccati</span></h3>
           <div class="value">${loginAttempts.blocked}</div>
           <div class="subtitle">Ultimi 30 giorni</div>
         </div>
@@ -1289,20 +1289,11 @@
       error.style.display = 'none';
       content.style.display = 'none';
 
-      const success = document.getElementById('attemptsSuccessFilter').value;
-      const blocked = document.getElementById('attemptsBlockedFilter').value;
-      const days = document.getElementById('attemptsDaysFilter').value;
-      const ip = document.getElementById('attemptsIpFilter').value.trim();
-
       const params = new URLSearchParams({
         page: attemptsPage,
         limit: 100,
-        days
+        days: 30
       });
-
-      if (success) params.append('success', success);
-      if (blocked) params.append('blocked', blocked);
-      if (ip) params.append('ip', ip);
 
       try {
         const response = await fetch(`/api/admin?action=login-attempts&${params}`, {
