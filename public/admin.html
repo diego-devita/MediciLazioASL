@@ -662,6 +662,29 @@
       opacity: 0.5;
       cursor: not-allowed;
     }
+
+    /* Toast animations */
+    @keyframes slideIn {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideOut {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+    }
   </style>
 </head>
 <body>
@@ -746,6 +769,7 @@
                   <th>Cognomi</th>
                   <th>Creato</th>
                   <th>Ultimo Check</th>
+                  <th></th>
                   <th>Azioni</th>
                 </tr>
               </thead>
@@ -1138,6 +1162,11 @@
         });
         const cognomi = cognomiList.length > 0 ? cognomiList.join(', ') : '-';
 
+        // Stato monitoraggio (default true se non definito)
+        const cronEnabled = user.cronEnabled !== false;
+        const statusEmoji = cronEnabled ? '🟢' : '🔴';
+        const statusTitle = cronEnabled ? 'Monitoraggio attivo - Click per disattivare' : 'Monitoraggio disattivo - Click per attivare';
+
         return `
           <tr>
             <td>${user.chatId}</td>
@@ -1145,6 +1174,11 @@
             <td style="font-size: 0.8rem;">${cognomi}</td>
             <td>${createdAt}</td>
             <td>${lastCheck}</td>
+            <td style="text-align: center; cursor: pointer; font-size: 1.5rem;"
+                title="${statusTitle}"
+                onclick="toggleUserCron('${user.chatId}', ${cronEnabled})">
+              ${statusEmoji}
+            </td>
             <td>
               <button class="action-btn" style="background: #f39c12; margin-right: 5px; margin-bottom: 5px;" onclick="revokeUserSessions('${user.chatId}')">Revoca sessioni</button>
               <button class="action-btn" style="margin-bottom: 5px;" onclick="deleteUser('${user.chatId}')">Elimina</button>
@@ -1168,10 +1202,20 @@
         });
         const cognomi = cognomiList.length > 0 ? cognomiList.join(', ') : '-';
 
+        // Stato monitoraggio (default true se non definito)
+        const cronEnabled = user.cronEnabled !== false;
+        const statusEmoji = cronEnabled ? '🟢' : '🔴';
+        const statusTitle = cronEnabled ? 'Monitoraggio attivo - Click per disattivare' : 'Monitoraggio disattivo - Click per attivare';
+
         return `
           <div class="mobile-card">
             <div class="mobile-card-header">
               <div class="mobile-card-title">${user.username || 'User'} (${user.chatId})</div>
+              <div style="cursor: pointer; font-size: 1.5rem;"
+                   title="${statusTitle}"
+                   onclick="toggleUserCron('${user.chatId}', ${cronEnabled})">
+                ${statusEmoji}
+              </div>
             </div>
             <div class="mobile-card-row">
               <span class="mobile-card-label">Cognomi:</span>
@@ -1240,6 +1284,45 @@
 
       } catch (err) {
         alert(`Errore revoca sessioni: ${err.message}`);
+      }
+    }
+
+    async function toggleUserCron(chatId, currentState) {
+      const newState = !currentState;
+
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`/api/admin?action=users&chatId=${chatId}`, {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            cronEnabled: newState
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        // Mostra toast notification
+        const message = newState
+          ? `✅ Monitoraggio attivato per utente ${chatId}`
+          : `⏸️ Monitoraggio disattivato per utente ${chatId}`;
+
+        showNotification(message, 'success');
+
+        // Ricarica la tabella
+        loadUsers(usersPage);
+
+      } catch (err) {
+        console.error('Error toggling user cron:', err);
+        showNotification(`❌ Errore: ${err.message}`, 'error');
       }
     }
 
@@ -1442,7 +1525,7 @@
             </td>
             <td>
               <span class="badge ${attempt.blocked ? 'danger' : 'info'}">
-                ${attempt.blocked ? '🚫 Sì' : '-'}
+                ${attempt.blocked ? '🚫 Sì' : 'NO'}
               </span>
             </td>
             <td style="font-size: 0.75rem;">${userAgent}</td>

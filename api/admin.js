@@ -239,6 +239,8 @@ async function handleUsers(req, res) {
     return handleGetUsers(req, res);
   } else if (req.method === 'DELETE') {
     return handleDeleteUser(req, res);
+  } else if (req.method === 'PATCH') {
+    return handleUpdateUser(req, res);
   } else {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -336,6 +338,57 @@ async function handleDeleteUser(req, res) {
     return res.status(500).json({
       success: false,
       error: 'Failed to delete user'
+    });
+  }
+}
+
+async function handleUpdateUser(req, res) {
+  try {
+    const { chatId } = req.query;
+
+    if (!chatId) {
+      return res.status(400).json({
+        success: false,
+        error: 'chatId is required'
+      });
+    }
+
+    const { cronEnabled } = req.body;
+
+    if (typeof cronEnabled !== 'boolean') {
+      return res.status(400).json({
+        success: false,
+        error: 'cronEnabled must be a boolean'
+      });
+    }
+
+    const { db } = await connectToDatabase();
+    const usersCollection = db.collection(DATABASE.COLLECTIONS.USERS);
+
+    const result = await usersCollection.updateOne(
+      { chatId: String(chatId) },
+      { $set: { cronEnabled } }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Monitoring ${cronEnabled ? 'enabled' : 'disabled'} for user ${chatId}`,
+      chatId,
+      cronEnabled
+    });
+
+  } catch (error) {
+    console.error('Error updating user:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to update user'
     });
   }
 }
