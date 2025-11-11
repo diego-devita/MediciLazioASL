@@ -2457,7 +2457,7 @@
       historyList.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">Caricamento storia...</p>';
 
       try {
-        const response = await fetch('/api/user?action=variations?limit=50', {
+        const response = await fetch('/api/user?action=variations&limit=50', {
           credentials: 'include'
         });
 
