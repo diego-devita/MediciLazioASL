@@ -80,14 +80,19 @@ export class BatchSearchClient {
    * Esegue una singola chiamata a /api/search_simple
    * @private
    */
-  async _searchSingle(params, signal) {
+  async _searchSingle(params, signal, page = undefined) {
+    const bodyParams = { ...params };
+    if (page !== undefined) {
+      bodyParams.page = page;
+    }
+
     const response = await fetch(`${this.baseUrl}/api/search_simple`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       credentials: 'include', // Usa cookie JWT
-      body: JSON.stringify(params),
+      body: JSON.stringify(bodyParams),
       signal
     });
 
@@ -113,14 +118,17 @@ export class BatchSearchClient {
     const allSingleQueries = [];
     const errors = [];
     let totalResultsBeforeDedup = 0; // Conta risultati prima della dedup
+    let totalRequests = 0; // Contatore richieste HTTP totali
 
     this.abortController = new AbortController();
     const { signal } = this.abortController;
 
-    // Funzione per processare una combinazione
+    // Funzione per processare una combinazione (con paginazione manuale)
     const processCombination = async (combo) => {
       try {
-        const result = await this._searchSingle(
+        // Prima richiesta: pagina 1 per ottenere totalPages
+        totalRequests++;
+        const firstPageResult = await this._searchSingle(
           {
             cognome: combo.cognome,
             cap: combo.cap,
@@ -128,34 +136,35 @@ export class BatchSearchClient {
             tipo,
             asl: combo.asl
           },
-          signal
+          signal,
+          1 // Richiedi esplicitamente pagina 1
         );
 
-        // Aggiungi singleQueries
-        if (result.singleQueries && Array.isArray(result.singleQueries)) {
-          allSingleQueries.push(...result.singleQueries);
+        // Aggiungi singleQueries dalla prima pagina
+        if (firstPageResult.singleQueries && Array.isArray(firstPageResult.singleQueries)) {
+          allSingleQueries.push(...firstPageResult.singleQueries);
         }
 
-        // Deduplicazione risultati per codiceFiscale
-        if (result.results && Array.isArray(result.results)) {
-          totalResultsBeforeDedup += result.results.length; // Conta prima della dedup
-          result.results.forEach(medico => {
+        // Processa risultati prima pagina
+        if (firstPageResult.results && Array.isArray(firstPageResult.results)) {
+          totalResultsBeforeDedup += firstPageResult.results.length;
+          firstPageResult.results.forEach(medico => {
             if (medico.codiceFiscale) {
-              // Usa codiceFiscale come chiave univoca
               if (!allResults.has(medico.codiceFiscale)) {
                 allResults.set(medico.codiceFiscale, medico);
               }
             } else {
-              // Se non ha codiceFiscale, aggiungi comunque (caso raro)
               const uniqueKey = `${medico.nome}_${medico.cognome}_${medico.indirizzo}_${Date.now()}_${Math.random()}`;
               allResults.set(uniqueKey, medico);
             }
           });
         }
 
-        completed++;
+        // Controlla se ci sono altre pagine
+        const totalPages = firstPageResult.pagination?.totalPages || 1;
+        const currentPage = 1;
 
-        // Callback progress
+        // Callback progress per pagina 1
         if (this.onProgress) {
           this.onProgress({
             total,
@@ -163,7 +172,81 @@ export class BatchSearchClient {
             percentage: Math.round((completed / total) * 100),
             results: allResults.size,
             errors: errors.length,
-            duration: Date.now() - startTime
+            duration: Date.now() - startTime,
+            totalRequests,
+            currentPage,
+            totalPagesForCombination: totalPages
+          });
+        }
+
+        // Se ci sono altre pagine, recuperale una per volta
+        if (totalPages > 1) {
+          for (let page = 2; page <= totalPages; page++) {
+            totalRequests++;
+
+            const pageResult = await this._searchSingle(
+              {
+                cognome: combo.cognome,
+                cap: combo.cap,
+                nome: combo.nome,
+                tipo,
+                asl: combo.asl
+              },
+              signal,
+              page
+            );
+
+            // Aggiungi singleQueries
+            if (pageResult.singleQueries && Array.isArray(pageResult.singleQueries)) {
+              allSingleQueries.push(...pageResult.singleQueries);
+            }
+
+            // Processa risultati
+            if (pageResult.results && Array.isArray(pageResult.results)) {
+              totalResultsBeforeDedup += pageResult.results.length;
+              pageResult.results.forEach(medico => {
+                if (medico.codiceFiscale) {
+                  if (!allResults.has(medico.codiceFiscale)) {
+                    allResults.set(medico.codiceFiscale, medico);
+                  }
+                } else {
+                  const uniqueKey = `${medico.nome}_${medico.cognome}_${medico.indirizzo}_${Date.now()}_${Math.random()}`;
+                  allResults.set(uniqueKey, medico);
+                }
+              });
+            }
+
+            // Callback progress per ogni pagina
+            if (this.onProgress) {
+              this.onProgress({
+                total,
+                completed,
+                percentage: Math.round((completed / total) * 100),
+                results: allResults.size,
+                errors: errors.length,
+                duration: Date.now() - startTime,
+                totalRequests,
+                currentPage: page,
+                totalPagesForCombination: totalPages
+              });
+            }
+          }
+        }
+
+        completed++;
+
+        // Callback progress finale per questa combinazione
+        if (this.onProgress) {
+          this.onProgress({
+            total,
+            completed,
+            percentage: Math.round((completed / total) * 100),
+            results: allResults.size,
+            errors: errors.length,
+            duration: Date.now() - startTime,
+            totalRequests,
+            currentPage: null, // Nessuna pagina in corso
+            totalPagesForCombination: null
           });
         }
 
@@ -180,7 +263,10 @@ export class BatchSearchClient {
             percentage: Math.round((completed / total) * 100),
             results: allResults.size,
             errors: errors.length,
-            duration: Date.now() - startTime
+            duration: Date.now() - startTime,
+            totalRequests,
+            currentPage: null,
+            totalPagesForCombination: null
           });
         }
 
@@ -201,7 +287,8 @@ export class BatchSearchClient {
       singleQueries: allSingleQueries,
       errors,
       duration: Date.now() - startTime,
-      totalResultsBeforeDedup: totalResultsBeforeDedup
+      totalResultsBeforeDedup: totalResultsBeforeDedup,
+      totalRequests
     };
   }
 
@@ -307,7 +394,8 @@ export class BatchSearchClient {
           errors: batchResult.errors.length,
           duration: batchResult.duration,
           deduplicatedFrom: batchResult.totalResultsBeforeDedup,
-          deduplicatedTo: batchResult.results.length
+          deduplicatedTo: batchResult.results.length,
+          totalRequests: batchResult.totalRequests
         }
       };
 

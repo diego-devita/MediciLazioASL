@@ -1142,6 +1142,14 @@
             <span>📊 Progresso:</span>
             <strong id="progressQueries">0/0 query</strong>
           </div>
+          <div class="progress-stat" id="progressPagesStat" style="display: none;">
+            <span>📄 Pagine:</span>
+            <strong id="progressPages">-</strong>
+          </div>
+          <div class="progress-stat">
+            <span>🌐 Richieste:</span>
+            <strong id="progressTotalRequests">0</strong>
+          </div>
           <div class="progress-stat">
             <span>⏱️ Tempo:</span>
             <strong id="progressTime">0.0s</strong>
@@ -1368,6 +1376,21 @@
       document.getElementById('progressTime').textContent = `${(progress.duration / 1000).toFixed(1)}s`;
       document.getElementById('progressResults').textContent = `${progress.results} medici`;
       document.getElementById('progressErrors').textContent = progress.errors;
+
+      // Aggiorna contatore richieste totali
+      if (progress.totalRequests !== undefined) {
+        document.getElementById('progressTotalRequests').textContent = progress.totalRequests;
+      }
+
+      // Mostra/nascondi progresso pagine
+      const pagesStat = document.getElementById('progressPagesStat');
+      const pagesElement = document.getElementById('progressPages');
+      if (progress.currentPage && progress.totalPagesForCombination) {
+        pagesStat.style.display = '';
+        pagesElement.textContent = `${progress.currentPage}/${progress.totalPagesForCombination}`;
+      } else {
+        pagesStat.style.display = 'none';
+      }
     }
 
     function displayBatchInfo(meta) {
@@ -1382,6 +1405,7 @@
 
       list.innerHTML = `
         <li>• ${meta.totalQueries} query eseguite in ${(meta.duration / 1000).toFixed(1)}s</li>
+        <li>• ${meta.totalRequests || meta.totalQueries} richieste HTTP totali</li>
         <li>• ${meta.deduplicatedFrom} risultati totali → ${meta.deduplicatedTo} dopo deduplicazione</li>
         <li>• ${duplicatesRemoved} duplicati rimossi</li>
         <li>• ${meta.errors} query fallite (${successRate}% successo)</li>
