@@ -1,4 +1,4 @@
-import { getAllUsers, saveResults, markSuccessfulContact, markFailedContact, saveCronLog } from '../lib/database.js';
+import { getAllUsers, saveResults, markSuccessfulContact, markFailedContact, saveCronLog, saveVariationHistory } from '../lib/database.js';
 import { sendNotification } from '../lib/telegram.js';
 import { MediciSearchClient } from '../lib/medici/client.js';
 
@@ -250,6 +250,39 @@ async function handler(req, res) {
         const variazioniMsg = ciSonoVariazioni
           ? 'Ci sono state variazioni.'
           : 'Non ci sono state variazioni.';
+
+        // Salva history delle variazioni (solo se ci sono variazioni)
+        if (ciSonoVariazioni) {
+          await saveVariationHistory(user.chatId, {
+            queries: user.query.cognomi,
+            variations: {
+              new: nuoviMedici.map(m => ({
+                codiceFiscale: m.codiceFiscale,
+                cognome: m.cognome,
+                nome: m.nome,
+                assegnabilita: m.assegnabilita,
+                asl: m.asl
+              })),
+              removed: mediciRimossi.map(m => ({
+                codiceFiscale: m.codiceFiscale,
+                cognome: m.cognome,
+                nome: m.nome,
+                assegnabilita: m.assegnabilita,
+                asl: m.asl
+              })),
+              changed: medicinCambiati.map(item => ({
+                codiceFiscale: item.medico.codiceFiscale,
+                cognome: item.medico.cognome,
+                nome: item.medico.nome,
+                statoVecchio: item.statoVecchio,
+                statoNuovo: item.statoNuovo,
+                asl: item.medico.asl
+              }))
+            },
+            totalResults: medici.length,
+            totalAvailable: assegnabili.length
+          });
+        }
 
         // Preferenze notifiche (default a true se non esistono)
         const notifications = user.notifications || {
