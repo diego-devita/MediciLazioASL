@@ -1362,18 +1362,35 @@
       submitBtn.disabled = true;
       hideError();
       results.style.display = 'none';
+
+      // Avvia timer in tempo reale
+      startTime = Date.now();
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+        document.getElementById('progressTime').textContent = `${elapsed}s`;
+      }, 100); // Aggiorna ogni 100ms
     }
 
     function hideBatchProgress() {
       batchProgress.style.display = 'none';
       submitBtn.disabled = false;
+
+      // Ferma timer
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
     }
 
     function updateBatchProgress(progress) {
+      // Log per debug
+      console.log('Progress update:', progress);
+
       document.getElementById('progressBarFill').style.width = `${progress.percentage}%`;
       document.getElementById('progressBarFill').textContent = `${progress.percentage}%`;
       document.getElementById('progressQueries').textContent = `${progress.completed}/${progress.total} query`;
-      document.getElementById('progressTime').textContent = `${(progress.duration / 1000).toFixed(1)}s`;
+      // Il tempo viene gestito dal setInterval in showBatchProgress
       document.getElementById('progressResults').textContent = `${progress.results} medici`;
       document.getElementById('progressErrors').textContent = progress.errors;
 

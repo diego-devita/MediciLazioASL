@@ -274,12 +274,12 @@ export class BatchSearchClient {
       }
     };
 
-    // Esegui in batch con parallelism limitato
+    // Esegui sequenzialmente per mostrare progresso pagine correttamente
+    // (con parallelismo il display di "Pagina X/Y" sarebbe confuso)
     const results = [];
-    for (let i = 0; i < combinations.length; i += this.parallelism) {
-      const batch = combinations.slice(i, i + this.parallelism);
-      const batchResults = await Promise.all(batch.map(processCombination));
-      results.push(...batchResults);
+    for (let i = 0; i < combinations.length; i++) {
+      const result = await processCombination(combinations[i]);
+      results.push(result);
     }
 
     return {
