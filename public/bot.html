@@ -2706,54 +2706,118 @@
         <p style="color: #666; margin-bottom: 20px;">
           Questa ricerca utilizzerà tutti i cognomi configurati con i rispettivi filtri (ASL, CAP, nome).
         </p>
-        <div id="testQueryResults"></div>
+
+        <!-- Blocchi separati per composizione atomica -->
+        <div id="testProgress"></div>
+        <div id="testCounters"></div>
+        <div id="testTable"></div>
+        <div id="testPagination"></div>
       </div>
     </div>
   </dialog>
 
   <!-- Script per test query -->
   <script src="/lib/template-engine.js"></script>
+
+  <!-- Componenti atomici -->
+  <script src="/lib/components/medici-counters.js"></script>
+  <script src="/lib/components/medici-table.js"></script>
+  <script src="/lib/components/medici-pagination.js"></script>
+  <script src="/lib/components/medici-progress.js"></script>
+  <script src="/lib/components/medici-view.js"></script>
+  <script src="/lib/components/index.js"></script>
+
+  <!-- Backward compatibility (old system) -->
   <script src="/lib/medici-visualizer-presets.js"></script>
   <script src="/lib/medici-visualizer.js"></script>
+
   <script src="/batch-search-client.js"></script>
   <script>
-    // Test query functionality
-    let testVisualizer = null;
+    // Test query functionality - NUOVO SISTEMA ATOMICO!
+    let testView = null;
     let testBatchClient = null;
 
     document.getElementById('testQueryBtn').addEventListener('click', async () => {
       const dialog = document.getElementById('testQueryDialog');
-      const resultsContainer = document.getElementById('testQueryResults');
 
       // Apri dialog
       dialog.showModal();
 
-      // Reset visualizer
-      if (testVisualizer) {
-        testVisualizer.destroy();
+      // Reset view
+      if (testView) {
+        testView.destroy();
       }
-
-      // Crea visualizer con preset MODAL_TEST
-      testVisualizer = new MediciVisualizer({
-        preset: 'MODAL_TEST',
-        container: resultsContainer,
-        data: []
-      });
 
       // Prepara query dai cognomi configurati
       const cognomiQueries = currentUserData?.query?.cognomi || [];
 
       if (cognomiQueries.length === 0) {
-        resultsContainer.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">Nessun cognome configurato. Aggiungi almeno un cognome per testare la query.</p>';
+        document.getElementById('testTable').innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">Nessun cognome configurato. Aggiungi almeno un cognome per testare la query.</p>';
         return;
       }
+
+      // Crea view con composizione atomica
+      testView = new MediciView({
+        data: [],
+
+        blocks: {
+          progress: {
+            type: 'progress',
+            container: '#testProgress',
+            config: {
+              showTimer: true
+            }
+          },
+
+          counters: {
+            type: 'counters',
+            container: '#testCounters',
+            config: {
+              variant: 'summary-item'
+            }
+          },
+
+          table: {
+            type: 'table',
+            container: '#testTable',
+            config: {
+              sorting: true,
+              tooltip: { enabled: true },
+              responsive: true,
+              usePaginated: true  // Usa dati paginati
+            }
+          },
+
+          pagination: {
+            type: 'pagination',
+            container: '#testPagination',
+            config: {
+              pageSize: 25,
+              pageSizeOptions: [10, 25, 50, 100, 'Tutti']
+            }
+          }
+        },
+
+        events: {
+          'table.sort': ({ column, direction }) => {
+            console.log('✅ Table sorted:', column, direction);
+          },
+          'pagination.pageChange': ({ page }) => {
+            console.log('✅ Page changed:', page);
+          }
+        },
+
+        onReady: (view) => {
+          console.log('✅ MediciView ready with blocks:', Object.keys(view.components));
+        }
+      });
 
       // Avvia ricerca con BatchSearchClient
       testBatchClient = new BatchSearchClient({
         parallelism: 5,
         onProgress: (progress) => {
-          // Update progress nel visualizer
-          testVisualizer.updateProgress(progress);
+          // Update progress nel componente atomico
+          testView.updateProgress(progress);
         }
       });
 
@@ -2790,14 +2854,19 @@
         const finalResults = Array.from(uniqueResults.values());
 
         // Complete progress
-        testVisualizer.completeProgress();
+        testView.completeProgress();
 
-        // Set dati nel visualizer
-        testVisualizer.setData(finalResults);
+        // Set dati - AGGIORNA AUTOMATICAMENTE tutti i componenti!
+        testView.setData(finalResults);
+
+        console.log('✅ Test query completed:', {
+          totalResults: finalResults.length,
+          state: testView.getState()
+        });
 
       } catch (error) {
         console.error('Errore durante test query:', error);
-        resultsContainer.innerHTML = `
+        document.getElementById('testTable').innerHTML = `
           <div style="background: #fee; border-left: 4px solid #ef4444; padding: 15px; border-radius: 8px; color: #dc2626;">
             <strong>Errore durante la ricerca:</strong><br>
             ${error.message || 'Errore sconosciuto'}
