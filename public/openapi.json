@@ -443,7 +443,7 @@
             "name": "asl",
             "in": "query",
             "required": false,
-            "description": "ASL del Lazio. Specificare una ASL particolare oppure lasciare vuoto/'Tutte' per cercare in tutte le ASL. Se specificata una ASL concreta, può soddisfare da sola il requisito 'almeno un parametro'.",
+            "description": "ASL del Lazio. Specificare un codice ASL (120201-120210) oppure lasciare vuoto per cercare in tutte le ASL. Se specificata una ASL concreta, può soddisfare da sola il requisito 'almeno un parametro'.",
             "schema": {
               "type": "string",
               "enum": ["120201", "120202", "120203", "120204", "120205", "120206", "120207", "120208", "120209", "120210"]
@@ -572,7 +572,7 @@
                   "timestamp": "2025-11-07T01:00:00.000Z",
                   "query": {
                     "tipo": "Medicina generale",
-                    "asl": "Tutte",
+                    "asl": "",
                     "cap": "00173",
                     "cognome": "",
                     "nome": ""
@@ -967,8 +967,7 @@
           "asl": {
             "type": "string",
             "enum": ["120201", "120202", "120203", "120204", "120205", "120206", "120207", "120208", "120209", "120210"],
-            "default": "Tutte",
-            "description": "ASL del Lazio"
+            "description": "ASL del Lazio (opzionale, lasciare vuoto per cercare in tutte)"
           },
           "cap": {
             "type": "string",
