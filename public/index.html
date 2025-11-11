@@ -1585,8 +1585,8 @@
 
       const columns = [
         { key: 'assegnabilita', label: '', isEmoji: true },
-        { key: '', label: '', isHidden: true }, // Colonna fittizia per tooltip
         { key: 'cognome', label: 'Cognome' },
+        { key: '', label: '', isHidden: true }, // Colonna fittizia per tooltip
         { key: 'nome', label: 'Nome' },
         { key: 'asl', label: 'ASL' },
         { key: 'assegnabilita', label: 'Stato' }
@@ -1624,10 +1624,10 @@
               return `
                 <tr>
                   <td class="emoji-cell">${emoji}</td>
+                  <td class="nome-cell">${medico.cognome}</td>
                   <td style="position: relative; width: 0; padding: 0;">
                     <div class="tooltip">${tooltipContent}</div>
                   </td>
-                  <td class="nome-cell">${medico.cognome}</td>
                   <td>${medico.nome}</td>
                   <td>${medico.asl}</td>
                   <td>${medico.assegnabilita}</td>
