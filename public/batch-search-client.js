@@ -152,6 +152,8 @@ export class BatchSearchClient {
             if (medico.identificativo) {
               if (!allResults.has(medico.identificativo)) {
                 allResults.set(medico.identificativo, medico);
+              } else {
+                console.warn(`⚠️ DUPLICATO trovato su pagina 1: ${medico.cognome} ${medico.nome} (ID: ${medico.identificativo})`);
               }
             } else {
               const uniqueKey = `${medico.nome}_${medico.cognome}_${medico.indirizzo}_${Date.now()}_${Math.random()}`;
@@ -208,6 +210,8 @@ export class BatchSearchClient {
                 if (medico.identificativo) {
                   if (!allResults.has(medico.identificativo)) {
                     allResults.set(medico.identificativo, medico);
+                  } else {
+                    console.warn(`⚠️ DUPLICATO trovato su pagina ${page}: ${medico.cognome} ${medico.nome} (ID: ${medico.identificativo})`);
                   }
                 } else {
                   const uniqueKey = `${medico.nome}_${medico.cognome}_${medico.indirizzo}_${Date.now()}_${Math.random()}`;
