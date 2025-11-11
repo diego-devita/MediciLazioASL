@@ -611,6 +611,57 @@
         border-radius: 8px;
       }
     }
+
+    /* Toggle Switch Styles */
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.4s;
+      border-radius: 34px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+
+    .toggle-switch input:checked + .toggle-slider {
+      background-color: #667eea;
+    }
+
+    .toggle-switch input:checked + .toggle-slider:before {
+      transform: translateX(26px);
+    }
+
+    .toggle-switch input:disabled + .toggle-slider {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body>
@@ -772,6 +823,21 @@
       <!-- Tab Cron History -->
       <div id="tab-cron" class="tab-content">
         <div class="section">
+          <h2>Controllo Globale Cron</h2>
+          <div style="display: flex; align-items: center; gap: 15px; padding: 20px; background: #f0f4ff; border-radius: 8px; margin-bottom: 20px;">
+            <label style="font-weight: 600; font-size: 1rem; flex: 1;">
+              Abilita monitoraggio automatico per tutto il sistema
+            </label>
+            <label class="toggle-switch">
+              <input type="checkbox" id="globalCronToggle" onchange="toggleGlobalCron(this.checked)">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div id="globalCronLoading" class="loading" style="display: none;">Aggiornamento...</div>
+          <div id="globalCronError" class="error" style="display: none;"></div>
+        </div>
+
+        <div class="section">
           <h2>Statistiche Cron (Ultimi 7 giorni)</h2>
           <div id="cronStatsLoading" class="loading">Caricamento statistiche...</div>
           <div id="cronStatsError" class="error" style="display: none;"></div>
@@ -887,6 +953,7 @@
         } else if (tabName === 'login-attempts' && !document.getElementById('attemptsContent').style.display === 'none') {
           loadLoginAttempts();
         } else if (tabName === 'cron') {
+          loadGlobalCronStatus();
           loadCronStats();
           loadCronLogs();
         }
@@ -1717,6 +1784,104 @@
         error.style.display = 'block';
         error.textContent = err.message;
       }
+    }
+
+    // Funzioni per il toggle globale cron
+    async function loadGlobalCronStatus() {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('/api/admin/system-settings', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to load system settings');
+        }
+
+        const data = await response.json();
+        const toggle = document.getElementById('globalCronToggle');
+        if (toggle) {
+          toggle.checked = data.settings?.cronEnabled !== false;
+        }
+      } catch (err) {
+        console.error('Error loading global cron status:', err);
+      }
+    }
+
+    async function toggleGlobalCron(enabled) {
+      const loading = document.getElementById('globalCronLoading');
+      const error = document.getElementById('globalCronError');
+      const toggle = document.getElementById('globalCronToggle');
+
+      try {
+        loading.style.display = 'block';
+        error.style.display = 'none';
+        toggle.disabled = true;
+
+        const token = localStorage.getItem('token');
+        const response = await fetch('/api/admin/system-settings', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            cronEnabled: enabled
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to update system settings');
+        }
+
+        loading.style.display = 'none';
+
+        // Mostra un messaggio di conferma
+        const message = enabled
+          ? 'Monitoraggio automatico abilitato per tutto il sistema'
+          : 'Monitoraggio automatico disabilitato per tutto il sistema';
+
+        showNotification(message, 'success');
+
+      } catch (err) {
+        console.error('Error toggling global cron:', err);
+        loading.style.display = 'none';
+        error.style.display = 'block';
+        error.textContent = err.message;
+
+        // Ripristina lo stato del toggle
+        toggle.checked = !enabled;
+      } finally {
+        toggle.disabled = false;
+      }
+    }
+
+    function showNotification(message, type = 'info') {
+      // Crea elemento notifica
+      const notification = document.createElement('div');
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        background: ${type === 'success' ? '#10b981' : '#ef4444'};
+        color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        font-weight: 600;
+        animation: slideIn 0.3s ease-out;
+      `;
+      notification.textContent = message;
+      document.body.appendChild(notification);
+
+      // Rimuovi dopo 3 secondi
+      setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease-out';
+        setTimeout(() => notification.remove(), 300);
+      }, 3000);
     }
 
     async function loadCronLogs(page = 1) {

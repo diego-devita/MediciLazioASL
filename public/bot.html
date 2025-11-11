@@ -1020,6 +1020,57 @@
         max-width: calc(100vw - 20px);
       }
     }
+
+    /* Toggle Switch Styles */
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.4s;
+      border-radius: 34px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+
+    .toggle-switch input:checked + .toggle-slider {
+      background-color: #667eea;
+    }
+
+    .toggle-switch input:checked + .toggle-slider:before {
+      transform: translateX(26px);
+    }
+
+    .toggle-switch input:disabled + .toggle-slider {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body>
@@ -1093,6 +1144,15 @@
       <div id="configContent" style="display: none;">
         <div class="last-run-info">
           <h2>Attività Pianificata</h2>
+          <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: #fff3cd; border-radius: 8px; margin-bottom: 15px;">
+            <label style="font-weight: 600; font-size: 0.95rem; flex: 1;">
+              Monitoraggio automatico abilitato
+            </label>
+            <label class="toggle-switch">
+              <input type="checkbox" id="userCronToggle" onchange="toggleUserCron(this.checked)">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
           <div class="detail">
             <span class="label">Ultimo controllo:</span>
             <span class="value" id="lastCheckTime">-</span>
@@ -1381,6 +1441,46 @@
           toast.parentNode.removeChild(toast);
         }
       }, 300);
+    }
+
+    // ===== TOGGLE MONITORAGGIO UTENTE =====
+    async function toggleUserCron(enabled) {
+      const toggle = document.getElementById('userCronToggle');
+
+      try {
+        toggle.disabled = true;
+
+        const token = localStorage.getItem('token');
+        const response = await fetch('/api/user/cron-enabled', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            cronEnabled: enabled
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to update monitoring settings');
+        }
+
+        const message = enabled
+          ? 'Monitoraggio automatico abilitato'
+          : 'Monitoraggio automatico disabilitato';
+
+        showToast(message);
+
+      } catch (err) {
+        console.error('Error toggling user cron:', err);
+        showToast(err.message, true);
+
+        // Ripristina lo stato del toggle
+        toggle.checked = !enabled;
+      } finally {
+        toggle.disabled = false;
+      }
     }
 
     // ===== FILTRO RISULTATI =====
@@ -2032,6 +2132,12 @@
         const cognomi = data.user.query.cognomi || [];
         currentCognomi = cognomi; // Salva globalmente
         renderCognomi(cognomi);
+
+        // Popola toggle monitoraggio
+        const userCronToggle = document.getElementById('userCronToggle');
+        if (userCronToggle) {
+          userCronToggle.checked = data.user.cronEnabled !== false;
+        }
 
         // Mostra intervallo minimo
         const minIntervalMinutes = data.user.minIntervalMinutes || 30;
