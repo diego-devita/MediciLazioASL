@@ -353,7 +353,7 @@
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
-      margin-left: 8px;
+      margin-left: 6px;
     }
 
     .edit-btn:hover {
@@ -1030,6 +1030,12 @@
         display: block;
       }
 
+      .stat-compact::before {
+        display: block;
+        margin-bottom: 8px;
+        margin-right: 0;
+      }
+
       .toast {
         right: 10px;
         left: 10px;
@@ -1175,7 +1181,7 @@
           <div class="detail">
             <span class="label">Intervallo minimo:</span>
             <span class="value">
-              <span id="intervalValue">30</span> min.
+              <span id="intervalValue">30</span> min
               <button class="edit-btn" id="changeIntervalBtn">Cambia</button>
             </span>
           </div>
