@@ -481,6 +481,17 @@
               "pattern": "^[A-Z'\\s]+$",
               "example": "MARIO"
             }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "Numero di pagina da recuperare (opzionale). Se specificato, restituisce solo quella pagina e include informazioni di paginazione (currentPage, totalPages). Se omesso, restituisce tutti i risultati disponibili (fino al limite di 10 pagine con 75 risultati ciascuna).",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "example": 1
+            }
           }
         ],
         "responses": {
@@ -986,6 +997,12 @@
             "pattern": "^[A-Z'\\s]+$",
             "description": "Nome singolo da cercare (può contenere solo lettere, spazi o apostrofi - gli spazi prima e dopo saranno trimmati, quelli in mezzo se multipli verranno appiattiti e le minuscole rese maiuscole)",
             "example": "MARIO"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Numero di pagina da recuperare (opzionale). Se specificato, restituisce solo quella pagina e include informazioni di paginazione (currentPage, totalPages). Se omesso, restituisce tutti i risultati disponibili (fino al limite di 10 pagine con 75 risultati ciascuna).",
+            "example": 1
           }
         }
       },
@@ -1099,6 +1116,22 @@
                 "type": "integer",
                 "description": "Numero di medici non assegnabili",
                 "example": 1
+              }
+            }
+          },
+          "pagination": {
+            "type": "object",
+            "description": "Informazioni di paginazione (presente solo se è stato specificato il parametro 'page')",
+            "properties": {
+              "currentPage": {
+                "type": "integer",
+                "description": "Numero della pagina corrente",
+                "example": 1
+              },
+              "totalPages": {
+                "type": "integer",
+                "description": "Numero totale di pagine disponibili",
+                "example": 15
               }
             }
           }
