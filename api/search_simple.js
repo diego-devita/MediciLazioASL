@@ -7,23 +7,11 @@ const TIPO_MAP = {
   'Pediatra': 'PLS'
 };
 
-const ASL_MAP = {
-  'Tutte': '',
-  'Roma 1': '120201',
-  'Roma 2': '120202',
-  'Roma 3': '120203',
-  'Roma 4': '120204',
-  'Roma 5': '120205',
-  'Roma 6': '120206',
-  'Frosinone': '120207',
-  'Latina': '120208',
-  'Rieti': '120209',
-  'Viterbo': '120210'
-};
+// Codici ASL validi (ora il frontend passa direttamente i codici)
+const VALID_ASL_CODES = ['', '120201', '120202', '120203', '120204', '120205', '120206', '120207', '120208', '120209', '120210'];
 
 // Valori validi per i parametri
 const VALID_TIPO = Object.keys(TIPO_MAP);
-const VALID_ASL = Object.keys(ASL_MAP);
 
 // Funzione helper per normalizzare nomi/cognomi
 function normalizeString(str) {
@@ -43,7 +31,7 @@ async function handler(req, res) {
 
     params = {
       cognome: cognome ? normalizeString(cognome) : '',
-      asl: asl || 'Tutte',
+      asl: asl || '',
       tipo: tipo || 'Medicina generale',
       cap: cap ? cap.trim() : '',
       nome: nome ? normalizeString(nome) : ''
@@ -79,7 +67,7 @@ async function handler(req, res) {
       params.tipo = 'Medicina generale';
     }
     if (!params.asl) {
-      params.asl = 'Tutte';
+      params.asl = '';
     }
 
   } else {
@@ -109,12 +97,12 @@ async function handler(req, res) {
     });
   }
 
-  // Validazione ASL
-  if (params.asl && params.asl !== '' && !VALID_ASL.includes(params.asl)) {
+  // Validazione ASL (ora sono codici)
+  if (params.asl && params.asl !== '' && !VALID_ASL_CODES.includes(params.asl)) {
     validationErrors.push({
       field: 'asl',
       value: params.asl,
-      message: `Invalid asl. Must be one of: ${VALID_ASL.join(', ')}`
+      message: `Invalid asl code. Must be one of: ${VALID_ASL_CODES.join(', ')}`
     });
   }
 
@@ -155,9 +143,10 @@ async function handler(req, res) {
   }
 
   try {
-    // Converti valori leggibili in codici per il portale Lazio
+    // Converti tipo in codice per il portale Lazio
     const tipoCode = TIPO_MAP[params.tipo] || 'MMG';
-    const aslCode = ASL_MAP[params.asl] || '';
+    // ASL è già un codice, usalo direttamente
+    const aslCode = params.asl || '';
 
     // Esegui ricerca con singoli valori
     const client = new MediciSearchClient({

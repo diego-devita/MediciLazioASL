@@ -7,24 +7,12 @@ const TIPO_MAP = {
   'Pediatra': 'PLS'
 };
 
-const ASL_MAP = {
-  'Tutte': '',
-  'Roma 1': '120201',
-  'Roma 2': '120202',
-  'Roma 3': '120203',
-  'Roma 4': '120204',
-  'Roma 5': '120205',
-  'Roma 6': '120206',
-  'Frosinone': '120207',
-  'Latina': '120208',
-  'Rieti': '120209',
-  'Viterbo': '120210'
-};
+// Codici ASL validi (ora il frontend passa direttamente i codici)
+const VALID_ASL_CODES = ['', '120201', '120202', '120203', '120204', '120205', '120206', '120207', '120208', '120209', '120210'];
+const ALL_ASL_CODES = ['120201', '120202', '120203', '120204', '120205', '120206', '120207', '120208', '120209', '120210'];
 
 // Valori validi per i parametri
 const VALID_TIPO = Object.keys(TIPO_MAP);
-const VALID_ASL = Object.keys(ASL_MAP);
-const ALL_ASL_OPTIONS = ['Roma 1', 'Roma 2', 'Roma 3', 'Roma 4', 'Roma 5', 'Roma 6', 'Frosinone', 'Latina', 'Rieti', 'Viterbo'];
 
 // Funzione helper per normalizzare nomi/cognomi
 function normalizeString(str) {
@@ -123,15 +111,15 @@ async function handler(req, res) {
     });
   }
 
-  // Validazione ASL (ogni elemento dell'array deve essere valido)
+  // Validazione ASL (ogni elemento dell'array deve essere un codice valido)
   if (params.asl.length > 0) {
-    const invalidAsl = params.asl.filter(a => !VALID_ASL.includes(a));
+    const invalidAsl = params.asl.filter(a => !VALID_ASL_CODES.includes(a));
     if (invalidAsl.length > 0) {
       invalidAsl.forEach(asl => {
         validationErrors.push({
           field: 'asl',
           value: asl,
-          message: `Invalid asl. Must be one of: ${VALID_ASL.join(', ')}`
+          message: `Invalid asl code. Must be one of: ${VALID_ASL_CODES.join(', ')}`
         });
       });
     }
@@ -191,16 +179,16 @@ async function handler(req, res) {
     let aslToUse = params.asl;
     const hasOtherFields = params.cognomi.length > 0 || params.cap.length > 0 || params.nomi.length > 0;
 
-    if (params.asl.length === ALL_ASL_OPTIONS.length && hasOtherFields) {
+    if (params.asl.length === ALL_ASL_CODES.length && hasOtherFields) {
       aslToUse = [];
     }
 
-    // Converti valori leggibili in codici per il portale Lazio
+    // Converti tipo in codice per il portale Lazio
     const tipoCode = TIPO_MAP[params.tipo] || 'MMG';
 
     // Se aslToUse è vuoto, usa stringa vuota (tutte le ASL)
-    // Se aslToUse ha elementi, genera array di codici ASL
-    const aslCodes = aslToUse.length === 0 ? [''] : aslToUse.map(asl => ASL_MAP[asl] || '');
+    // Se aslToUse ha elementi, sono già codici, usali direttamente
+    const aslCodes = aslToUse.length === 0 ? [''] : aslToUse;
 
     // Esegui ricerca
     const client = new MediciSearchClient({

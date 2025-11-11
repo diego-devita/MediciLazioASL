@@ -37,7 +37,7 @@ export class BatchSearchClient {
     this.parallelism = options.parallelism || 5;
     this.onProgress = options.onProgress || null;
     this.abortController = null;
-    this.ALL_ASL_OPTIONS = ['Roma 1', 'Roma 2', 'Roma 3', 'Roma 4', 'Roma 5', 'Roma 6', 'Frosinone', 'Latina', 'Rieti', 'Viterbo'];
+    this.ALL_ASL_OPTIONS = ['120201', '120202', '120203', '120204', '120205', '120206', '120207', '120208', '120209', '120210'];
   }
 
   /**
@@ -66,7 +66,7 @@ export class BatchSearchClient {
               cognome: cognome || '',
               cap: c || '',
               nome: nome || '',
-              asl: aslValue || 'Tutte'
+              asl: aslValue || ''
             });
           }
         }
