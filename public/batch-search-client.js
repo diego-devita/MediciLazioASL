@@ -156,6 +156,7 @@ export class BatchSearchClient {
                 console.warn(`⚠️ DUPLICATO trovato su pagina 1: ${medico.cognome} ${medico.nome} (ID: ${medico.identificativo})`);
               }
             } else {
+              console.warn(`⚠️ MEDICO SENZA IDENTIFICATIVO su pagina 1: ${medico.cognome} ${medico.nome}`);
               const uniqueKey = `${medico.nome}_${medico.cognome}_${medico.indirizzo}_${Date.now()}_${Math.random()}`;
               allResults.set(uniqueKey, medico);
             }
@@ -214,6 +215,7 @@ export class BatchSearchClient {
                     console.warn(`⚠️ DUPLICATO trovato su pagina ${page}: ${medico.cognome} ${medico.nome} (ID: ${medico.identificativo})`);
                   }
                 } else {
+                  console.warn(`⚠️ MEDICO SENZA IDENTIFICATIVO su pagina ${page}: ${medico.cognome} ${medico.nome}`);
                   const uniqueKey = `${medico.nome}_${medico.cognome}_${medico.indirizzo}_${Date.now()}_${Math.random()}`;
                   allResults.set(uniqueKey, medico);
                 }
