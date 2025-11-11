@@ -27,14 +27,15 @@ async function handler(req, res) {
 
   if (req.method === 'GET') {
     // GET: parametri da query string (singoli valori)
-    const { cognome, asl, tipo, cap, nome } = req.query;
+    const { cognome, asl, tipo, cap, nome, page } = req.query;
 
     params = {
       cognome: cognome ? normalizeString(cognome) : '',
       asl: asl || '',
       tipo: tipo || 'Medicina generale',
       cap: cap ? cap.trim() : '',
-      nome: nome ? normalizeString(nome) : ''
+      nome: nome ? normalizeString(nome) : '',
+      page: page ? parseInt(page) : undefined
     };
 
   } else if (req.method === 'POST') {
@@ -68,6 +69,11 @@ async function handler(req, res) {
     }
     if (!params.asl) {
       params.asl = '';
+    }
+
+    // Normalizza page (se presente)
+    if (params.page !== undefined && params.page !== null) {
+      params.page = parseInt(params.page);
     }
 
   } else {
@@ -134,6 +140,17 @@ async function handler(req, res) {
     });
   }
 
+  // Validazione page (se specificato)
+  if (params.page !== undefined) {
+    if (isNaN(params.page) || params.page < 1 || !Number.isInteger(params.page)) {
+      validationErrors.push({
+        field: 'page',
+        value: params.page,
+        message: 'Page must be a positive integer greater than 0.'
+      });
+    }
+  }
+
   // Se ci sono errori di validazione, restituiscili tutti
   if (validationErrors.length > 0) {
     return res.status(400).json({
@@ -158,6 +175,12 @@ async function handler(req, res) {
     // Prepara array con singolo elemento (o vuoto se non specificato)
     const cognomi = params.cognome ? [params.cognome] : [];
 
+    // Prepara options per paginazione se specificata
+    const options = {};
+    if (params.page !== undefined) {
+      options.page = params.page;
+    }
+
     const result = await client.searchMedici(
       cognomi,
       {
@@ -165,11 +188,13 @@ async function handler(req, res) {
         type: tipoCode,
         zip: params.cap || '',
         name: params.nome || ''
-      }
+      },
+      options
     );
 
     const medici = result.medici;
     const singleQueries = result.singleQueries;
+    const pagination = result.pagination;
 
     // Conta per categoria
     const assegnabiliLiberi = medici.filter(m => {
@@ -191,7 +216,7 @@ async function handler(req, res) {
     });
 
     // Response
-    return res.status(200).json({
+    const response = {
       success: true,
       timestamp: new Date().toISOString(),
       query: {
@@ -209,7 +234,14 @@ async function handler(req, res) {
         conDeroga: conDeroga.length,
         nonAssegnabili: nonAssegnabili.length
       }
-    });
+    };
+
+    // Aggiungi pagination se disponibile
+    if (pagination) {
+      response.pagination = pagination;
+    }
+
+    return res.status(200).json(response);
 
   } catch (error) {
     console.error('Error in search_simple API:', error);
