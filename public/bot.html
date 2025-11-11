@@ -1092,6 +1092,7 @@
 
       <div id="configContent" style="display: none;">
         <div class="last-run-info">
+          <h2>Attività Pianificata</h2>
           <div class="detail">
             <span class="label">Ultimo controllo:</span>
             <span class="value" id="lastCheckTime">-</span>
@@ -1174,7 +1175,7 @@
 
         <!-- Statistiche compatte ultima ricerca -->
         <div id="statsSection" class="section" style="display: none;">
-          <h2>Ultima ricerca</h2>
+          <h2>Ultima Ricerca</h2>
           <div class="stats-compact">
             <div class="stat-compact active" data-filter="totale">
               <span class="stat-compact-value" id="statTotal">0</span>
@@ -1560,7 +1561,7 @@
           hour: '2-digit',
           minute: '2-digit'
         });
-        nextCheckElement.textContent = `A partire dalle ${formattedNextCheck}`;
+        nextCheckElement.innerHTML = `<div style="font-size: .9em; padding: 0; line-height: 1em;">A partire dalle</div><div>${formattedNextCheck}</div>`;
       }
     }
 
@@ -2327,7 +2328,7 @@
 
         if (history.length === 0) {
           historyList.innerHTML = '<p style="text-align: center; color: #999; padding: 20px; font-style: italic;">Nessuna variazione registrata</p>';
-          document.querySelector('#historyToggle span:first-child').textContent = '📜 Mostra storia variazioni (0)';
+          document.querySelector('#historyToggle span:first-child').innerHTML = '<span class="results-toggle-emoji">📜</span> Mostra storia variazioni (0)';
           return;
         }
 
@@ -2344,7 +2345,7 @@
         });
 
         // Aggiorna il contatore nel toggle button
-        document.querySelector('#historyToggle span:first-child').textContent = `📜 Mostra storia variazioni (${totalVariations})`;
+        document.querySelector('#historyToggle span:first-child').innerHTML = `<span class="results-toggle-emoji">📜</span> Mostra storia variazioni (${totalVariations})`;
 
         // Renderizza la storia
         let html = '';
