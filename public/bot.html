@@ -2703,15 +2703,15 @@
         overflow-y: auto;
         padding: 30px;
       ">
-        <p style="color: #666; margin-bottom: 20px;">
-          Questa ricerca utilizzerà tutti i cognomi configurati con i rispettivi filtri (ASL, CAP, nome).
-        </p>
-
-        <!-- Blocchi separati per composizione atomica -->
+        <!-- Progress (mostra all'inizio) -->
         <div id="testProgress"></div>
-        <div id="testCounters"></div>
-        <div id="testTable"></div>
-        <div id="testPagination"></div>
+
+        <!-- Risultati (nascosti all'inizio, mostrati dopo ricerca) -->
+        <div id="testResults" style="display: none;">
+          <div id="testCounters" style="margin-bottom: 20px;"></div>
+          <div id="testTable"></div>
+          <div id="testPagination" style="margin-top: 20px;"></div>
+        </div>
       </div>
     </div>
   </dialog>
@@ -2743,6 +2743,10 @@
       // Apri dialog
       dialog.showModal();
 
+      // Reset UI: mostra progress, nascondi risultati
+      document.getElementById('testProgress').style.display = 'block';
+      document.getElementById('testResults').style.display = 'none';
+
       // Reset view
       if (testView) {
         testView.destroy();
@@ -2752,6 +2756,8 @@
       const cognomiQueries = currentUserData?.query?.cognomi || [];
 
       if (cognomiQueries.length === 0) {
+        document.getElementById('testProgress').style.display = 'none';
+        document.getElementById('testResults').style.display = 'block';
         document.getElementById('testTable').innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">Nessun cognome configurato. Aggiungi almeno un cognome per testare la query.</p>';
         return;
       }
@@ -2859,6 +2865,10 @@
         // Set dati - AGGIORNA AUTOMATICAMENTE tutti i componenti!
         testView.setData(finalResults);
 
+        // Nascondi progress, mostra risultati
+        document.getElementById('testProgress').style.display = 'none';
+        document.getElementById('testResults').style.display = 'block';
+
         console.log('✅ Test query completed:', {
           totalResults: finalResults.length,
           state: testView.getState()
@@ -2866,6 +2876,11 @@
 
       } catch (error) {
         console.error('Errore durante test query:', error);
+
+        // Nascondi progress, mostra risultati con errore
+        document.getElementById('testProgress').style.display = 'none';
+        document.getElementById('testResults').style.display = 'block';
+
         document.getElementById('testTable').innerHTML = `
           <div style="background: #fee; border-left: 4px solid #ef4444; padding: 15px; border-radius: 8px; color: #dc2626;">
             <strong>Errore durante la ricerca:</strong><br>
