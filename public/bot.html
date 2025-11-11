@@ -1472,6 +1472,9 @@
 
         showToast(message);
 
+        // Aggiorna il display del prossimo controllo
+        updateNextCheckDisplay(currentCognomi.length);
+
       } catch (err) {
         console.error('Error toggling user cron:', err);
         showToast(err.message, true);
@@ -1636,10 +1639,15 @@
     function updateNextCheckDisplay(cognomiCount) {
       const nextCheckElement = document.getElementById('nextCheckTime');
       const minIntervalMinutes = parseInt(document.getElementById('intervalValue').textContent) || 30;
+      const cronToggle = document.getElementById('userCronToggle');
+      const isCronEnabled = cronToggle ? cronToggle.checked : true;
 
-      if (cognomiCount === 0) {
+      // Priorità: prima controlla se il monitoraggio è disabilitato
+      if (!isCronEnabled) {
+        nextCheckElement.innerHTML = '<span style="background: rgb(239 68 68 / 80%); color: white; padding: 2px 10px 4px 10px; border-radius: 12px; font-size: 0.85em; font-weight: 600;">⚠️ Il monitoraggio è disabilitato</span>';
+      } else if (cognomiCount === 0) {
         // Nessun cognome - mostra badge rosso (MA NON cancellare il dataset.lastCheck!)
-        nextCheckElement.innerHTML = '<span style="background: #ef4444; color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.85em; font-weight: 600;">⚠️ La lista cognomi non può essere vuota</span>';
+        nextCheckElement.innerHTML = '<span style="background: rgb(239 68 68 / 80%); color: white; padding: 2px 10px 4px 10px; border-radius: 12px; font-size: 0.85em; font-weight: 600;">⚠️ La lista cognomi non può essere vuota</span>';
       } else {
         // Ci sono cognomi - calcola prossimo controllo
         const lastCheck = nextCheckElement.dataset.lastCheck;
