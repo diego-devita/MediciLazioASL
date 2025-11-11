@@ -1146,6 +1146,8 @@
           </div>
         </div>
 
+        <hr style="margin: 25px 0; border: none; border-top: 1px solid #e0e0e0;">
+
         <!-- Medici aggiunti -->
         <div id="addedSection" class="section" style="display: none;">
           <button class="results-toggle" id="addedToggle">
@@ -1176,6 +1178,19 @@
           </button>
           <div class="results-list-container" id="changedListContainer">
             <div id="changedList"></div>
+          </div>
+        </div>
+
+        <hr style="margin: 25px 0; border: none; border-top: 1px solid #e0e0e0;">
+
+        <!-- Storia variazioni -->
+        <div id="historySection" class="section" style="display: none;">
+          <button class="results-toggle" id="historyToggle">
+            <span>📜 Mostra storia variazioni</span>
+            <span class="results-toggle-icon">▼</span>
+          </button>
+          <div class="results-list-container" id="historyListContainer">
+            <div id="historyList"></div>
           </div>
         </div>
       </div>
@@ -1782,7 +1797,8 @@
       { button: 'resultsToggle', container: 'resultsListContainer' },
       { button: 'addedToggle', container: 'addedListContainer' },
       { button: 'removedToggle', container: 'removedListContainer' },
-      { button: 'changedToggle', container: 'changedListContainer' }
+      { button: 'changedToggle', container: 'changedListContainer' },
+      { button: 'historyToggle', container: 'historyListContainer' }
     ];
 
     toggleButtons.forEach(({ button, container }) => {
@@ -1792,6 +1808,12 @@
         btn.addEventListener('click', () => {
           btn.classList.toggle('expanded');
           cont.classList.toggle('expanded');
+
+          // Se è il toggle della storia e non è mai stata caricata, caricala
+          if (button === 'historyToggle' && !cont.dataset.loaded) {
+            loadVariationHistory();
+            cont.dataset.loaded = 'true';
+          }
         });
       }
     });
@@ -2124,6 +2146,111 @@
         configError.style.display = 'block';
         configError.textContent = error.message;
         console.error('Error loading configuration:', error);
+      }
+    }
+
+    // Funzione per caricare la storia delle variazioni
+    async function loadVariationHistory() {
+      const historyList = document.getElementById('historyList');
+      historyList.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">Caricamento storia...</p>';
+
+      try {
+        const response = await fetch('/api/user/variations?limit=50', {
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          throw new Error('Errore nel caricamento della storia');
+        }
+
+        const data = await response.json();
+        const history = data.history || [];
+
+        if (history.length === 0) {
+          historyList.innerHTML = '<p style="text-align: center; color: #999; padding: 20px; font-style: italic;">Nessuna variazione registrata</p>';
+          document.getElementById('historySection').style.display = 'block';
+          return;
+        }
+
+        // Renderizza la storia
+        let html = '';
+
+        history.forEach(run => {
+          const runDate = new Date(run.timestamp);
+          const formattedDate = runDate.toLocaleString('it-IT', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+
+          html += `
+            <div style="background: #f9f9f9; border-left: 4px solid #667eea; padding: 15px; margin-bottom: 15px; border-radius: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <strong style="color: #667eea;">Run #${run.runId}</strong>
+                <span style="color: #999; font-size: 0.9rem;">${formattedDate}</span>
+              </div>
+              <div style="font-size: 0.85rem; color: #666; margin-bottom: 10px;">
+                ${run.eventCount} eventi • ${run.totalResults} medici trovati • ${run.totalAvailable} liberi
+              </div>
+          `;
+
+          // Raggruppa eventi per tipo
+          const newEvents = run.events.filter(e => e.type === 'new');
+          const removedEvents = run.events.filter(e => e.type === 'removed');
+          const changedEvents = run.events.filter(e => e.type === 'changed');
+
+          if (newEvents.length > 0) {
+            html += `<div style="margin-top: 10px;">`;
+            html += `<div style="font-weight: 600; color: #22c55e; margin-bottom: 5px;">🆕 Nuovi (${newEvents.length})</div>`;
+            newEvents.forEach(event => {
+              html += `
+                <div style="padding: 5px 10px; background: white; border-radius: 4px; margin-bottom: 4px; font-size: 0.85rem;">
+                  <span style="color: #666;">#${event.seq}</span> ${event.medico.cognome} ${event.medico.nome} - ${event.medico.asl} <span style="color: #22c55e;">(${event.medico.assegnabilita})</span>
+                </div>
+              `;
+            });
+            html += `</div>`;
+          }
+
+          if (removedEvents.length > 0) {
+            html += `<div style="margin-top: 10px;">`;
+            html += `<div style="font-weight: 600; color: #ef4444; margin-bottom: 5px;">❌ Rimossi (${removedEvents.length})</div>`;
+            removedEvents.forEach(event => {
+              html += `
+                <div style="padding: 5px 10px; background: white; border-radius: 4px; margin-bottom: 4px; font-size: 0.85rem;">
+                  <span style="color: #666;">#${event.seq}</span> ${event.medico.cognome} ${event.medico.nome} - ${event.medico.asl}
+                </div>
+              `;
+            });
+            html += `</div>`;
+          }
+
+          if (changedEvents.length > 0) {
+            html += `<div style="margin-top: 10px;">`;
+            html += `<div style="font-weight: 600; color: #f59e0b; margin-bottom: 5px;">🔄 Cambiati (${changedEvents.length})</div>`;
+            changedEvents.forEach(event => {
+              html += `
+                <div style="padding: 5px 10px; background: white; border-radius: 4px; margin-bottom: 4px; font-size: 0.85rem;">
+                  <span style="color: #666;">#${event.seq}</span> ${event.medico.cognome} ${event.medico.nome} - ${event.medico.asl}<br>
+                  <span style="margin-left: 25px; color: #999; font-size: 0.8rem;">${event.statoVecchio} → ${event.statoNuovo}</span>
+                </div>
+              `;
+            });
+            html += `</div>`;
+          }
+
+          html += `</div>`;
+        });
+
+        historyList.innerHTML = html;
+        document.getElementById('historySection').style.display = 'block';
+
+      } catch (error) {
+        console.error('Error loading variation history:', error);
+        historyList.innerHTML = '<p style="text-align: center; color: #ef4444; padding: 20px;">Errore nel caricamento della storia</p>';
+        document.getElementById('historySection').style.display = 'block';
       }
     }
   </script>
