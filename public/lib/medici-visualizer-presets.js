@@ -30,16 +30,15 @@ const MediciVisualizerPresets = {
                     <th style="width: 0; padding: 0; border: none;"></th>
                     <th class="{{sortClassFor 'nome'}}" data-column="nome">Nome</th>
                     <th class="{{sortClassFor 'asl'}}" data-column="asl">ASL</th>
-                    <th class="{{sortClassFor 'assegnabilita'}}" data-column="assegnabilita">Stato</th>
                   </tr>
                 </thead>
                 <tbody>
                   {{#each items}}
-                    <tr>
+                    <tr data-medico-index="{{@index}}">
                       <td class="emoji-cell">{{emoji this.assegnabilita}}</td>
                       <td class="nome-cell">{{this.cognome}}</td>
                       <td style="position: relative; width: 0; padding: 0;">
-                        <div class="tooltip">
+                        <div class="tooltip" style="background: #ffffff !important; opacity: 1 !important;">
                           <div class="tooltip-title">Dettagli completi</div>
                           <div class="tooltip-row">
                             <span class="tooltip-label">Cognome:</span>
@@ -97,7 +96,6 @@ const MediciVisualizerPresets = {
                       </td>
                       <td>{{this.nome}}</td>
                       <td>{{this.asl}}</td>
-                      <td>{{this.assegnabilita}}</td>
                     </tr>
                   {{/each}}
                 </tbody>
@@ -106,13 +104,12 @@ const MediciVisualizerPresets = {
               <!-- Mobile cards -->
               <div class="results-cards">
                 {{#each items}}
-                  <div class="result-card">
+                  <div class="result-card" data-medico-index="{{@index}}">
                     <div class="card-header">
                       <div class="card-emoji">{{emoji this.assegnabilita}}</div>
                       <div class="card-name">{{this.cognome}} {{this.nome}}</div>
                     </div>
                     <div class="card-footer">
-                      <div class="card-stato">{{this.assegnabilita}}</div>
                       <div class="card-asl">{{this.asl}}</div>
                     </div>
                   </div>
@@ -128,9 +125,9 @@ const MediciVisualizerPresets = {
           template: `
             <div class="pagination-container" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
               <!-- Items per page selector -->
-              <div class="pagination-size" style="display: flex; align-items: center; gap: 10px;">
+              <div class="pagination-size" style="display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; white-space: nowrap;">
                 <span style="color: #666; font-size: 0.9rem;">Elementi per pagina:</span>
-                <select data-page-size-select class="page-size-select" style="padding: 8px 12px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 0.9rem; cursor: pointer; background: white;">
+                <select data-page-size-select class="page-size-select" style="padding: 6px 8px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 0.9rem; cursor: pointer; background: white; width: 70px;">
                   <option value="10">10</option>
                   <option value="25">25</option>
                   <option value="50">50</option>
@@ -144,19 +141,19 @@ const MediciVisualizerPresets = {
               <div style="display: flex; flex-direction: column; align-items: flex-end;">
                 <div class="pagination-nav" style="display: flex; align-items: center; gap: 6px;">
                   <!-- Previous page button -->
-                  <button data-page-action="prev" {{#if isFirstPage}}disabled{{/if}} style="padding: 10px 16px; border: 1px solid #667eea; border-radius: 4px; background: {{#if isFirstPage}}#e8e8e8{{else}}#667eea{{/if}}; font-weight: 400; color: {{#if isFirstPage}}#ccc{{else}}white{{/if}}; cursor: {{#if isFirstPage}}not-allowed{{else}}pointer{{/if}}; min-width: 80px;">
+                  <button data-page-action="prev" {{#if isFirstPage}}disabled{{/if}} style="padding: 10px 16px; border: 1px solid #667eea; border-radius: 4px; background: {{#if isFirstPage}}#e8e8e8{{else}}#667eea{{/if}}; font-weight: 400; color: {{#if isFirstPage}}#ccc{{else}}white{{/if}}; cursor: {{#if isFirstPage}}not-allowed{{else}}pointer{{/if}}; width: auto;">
                     Prec
                   </button>
 
                   <!-- Page numbers -->
                   {{#each visiblePages}}
-                    <button data-page-action="page" data-page="{{this}}" style="padding: 10px 16px; border: 2px solid #667eea; border-radius: 4px; background: {{#if (isCurrentPage this)}}white{{else}}#667eea{{/if}}; color: {{#if (isCurrentPage this)}}#667eea{{else}}white{{/if}}; cursor: pointer; font-weight: {{#if (isCurrentPage this)}}700{{else}}400{{/if}}; min-width: 50px;">
+                    <button data-page-action="page" data-page="{{this}}" style="padding: 10px 16px; border: 2px solid #667eea; border-radius: 4px; background: {{#if (isCurrentPage this)}}white{{else}}#667eea{{/if}}; color: {{#if (isCurrentPage this)}}#667eea{{else}}white{{/if}}; cursor: pointer; font-weight: {{#if (isCurrentPage this)}}700{{else}}400{{/if}}; width: auto;">
                       {{this}}
                     </button>
                   {{/each}}
 
                   <!-- Next page button -->
-                  <button data-page-action="next" {{#if isLastPage}}disabled{{/if}} style="padding: 10px 16px; border: 1px solid #667eea; border-radius: 4px; background: {{#if isLastPage}}#e8e8e8{{else}}#667eea{{/if}}; font-weight: 400; color: {{#if isLastPage}}#ccc{{else}}white{{/if}}; cursor: {{#if isLastPage}}not-allowed{{else}}pointer{{/if}}; min-width: 80px;">
+                  <button data-page-action="next" {{#if isLastPage}}disabled{{/if}} style="padding: 10px 16px; border: 1px solid #667eea; border-radius: 4px; background: {{#if isLastPage}}#e8e8e8{{else}}#667eea{{/if}}; font-weight: 400; color: {{#if isLastPage}}#ccc{{else}}white{{/if}}; cursor: {{#if isLastPage}}not-allowed{{else}}pointer{{/if}}; width: auto;">
                     Succ
                   </button>
                 </div>
@@ -336,20 +333,18 @@ const MediciVisualizerPresets = {
                   <thead>
                     <tr>
                       <th style="width: 60px;"></th>
-                      <th style="width: 250px;">Cognome</th>
-                      <th style="width: 180px;">Nome</th>
-                      <th style="width: 100px;">ASL</th>
-                      <th style="width: 250px;">Stato</th>
+                      <th style="width: 35%;">Cognome</th>
+                      <th style="width: 35%;">Nome</th>
+                      <th style="width: 30%;">ASL</th>
                     </tr>
                   </thead>
                   <tbody>
                     {{#each items}}
-                      <tr>
+                      <tr data-medico-index="{{@index}}">
                         <td class="emoji-cell">{{emoji this.assegnabilita}}</td>
                         <td><strong>{{uppercase this.cognome}}</strong></td>
                         <td>{{this.nome}}</td>
                         <td>{{this.asl}}</td>
-                        <td>{{this.assegnabilita}}</td>
                       </tr>
                     {{/each}}
                   </tbody>
@@ -359,13 +354,12 @@ const MediciVisualizerPresets = {
               <!-- Mobile cards -->
               <div class="results-cards">
                 {{#each items}}
-                  <div class="result-card">
+                  <div class="result-card" data-medico-index="{{@index}}">
                     <div class="card-header">
                       <div class="card-emoji">{{emoji this.assegnabilita}}</div>
                       <div class="card-name">{{uppercase this.cognome}} {{this.nome}}</div>
                     </div>
                     <div class="card-footer">
-                      <div class="card-stato">{{this.assegnabilita}}</div>
                       <div class="card-asl">{{this.asl}}</div>
                     </div>
                   </div>

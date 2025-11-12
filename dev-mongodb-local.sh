@@ -29,11 +29,12 @@ if docker ps -a --format '{{.Names}}' | grep -q '^mongodb-dev$'; then
     fi
 else
     echo "📥 Creazione nuovo container MongoDB..."
+    echo "ℹ️  Usando MongoDB 4.4 (compatibile con CPU senza AVX)"
     docker run -d \
         -p 27017:27017 \
         --name mongodb-dev \
         -e MONGO_INITDB_DATABASE=medici-lazio-dev \
-        mongo:latest
+        mongo:4.4
 
     echo "⏳ Attendo avvio MongoDB..."
     sleep 3
