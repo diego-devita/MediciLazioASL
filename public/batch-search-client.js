@@ -46,7 +46,7 @@ class BatchSearchClient {
     this.parallelism = options.parallelism || 5;
     this.onProgress = options.onProgress || null;
     this.abortController = null;
-    this.ALL_ASL_OPTIONS = ['120201', '120202', '120203', '120204', '120205', '120206', '120207', '120208', '120209', '120210'];
+    this.ALL_ASL_OPTIONS = ['120201', '120202', '120203', '120204', '120205', '120206', '120112', '120111', '120110', '120109'];
   }
 
   /**
@@ -159,10 +159,13 @@ class BatchSearchClient {
           1 // Richiedi esplicitamente pagina 1
         );
 
-        // Aggiungi singleQueries dalla prima pagina
-        if (firstPageResult.singleQueries && Array.isArray(firstPageResult.singleQueries)) {
-          allSingleQueries.push(...firstPageResult.singleQueries);
-        }
+        // Traccia query effettuata
+        allSingleQueries.push({
+          cognome: combo.cognome || '',
+          cap: combo.cap || '',
+          nome: combo.nome || '',
+          asl: combo.asl || ''
+        });
 
         // Processa risultati prima pagina
         if (firstPageResult.results && Array.isArray(firstPageResult.results)) {
@@ -211,11 +214,6 @@ class BatchSearchClient {
               signal,
               page
             );
-
-            // Aggiungi singleQueries
-            if (pageResult.singleQueries && Array.isArray(pageResult.singleQueries)) {
-              allSingleQueries.push(...pageResult.singleQueries);
-            }
 
             // Processa risultati
             if (pageResult.results && Array.isArray(pageResult.results)) {
