@@ -5,9 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
   <title>Telegram Bot - Medici ASL Lazio</title>
-
-  <!-- Environment configuration -->
-  <script src="/config.js"></script>
   <style>
     * {
       box-sizing: border-box;
@@ -1218,7 +1215,7 @@
             " onmouseover="this.style.background='#e0e0e0'" onmouseout="this.style.background='#f0f0f0'">
               Copia
             </button>
-            <button id="testQueryBtn" style="
+            <button id="testQueryBtn" onclick="openTestQuery()" style="
               margin-left: 10px;
               margin-top: 5px;
               padding: 6px 12px;
@@ -2734,43 +2731,51 @@
   <script src="/lib/medici-visualizer-presets.js"></script>
   <script src="/lib/medici-visualizer.js"></script>
 
-  <script type="module">
-    import { BatchSearchClient } from '/batch-search-client.js';
+  <!-- BatchSearchClient -->
+  <script type="module" src="/batch-search-client.js"></script>
 
+  <script>
     // Test query functionality - NUOVO SISTEMA ATOMICO!
     let testView = null;
     let testBatchClient = null;
 
-    document.getElementById('testQueryBtn').addEventListener('click', async () => {
-      const dialog = document.getElementById('testQueryDialog');
+    async function openTestQuery() {
+      try {
+        console.log('🔵 openTestQuery chiamata!');
 
-      // Apri dialog
-      dialog.showModal();
+        const dialog = document.getElementById('testQueryDialog');
+        console.log('🔵 dialog:', dialog);
 
-      // Reset UI: mostra progress, nascondi risultati
-      document.getElementById('testProgress').style.display = 'block';
-      document.getElementById('testResults').style.display = 'none';
+        // Apri dialog
+        dialog.showModal();
+        console.log('🔵 dialog aperto');
 
-      // Reset view
-      if (testView) {
-        testView.destroy();
-      }
+        // Reset UI: mostra progress, nascondi risultati
+        document.getElementById('testProgress').style.display = 'block';
+        document.getElementById('testResults').style.display = 'none';
 
-      // Prepara query dai cognomi configurati
-      const cognomiQueries = currentUserData?.query?.cognomi || [];
+        // Reset view
+        if (testView) {
+          testView.destroy();
+        }
 
-      if (cognomiQueries.length === 0) {
-        document.getElementById('testProgress').style.display = 'none';
-        document.getElementById('testResults').style.display = 'block';
-        document.getElementById('testTable').innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">Nessun cognome configurato. Aggiungi almeno un cognome per testare la query.</p>';
-        return;
-      }
+        // Prepara query dai cognomi configurati
+        const cognomiQueries = currentUserData?.query?.cognomi || [];
+        console.log('🔵 cognomiQueries:', cognomiQueries);
 
-      // Crea view con composizione atomica
-      testView = new MediciView({
-        data: [],
+        if (cognomiQueries.length === 0) {
+          document.getElementById('testProgress').style.display = 'none';
+          document.getElementById('testResults').style.display = 'block';
+          document.getElementById('testTable').innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">Nessun cognome configurato. Aggiungi almeno un cognome per testare la query.</p>';
+          return;
+        }
 
-        blocks: {
+        console.log('🔵 Creazione MediciView...');
+        // Crea view con composizione atomica
+        testView = new MediciView({
+          data: [],
+
+          blocks: {
           progress: {
             type: 'progress',
             container: '#testProgress',
@@ -2822,8 +2827,11 @@
         }
       });
 
+      console.log('🔵 MediciView creata:', testView);
+      console.log('🔵 Creazione BatchSearchClient...');
+
       // Avvia ricerca con BatchSearchClient
-      testBatchClient = new BatchSearchClient({
+      testBatchClient = new window.BatchSearchClient({
         parallelism: 5,
         onProgress: (progress) => {
           // Update progress nel componente atomico
@@ -2831,8 +2839,11 @@
         }
       });
 
+      console.log('🔵 BatchSearchClient creato, inizio ricerche...');
+
       try {
         // Prepara parametri
+        console.log('🔵 Preparazione queries...');
         const queries = cognomiQueries.map(q => ({
           cognomi: [q.cognome],
           asl: q.asl ? [q.asl] : [],
@@ -2841,14 +2852,21 @@
           tipo: 'Medicina generale'
         }));
 
+        console.log('🔵 Queries preparate:', queries);
+
         // Esegui ricerche per ogni query
         const allResults = [];
+        console.log('🔵 Inizio ciclo ricerche, totale queries:', queries.length);
         for (const query of queries) {
+          console.log('🔵 Ricerca per query:', query);
           const result = await testBatchClient.search(query);
+          console.log('🔵 Risultato ricerca:', result);
           if (result.success && result.results) {
             allResults.push(...result.results);
           }
         }
+
+        console.log('🔵 Tutte le ricerche completate, totale risultati:', allResults.length);
 
         // Deduplica per identificativo
         const uniqueResults = new Map();
@@ -2879,7 +2897,8 @@
         });
 
       } catch (error) {
-        console.error('Errore durante test query:', error);
+        console.error('❌ ERRORE CATTURATO in openTestQuery:', error);
+        console.error('❌ Stack:', error.stack);
 
         // Nascondi progress, mostra risultati con errore
         document.getElementById('testProgress').style.display = 'none';
@@ -2888,22 +2907,24 @@
         document.getElementById('testTable').innerHTML = `
           <div style="background: #fee; border-left: 4px solid #ef4444; padding: 15px; border-radius: 8px; color: #dc2626;">
             <strong>Errore durante la ricerca:</strong><br>
-            ${error.message || 'Errore sconosciuto'}
+            ${error.message || 'Errore sconosciuto'}<br>
+            <pre style="margin-top: 10px; font-size: 0.8rem; background: #fff; padding: 10px; border-radius: 4px;">${error.stack || ''}</pre>
           </div>
         `;
       }
-    });
+    }
 
-    // Close dialog
-    document.getElementById('closeTestDialog').addEventListener('click', () => {
-      document.getElementById('testQueryDialog').close();
-    });
-
-    // Close dialog on click outside
-    document.getElementById('testQueryDialog').addEventListener('click', (e) => {
-      if (e.target === document.getElementById('testQueryDialog')) {
+    // Close dialog handlers
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('closeTestDialog')?.addEventListener('click', () => {
         document.getElementById('testQueryDialog').close();
-      }
+      });
+
+      document.getElementById('testQueryDialog')?.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('testQueryDialog')) {
+          document.getElementById('testQueryDialog').close();
+        }
+      });
     });
   </script>
 </body>

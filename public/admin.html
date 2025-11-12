@@ -5,9 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
   <title>Admin Panel - Medici ASL Lazio</title>
-
-  <!-- Environment configuration -->
-  <script src="/config.js"></script>
   <style>
     * {
       box-sizing: border-box;
@@ -1179,7 +1176,7 @@
             <td>${lastCheck}</td>
             <td style="text-align: center; cursor: pointer; font-size: 1.5rem;"
                 title="${statusTitle}"
-                onclick="toggleUserCron('${user.chatId}', ${cronEnabled})">
+                onclick="toggleUserCron('${user.chatId}')">
               ${statusEmoji}
             </td>
             <td>
@@ -1216,7 +1213,7 @@
               <div class="mobile-card-title">${user.username || 'User'} (${user.chatId})</div>
               <div style="cursor: pointer; font-size: 1.5rem;"
                    title="${statusTitle}"
-                   onclick="toggleUserCron('${user.chatId}', ${cronEnabled})">
+                   onclick="toggleUserCron('${user.chatId}')">
                 ${statusEmoji}
               </div>
             </div>
@@ -1290,21 +1287,20 @@
       }
     }
 
-    async function toggleUserCron(chatId, currentState) {
-      const newState = !currentState;
+    async function toggleUserCron(chatId) {
+      // Trova tutti gli elementi con questo onclick
+      const elements = document.querySelectorAll(`[onclick*="toggleUserCron('${chatId}')"]`);
+
+      // Mostra loading spinner
+      elements.forEach(el => {
+        el.textContent = '⏳';
+        el.setAttribute('title', 'Aggiornamento in corso...');
+        el.style.pointerEvents = 'none'; // Disabilita click durante loading
+      });
 
       try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`/api/admin?action=users&chatId=${chatId}`, {
-          method: 'PATCH',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          credentials: 'include',
-          body: JSON.stringify({
-            cronEnabled: newState
-          })
+        const response = await fetch(`/api/admin?action=toggle-user-cron&chatId=${chatId}`, {
+          credentials: 'include'
         });
 
         if (!response.ok) {
@@ -1313,18 +1309,37 @@
 
         const result = await response.json();
 
+        if (!result.success) {
+          throw new Error(result.error || 'Unknown error');
+        }
+
+        // Aggiorna l'emoji con il nuovo stato
+        const newEmoji = result.cronEnabled ? '🟢' : '🔴';
+        const newTitle = result.cronEnabled ? 'Monitoraggio attivo - clicca per disattivare' : 'Monitoraggio disattivo - clicca per attivare';
+
+        elements.forEach(el => {
+          el.textContent = newEmoji;
+          el.setAttribute('title', newTitle);
+          el.style.pointerEvents = 'auto'; // Riabilita click
+        });
+
         // Mostra toast notification
-        const message = newState
+        const message = result.cronEnabled
           ? `✅ Monitoraggio attivato per utente ${chatId}`
           : `⏸️ Monitoraggio disattivato per utente ${chatId}`;
 
         showNotification(message, 'success');
 
-        // Ricarica la tabella
-        loadUsers(usersPage);
-
       } catch (err) {
         console.error('Error toggling user cron:', err);
+
+        // In caso di errore, ripristina lo stato precedente (assumiamo che sia l'opposto)
+        elements.forEach(el => {
+          el.textContent = '❌';
+          el.setAttribute('title', 'Errore - ricarica la pagina');
+          el.style.pointerEvents = 'auto';
+        });
+
         showNotification(`❌ Errore: ${err.message}`, 'error');
       }
     }

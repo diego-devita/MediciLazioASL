@@ -421,7 +421,12 @@ class MediciView {
   }
 }
 
-// Export
+// Export for Node.js
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = MediciView;
+}
+
+// Export for browser
+if (typeof window !== 'undefined') {
+  window.MediciView = MediciView;
 }

@@ -4,7 +4,6 @@
   "description": "Sistema completo per ricerca medici ASL Lazio - API REST, Bot Telegram, Web UI",
   "type": "module",
   "scripts": {
-    "dev": "vercel dev"
   },
   "keywords": [
     "medici",

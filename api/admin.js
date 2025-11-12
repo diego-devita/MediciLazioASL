@@ -2,7 +2,22 @@ import { requireAdmin } from '../lib/auth.js';
 import { connectToDatabase, getAllSessions, deleteSession, deleteUserSessions, getSystemSettings, updateSystemSettings, getCronLogs, getCronStats } from '../lib/database.js';
 import { DATABASE, LOGGING } from '../lib/config.js';
 
+export const config = {
+  api: {
+    bodyParser: true
+  }
+};
+
 async function handler(req, res) {
+  // Handle CORS preflight
+  if (req.method === 'OPTIONS') {
+    console.log('🔸 OPTIONS request received');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    return res.status(200).end();
+  }
+
   const { action } = req.query;
 
   if (!action) {
@@ -17,6 +32,8 @@ async function handler(req, res) {
       return handleStats(req, res);
     case 'users':
       return handleUsers(req, res);
+    case 'toggle-user-cron':
+      return handleToggleUserCron(req, res);
     case 'sessions':
       return handleSessions(req, res);
     case 'login-attempts':
@@ -150,7 +167,13 @@ async function handleStats(req, res) {
     ]).toArray();
 
     // Database info
-    const stats = await db.stats();
+    let dbStats = { dataSize: 0, storageSize: 0, indexes: 0 };
+    try {
+      dbStats = await db.command({ dbStats: 1 });
+    } catch (err) {
+      console.error('Error getting db stats:', err);
+    }
+
     const collectionsList = await db.listCollections().toArray();
 
     // Get detailed stats for each collection
@@ -177,7 +200,7 @@ async function handleStats(req, res) {
         }
 
         try {
-          const collStats = await collection.stats();
+          const collStats = await db.command({ collStats: c.name });
           size = collStats.size || 0;
           storageSize = collStats.storageSize || 0;
         } catch (err) {
@@ -217,9 +240,9 @@ async function handleStats(req, res) {
       },
       database: {
         name: DATABASE.NAME,
-        size: stats.dataSize,
-        storageSize: stats.storageSize,
-        indexSize: stats.indexSize,
+        size: dbStats.dataSize || 0,
+        storageSize: dbStats.storageSize || 0,
+        indexSize: dbStats.indexSize || 0,
         collections: collectionsWithStats
       }
     });
@@ -342,7 +365,11 @@ async function handleDeleteUser(req, res) {
   }
 }
 
-async function handleUpdateUser(req, res) {
+async function handleToggleUserCron(req, res) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
   try {
     const { chatId } = req.query;
 
@@ -353,42 +380,40 @@ async function handleUpdateUser(req, res) {
       });
     }
 
-    const { cronEnabled } = req.body;
-
-    if (typeof cronEnabled !== 'boolean') {
-      return res.status(400).json({
-        success: false,
-        error: 'cronEnabled must be a boolean'
-      });
-    }
-
     const { db } = await connectToDatabase();
     const usersCollection = db.collection(DATABASE.COLLECTIONS.USERS);
 
-    const result = await usersCollection.updateOne(
-      { chatId: String(chatId) },
-      { $set: { cronEnabled } }
-    );
+    // Leggi l'utente
+    const user = await usersCollection.findOne({ chatId: String(chatId) });
 
-    if (result.matchedCount === 0) {
+    if (!user) {
       return res.status(404).json({
         success: false,
         error: 'User not found'
       });
     }
 
+    // Toggle del valore
+    const newCronEnabled = !user.cronEnabled;
+
+    // Aggiorna
+    await usersCollection.updateOne(
+      { chatId: String(chatId) },
+      { $set: { cronEnabled: newCronEnabled } }
+    );
+
     return res.status(200).json({
       success: true,
-      message: `Monitoring ${cronEnabled ? 'enabled' : 'disabled'} for user ${chatId}`,
       chatId,
-      cronEnabled
+      cronEnabled: newCronEnabled,
+      message: `Monitoring ${newCronEnabled ? 'enabled' : 'disabled'}`
     });
 
   } catch (error) {
-    console.error('Error updating user:', error);
+    console.error('Error toggling user cron:', error);
     return res.status(500).json({
       success: false,
-      error: 'Failed to update user'
+      error: 'Failed to toggle monitoring'
     });
   }
 }

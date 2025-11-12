@@ -49,4 +49,4 @@ echo ""
 echo "📝 Premi Ctrl+C per fermare"
 echo ""
 
-npm run dev
+vercel dev
