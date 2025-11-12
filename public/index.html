@@ -346,7 +346,7 @@
     }
 
     .batch-info h4 {
-      margin: 0 0 10px 0;
+      margin: 0;
       color: #1976d2;
       font-size: 1rem;
     }
@@ -895,7 +895,7 @@
 <body>
   <div class="container">
     <div class="header">
-      <h1>🩺 Ricerca Medici ASL Lazio</h1>
+      <h1><img src="/logo-salute-lazio.svg" alt="Salute Lazio" style="height: 2em; vertical-align: middle; margin-right: 0.5em;"> Ricerca Medici ASL Lazio</h1>
       <div class="header-links">
         <a href="/admin" class="bot-link" id="adminLink" style="display: none;">
           <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 18px; height: 18px;">
@@ -957,19 +957,19 @@
                   <label for="asl_roma6">Roma 6</label>
                 </div>
                 <div class="multiselect-option">
-                  <input type="checkbox" id="asl_frosinone" value="120207">
+                  <input type="checkbox" id="asl_frosinone" value="120112">
                   <label for="asl_frosinone">Frosinone</label>
                 </div>
                 <div class="multiselect-option">
-                  <input type="checkbox" id="asl_latina" value="120208">
+                  <input type="checkbox" id="asl_latina" value="120111">
                   <label for="asl_latina">Latina</label>
                 </div>
                 <div class="multiselect-option">
-                  <input type="checkbox" id="asl_rieti" value="120209">
+                  <input type="checkbox" id="asl_rieti" value="120110">
                   <label for="asl_rieti">Rieti</label>
                 </div>
                 <div class="multiselect-option">
-                  <input type="checkbox" id="asl_viterbo" value="120210">
+                  <input type="checkbox" id="asl_viterbo" value="120109">
                   <label for="asl_viterbo">Viterbo</label>
                 </div>
               </div>
@@ -1276,7 +1276,8 @@
       const successRate = ((meta.totalQueries - meta.errors) / meta.totalQueries * 100).toFixed(1);
 
       list.innerHTML = `
-        <li>• ${meta.totalQueries} query eseguite in ${(meta.duration / 1000).toFixed(1)}s</li>
+        <li>• Tempo richiesto: ${(meta.duration / 1000).toFixed(2)}s</li>
+        <li>• ${meta.totalQueries} query eseguite</li>
         <li>• ${meta.totalRequests || meta.totalQueries} richieste HTTP totali</li>
         <li>• ${meta.deduplicatedFrom} risultati totali → ${meta.deduplicatedTo} dopo deduplicazione</li>
         <li>• ${duplicatesRemoved} duplicati rimossi</li>
@@ -1284,7 +1285,7 @@
       `;
 
       batchInfo.style.display = 'block';
-      searchTime.textContent = `⏱️ Ricerca batch completata in ${(meta.duration / 1000).toFixed(2)}s`;
+      searchTime.style.display = 'none';
     }
 
     // checkCombinationsWarning non serve più (sempre batch mode)
@@ -1509,7 +1510,7 @@
     });
 
     // ===== MULTI-SELECT ASL DROPDOWN =====
-    const ALL_ASL_OPTIONS = ['120201', '120202', '120203', '120204', '120205', '120206', '120207', '120208', '120209', '120210'];
+    const ALL_ASL_OPTIONS = ['120201', '120202', '120203', '120204', '120205', '120206', '120112', '120111', '120110', '120109'];
 
     // Mapping codice -> descrizione per mostrare i nomi leggibili
     const ASL_CODE_TO_NAME = {
@@ -1519,10 +1520,10 @@
       '120204': 'Roma 4',
       '120205': 'Roma 5',
       '120206': 'Roma 6',
-      '120207': 'Frosinone',
-      '120208': 'Latina',
-      '120209': 'Rieti',
-      '120210': 'Viterbo'
+      '120112': 'Frosinone',
+      '120111': 'Latina',
+      '120110': 'Rieti',
+      '120109': 'Viterbo'
     };
 
     // Setup multi-select
