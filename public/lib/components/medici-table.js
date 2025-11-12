@@ -109,15 +109,15 @@ class MediciTable {
       return;
     }
 
-    // Desktop table
+    // Render table (CSS gestisce il responsive)
     const table = this._renderTable();
-    this.container.appendChild(table);
 
-    // Mobile cards (se responsive)
+    // Aggiungi classe responsive se abilitata (CSS la trasformerà in card su mobile)
     if (this.config.responsive) {
-      const cards = this._renderCards();
-      this.container.appendChild(cards);
+      table.classList.add('medici-table-responsive');
     }
+
+    this.container.appendChild(table);
 
     // Attach event listeners
     this._attachEventListeners();
@@ -169,8 +169,23 @@ class MediciTable {
       const row = document.createElement('tr');
       row.dataset.medicoIndex = index;
 
+      // Aggiungi classe per lo stato (per colorare background)
+      const stato = String(medico.assegnabilita || '').toLowerCase();
+      if (stato.includes('assegnazione libera')) {
+        row.classList.add('stato-libero');
+      } else if (stato.includes('deroga')) {
+        row.classList.add('stato-deroga');
+      } else {
+        row.classList.add('stato-altro');
+      }
+
       this.config.columns.forEach(col => {
         const td = document.createElement('td');
+
+        // Aggiungi data-label per responsive (usato dal CSS per mostrare label nelle card)
+        if (col.label && col.type !== 'tooltip') {
+          td.dataset.label = col.label;
+        }
 
         if (col.type === 'emoji') {
           td.className = 'emoji-cell';

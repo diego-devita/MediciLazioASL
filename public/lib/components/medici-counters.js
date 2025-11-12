@@ -66,11 +66,14 @@ class MediciCounters {
 
       // Callbacks
       onFilterClick: config.onFilterClick || null,
-      onChange: config.onChange || null
+      onChange: config.onChange || null,
+
+      // ActiveFilters iniziali
+      activeFilters: config.activeFilters || []
     };
 
     this.state = {
-      activeFilters: [],
+      activeFilters: [...this.config.activeFilters],
       counts: {}
     };
 
@@ -159,8 +162,26 @@ class MediciCounters {
           const count = this.state.counts[counter.key] || 0;
           const styleColor = counter.color ? `style="color: ${counter.color};"` : '';
 
+          // Active logic:
+          // - Per "totali": è active SOLO quando TUTTI i filtri sono attivi
+          // - Per altri: è active quando è nell'array activeFilters
+          let isActive = false;
+          if (counter.key === 'totali') {
+            const filterableCounters = this.config.counters.filter(c => c.key !== 'totali' && c.filter);
+            isActive = filterableCounters.every(c => this.state.activeFilters.includes(c.key));
+          } else {
+            isActive = this.state.activeFilters.includes(counter.key);
+          }
+
+          const activeClass = isActive ? this.config.classes.active : '';
+
+          // Se interactive, tutti i counter sono clickabili (incluso "totali")
+          const clickable = this.config.interactive;
+          const dataFilter = clickable ? `data-filter="${counter.key}"` : '';
+          const cursor = clickable ? 'style="cursor: pointer;"' : '';
+
           return `
-            <div class="${this.config.classes.item}">
+            <div class="${this.config.classes.item} ${activeClass}" ${dataFilter} ${cursor}>
               <div class="summary-number" ${styleColor}>${count}</div>
               <div class="summary-label">${counter.label}</div>
             </div>
@@ -178,7 +199,18 @@ class MediciCounters {
       <div class="stats-compact">
         ${this.config.counters.map(counter => {
           const count = this.state.counts[counter.key] || 0;
-          const isActive = this.state.activeFilters.length === 0 || this.state.activeFilters.includes(counter.key);
+
+          // Active logic:
+          // - Per "totali": è active SOLO quando TUTTI i filtri sono attivi
+          // - Per altri: è active quando è nell'array activeFilters
+          let isActive = false;
+          if (counter.key === 'totali') {
+            const filterableCounters = this.config.counters.filter(c => c.key !== 'totali' && c.filter);
+            isActive = filterableCounters.every(c => this.state.activeFilters.includes(c.key));
+          } else {
+            isActive = this.state.activeFilters.includes(counter.key);
+          }
+
           const activeClass = isActive ? this.config.classes.active : '';
 
           let extraClass = '';
@@ -186,14 +218,22 @@ class MediciCounters {
           else if (counter.key === 'deroga') extraClass = 'stat-warning';
           else if (counter.key === 'altri') extraClass = 'stat-info';
 
-          const clickable = this.config.interactive && counter.filter;
-          const dataFilter = counter.key !== 'totali' ? `data-filter="${counter.key}"` : '';
+          // Se interactive, tutti i counter sono clickabili (incluso "totali")
+          const clickable = this.config.interactive;
+          const dataFilter = clickable ? `data-filter="${counter.key}"` : '';
           const cursor = clickable ? 'style="cursor: pointer;"' : '';
+
+          // Label short per mobile
+          let shortLabel = counter.label;
+          if (counter.label === 'Assegnabili') shortLabel = 'Assegn.';
 
           return `
             <div class="${this.config.classes.item} ${extraClass} ${activeClass}" ${dataFilter} ${cursor}>
               <span class="stat-compact-value">${count}</span>
-              <span class="stat-compact-label">${counter.label}</span>
+              <span class="stat-compact-label">
+                <span class="full-label">${counter.label}</span>
+                <span class="short-label">${shortLabel}</span>
+              </span>
             </div>
           `;
         }).join('')}
@@ -219,14 +259,30 @@ class MediciCounters {
    * Toggle filtro
    */
   _toggleFilter(filterKey) {
-    const index = this.state.activeFilters.indexOf(filterKey);
+    // Caso speciale: "totali" funziona come select/deselect all
+    if (filterKey === 'totali') {
+      // Controlla se TUTTI i filtri sono attualmente attivi
+      const filterableCounters = this.config.counters.filter(c => c.key !== 'totali' && c.filter);
+      const allActive = filterableCounters.every(c => this.state.activeFilters.includes(c.key));
 
-    if (index === -1) {
-      // Aggiungi filtro
-      this.state.activeFilters.push(filterKey);
+      if (allActive) {
+        // Se tutti attivi, deseleziona tutti
+        this.state.activeFilters = [];
+      } else {
+        // Altrimenti seleziona tutti
+        this.state.activeFilters = filterableCounters.map(c => c.key);
+      }
     } else {
-      // Rimuovi filtro
-      this.state.activeFilters.splice(index, 1);
+      // Normale toggle per altri filtri
+      const index = this.state.activeFilters.indexOf(filterKey);
+
+      if (index === -1) {
+        // Aggiungi filtro
+        this.state.activeFilters.push(filterKey);
+      } else {
+        // Rimuovi filtro
+        this.state.activeFilters.splice(index, 1);
+      }
     }
 
     // Re-render

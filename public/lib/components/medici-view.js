@@ -48,6 +48,11 @@ class MediciView {
     // Setup event bindings
     this._setupEventBindings();
 
+    // Applica filtri iniziali (se presenti)
+    if (this.state.activeFilters.length > 0) {
+      this._applyFilters();
+    }
+
     // Callback ready
     if (typeof this.config.onReady === 'function') {
       this.config.onReady(this);
@@ -94,14 +99,20 @@ class MediciView {
    * Crea componente Counters
    */
   _createCounters(blockConfig) {
+    // Inizializza activeFilters se passati nella config
+    if (blockConfig.config?.activeFilters) {
+      this.state.activeFilters = [...blockConfig.config.activeFilters];
+    }
+
     return new MediciCounters({
       container: blockConfig.container,
-      data: this.state.filteredData,
+      data: this.state.data, // Usa sempre i dati originali, non filtrati
       variant: blockConfig.config?.variant || 'summary-item',
       interactive: blockConfig.config?.interactive || false,
       counters: blockConfig.config?.counters,
       template: blockConfig.config?.template,
       classes: blockConfig.config?.classes,
+      activeFilters: blockConfig.config?.activeFilters || [],
 
       onFilterClick: (filterKey, counter, activeFilters) => {
         // Update state
@@ -247,9 +258,38 @@ class MediciView {
   _applyFilters() {
     const countersComponent = this._findComponentByType('counters');
 
-    if (!countersComponent || this.state.activeFilters.length === 0) {
+    if (!countersComponent) {
+      this.state.filteredData = [...this.state.data];
+      this._updateComponents();
+      return;
+    }
+
+    // Conta quanti filtri clickabili ci sono (esclude 'totali')
+    const filterableCounters = countersComponent.config.counters.filter(c => c.key !== 'totali' && c.filter);
+    const allFiltersActive = filterableCounters.every(c => this.state.activeFilters.includes(c.key));
+
+    console.log('🔵 _applyFilters:', {
+      activeFilters: this.state.activeFilters,
+      filterableCounters: filterableCounters.map(c => c.key),
+      allFiltersActive,
+      totalData: this.state.data.length
+    });
+
+    // Strategia:
+    // - Se NESSUN filtro attivo → mostra ZERO risultati
+    // - Se TUTTI i filtri attivi → mostra tutto
+    // - Se SOLO alcuni filtri attivi → filtra
+    if (this.state.activeFilters.length === 0) {
+      // Nessun filtro = zero risultati
+      console.log('🔴 Nessun filtro attivo → zero risultati');
+      this.state.filteredData = [];
+    } else if (allFiltersActive) {
+      // Tutti attivi = mostra tutto
+      console.log('🟢 Tutti i filtri attivi → mostra tutto');
       this.state.filteredData = [...this.state.data];
     } else {
+      // Solo alcuni attivi = filtra
+      console.log('🟡 Solo alcuni filtri attivi → filtra');
       const activeCounters = countersComponent.config.counters.filter(c =>
         this.state.activeFilters.includes(c.key)
       );
@@ -260,6 +300,10 @@ class MediciView {
         });
       });
     }
+
+    console.log('🔵 Risultato filtro:', {
+      filteredDataLength: this.state.filteredData.length
+    });
 
     // Update components
     this._updateComponents();
@@ -313,7 +357,9 @@ class MediciView {
       const blockConfig = this.config.blocks[name];
 
       if (component instanceof MediciCounters) {
-        component.setData(this.state.filteredData);
+        // I counters devono SEMPRE usare i dati originali, non quelli filtrati
+        component.setData(this.state.data); // Dati completi per ricalcolare i numeri
+        component.setActiveFilters(this.state.activeFilters); // Classi active per il render
 
       } else if (component instanceof MediciTable) {
         const data = blockConfig.config?.usePaginated

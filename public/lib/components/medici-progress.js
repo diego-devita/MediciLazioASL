@@ -149,10 +149,10 @@ class MediciProgress {
         <div style="background: #f0f4ff; padding: 20px; border-radius: 8px;">
           <h3 style="color: #667eea; margin-bottom: 15px;">🔍 Ricerca in corso...</h3>
 
-          <!-- Combinazioni progress -->
+          <!-- Combinazioni/Cognomi progress -->
           <div style="margin-bottom: 12px;">
             <div style="font-size: 0.9rem; margin-bottom: 4px; color: #666;">
-              📊 Combinazioni: <strong>${ctx.completed}/${ctx.total}</strong>
+              📊 ${ctx.total <= 10 ? 'Cognomi' : 'Combinazioni'}: <strong>${ctx.completed}/${ctx.total}</strong>
             </div>
             <div class="${this.config.classes.bar}" style="background: #e0e0e0; border-radius: 4px; overflow: hidden; height: 24px; position: relative; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);">
               <div class="${this.config.classes.fill}" style="width: ${ctx.percentage}%; height: 100%; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.95rem; min-width: fit-content; padding: 0 8px; transition: width 0.3s ease;">
