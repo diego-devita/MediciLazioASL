@@ -186,13 +186,6 @@
       font-weight: 500;
     }
 
-    .search-mode-toggle {
-      background: #f8f9fa;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      padding: 15px;
-      margin-top: 20px;
-    }
 
     .toggle-options {
       display: flex;
@@ -237,24 +230,6 @@
       transform: translateY(-2px);
     }
 
-    .search-mode-toggle button[type="submit"] {
-      width: 100%;
-      padding: 14px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 1.05rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-      margin-top: 10px;
-    }
-
-    .search-mode-toggle button[type="submit"]:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-    }
 
     .submit-base {
       width: 100%;
@@ -287,6 +262,7 @@
       border-radius: 8px;
       padding: 20px;
       text-align: center;
+      margin-top: 1em;
     }
 
     .batch-progress h3 {
@@ -431,6 +407,29 @@
 
     .summary-item {
       flex: 1;
+    }
+
+    .summary-filter {
+      cursor: pointer;
+      transition: all 0.3s;
+      padding: 10px;
+      border-radius: 8px;
+      border: 2px solid transparent;
+    }
+
+    .summary-filter:hover {
+      background: #e8e8e8;
+      transform: translateY(-2px);
+    }
+
+    .summary-filter.active {
+      background: #667eea;
+      border-color: #667eea;
+    }
+
+    .summary-filter.active .summary-number,
+    .summary-filter.active .summary-label {
+      color: white !important;
     }
 
     .summary-number {
@@ -908,9 +907,9 @@
           <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" fill="white"/>
           </svg>
-          Ricevi notifiche con Telegram Bot
+          Notifiche su Telegram
         </a>
-        <a href="/swagger" class="bot-link" target="_blank" rel="noopener noreferrer">
+        <!-- <a href="/swagger" class="bot-link" target="_blank" rel="noopener noreferrer">
           <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 0C5.383 0 0 5.383 0 12s5.383 12 12 12c6.616 0 12-5.383 12-12S18.616 0 12 0zm0 1.144c5.995 0 10.856 4.86 10.856 10.856 0 5.995-4.86 10.856-10.856 10.856-5.996 0-10.856-4.86-10.856-10.856C1.144 6.004 6.004 1.144 12 1.144zM8.37 5.868a6.707 6.707 0 0 0-.423.005c-.983.056-1.573.517-1.735 1.472-.115.665-.096 1.348-.143 2.017-.013.35-.05.697-.115 1.038-.134.609-.397.798-1.016.83a2.65 2.65 0 0 0-.244.042v1.463c1.126.055 1.278.452 1.37 1.629.033.429-.013.858.015 1.287.018.406.073.808.156 1.2.259 1.075 1.307 1.435 2.575 1.218v-1.283c-.203 0-.383.005-.558-.014-.43-.037-.609-.366-.609-1.343 0-.388-.009-.775-.019-1.163-.013-.471-.038-.937-.189-1.385-.212-.549-.677-.77-1.253-.888.586-.12 1.041-.34 1.253-.888.151-.448.176-.914.189-1.385.01-.388.019-.775.019-1.163 0-.977.179-1.306.609-1.343a5.822 5.822 0 0 1 .558-.014V5.868h-.005zm7.26 0v1.283c.203 0 .383-.005.558.014.43.037.609.366.609 1.343 0 .388.009.775.019 1.163.013.471.038.937.189 1.385.212.549.676.77 1.253.888-.587.12-1.041.34-1.253.888-.151.448-.176.914-.189 1.385-.01.388-.019.775-.019 1.163 0 .977-.179 1.306-.609 1.343a5.822 5.822 0 0 1-.558.014v1.283c1.268.217 2.316-.143 2.575-1.218.083-.392.138-.794.156-1.2.028-.429-.018-.858.015-1.287.092-1.177.244-1.574 1.37-1.629v-1.463a2.65 2.65 0 0 0-.244-.042c-.619-.032-.882-.221-1.016-.83-.065-.341-.102-.688-.115-1.038-.047-.669-.028-1.352-.143-2.017-.162-.955-.752-1.416-1.735-1.472a6.707 6.707 0 0 0-.423-.005h-.005z" fill="white"/>
           </svg>
@@ -918,7 +917,7 @@
           <svg style="width: 14px; height: 14px; margin-left: 4px; vertical-align: middle; opacity: 0.8;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3m-2 16H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7h-2v7z" fill="white"/>
           </svg>
-        </a>
+        </a> -->
       </div>
     </div>
 
@@ -996,29 +995,10 @@
             <p class="help-text">Inserisci uno o più nomi separati da virgola</p>
           </div>
 
-          <!-- Search Mode Toggle + Submit Button (solo in Avanzate) -->
-          <div class="search-mode-toggle">
-            <div class="toggle-options">
-              <div class="toggle-option">
-                <input type="radio" id="mode-standard" name="searchMode" value="standard" checked>
-                <label for="mode-standard">🚀 Singola</label>
-              </div>
-              <div class="toggle-option">
-                <input type="radio" id="mode-batch" name="searchMode" value="batch">
-                <label for="mode-batch">🔄 Batch</label>
-              </div>
-            </div>
-            <div id="warningBox" class="warning-box" style="display: none;"></div>
-            <button type="submit" id="submitBtn">🔍 Cerca</button>
-          </div>
+          <!-- Submit Button -->
+          <button type="submit" id="submitBtn" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); margin-top: 20px;">🔍 Cerca</button>
         </div>
       </form>
-
-      <div id="loading" style="display: none;" class="loading">
-        Ricerca in corso
-        <div class="loading-timer" id="loadingTimer">0.0s</div>
-        <button type="button" id="cancelBtnStandard" class="cancel-btn">❌ Annulla ricerca</button>
-      </div>
 
       <!-- Batch Progress Bar -->
       <div id="batchProgress" style="display: none;" class="batch-progress">
@@ -1061,19 +1041,19 @@
       <div id="results" style="display: none;" class="results">
         <div class="search-time" id="searchTime"></div>
         <div class="results-summary">
-          <div class="summary-item">
+          <div class="summary-item summary-filter" data-filter="totali" onclick="filterResults('totali')">
             <div class="summary-number" id="totalCount">0</div>
             <div class="summary-label">Totali</div>
           </div>
-          <div class="summary-item">
+          <div class="summary-item summary-filter" data-filter="assegnabili" onclick="filterResults('assegnabili')">
             <div class="summary-number" style="color: #22c55e;" id="liberiCount">0</div>
             <div class="summary-label">Assegnabili liberamente</div>
           </div>
-          <div class="summary-item">
+          <div class="summary-item summary-filter" data-filter="deroga" onclick="filterResults('deroga')">
             <div class="summary-number" style="color: #f59e0b;" id="derogaCount">0</div>
             <div class="summary-label">Con deroga</div>
           </div>
-          <div class="summary-item">
+          <div class="summary-item summary-filter" data-filter="altro" onclick="filterResults('altro')">
             <div class="summary-number" style="color: #ef4444;" id="altroCount">0</div>
             <div class="summary-label">Altro</div>
           </div>
@@ -1081,8 +1061,13 @@
 
         <!-- Batch Info Box (solo per ricerche batch) -->
         <div id="batchInfo" style="display: none;" class="batch-info">
-          <h4>ℹ️ Dettagli ricerca batch</h4>
-          <ul id="batchInfoList"></ul>
+          <h4 style="cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: space-between;" onclick="toggleBatchInfo()">
+            <span>ℹ️ Dettagli ricerca batch</span>
+            <span id="batchInfoArrow" style="transition: transform 0.3s; transform: rotate(-90deg);">▼</span>
+          </h4>
+          <div id="batchInfoContent" style="max-height: 300px; overflow-y: auto; display: none;">
+            <ul id="batchInfoList"></ul>
+          </div>
         </div>
 
         <!-- Mobile Sort Control (visibile solo su mobile) -->
@@ -1109,7 +1094,7 @@
     </div>
 
     <div class="footer">
-      <p>MediciLazioASL - Sistema di ricerca medici disponibili</p>
+      <p>Medici Lazio ASL - Sistema di ricerca medici</p>
       <p>Dati aggiornati dal portale Salute Lazio</p>
     </div>
   </div>
@@ -1120,21 +1105,16 @@
   <script src="/lib/medici-visualizer-presets.js"></script>
   <script src="/lib/medici-visualizer.js"></script>
 
-  <script type="module">
-    import { BatchSearchClient } from '/batch-search-client.js';
-
+  <script src="/batch-search-client.js"></script>
+  <script>
     const form = document.getElementById('searchForm');
-    const loading = document.getElementById('loading');
     const batchProgress = document.getElementById('batchProgress');
     const error = document.getElementById('error');
     const results = document.getElementById('results');
     const submitBtn = document.getElementById('submitBtn');
-    const loadingTimer = document.getElementById('loadingTimer');
     const searchTime = document.getElementById('searchTime');
-    const warningBox = document.getElementById('warningBox');
     const batchInfo = document.getElementById('batchInfo');
     const cancelBtn = document.getElementById('cancelBtn');
-    const cancelBtnStandard = document.getElementById('cancelBtnStandard');
 
     let currentData = null;
     let sortColumn = null;
@@ -1300,60 +1280,13 @@
       searchTime.textContent = `⏱️ Ricerca batch completata in ${(meta.duration / 1000).toFixed(2)}s`;
     }
 
-    function checkCombinationsWarning() {
-      const searchModeElement = document.querySelector('input[name="searchMode"]:checked');
-      const searchMode = searchModeElement ? searchModeElement.value : 'standard';
-
-      const cognomi = document.getElementById('cognomi').value.trim();
-      const cap = document.getElementById('cap').value.trim();
-      const nomi = document.getElementById('nomi').value.trim();
-
-      const cognomiCount = cognomi ? cognomi.split(',').filter(c => c.trim()).length : 0;
-      const capCount = cap ? cap.split(',').filter(c => c.trim()).length : 0;
-      const nomiCount = nomi ? nomi.split(',').filter(n => n.trim()).length : 0;
-      const aslCount = getSelectedAsl().length;
-
-      // Controlla se l'unico criterio è l'ASL
-      const onlyAsl = (cognomiCount === 0 && capCount === 0 && nomiCount === 0 && aslCount > 0);
-
-      if (onlyAsl && searchMode === 'standard') {
-        warningBox.innerHTML = `⚠️ Ricerca solo per ASL <strong>andrà in timeout con modalità Standard</strong>. Usa <strong>modalità Batch</strong>.`;
-        warningBox.style.display = 'block';
-        return;
-      }
-
-      // Calcola combinazioni (almeno 1 per ogni dimensione)
-      const combinations = Math.max(1, cognomiCount) * Math.max(1, capCount) * Math.max(1, nomiCount);
-
-      if (combinations > 10 && searchMode === 'standard') {
-        warningBox.innerHTML = `⚠️ Con <strong>${combinations} combinazioni</strong> potrebbe esserci timeout. Consigliamo <strong>modalità Batch</strong>.`;
-        warningBox.style.display = 'block';
-      } else {
-        warningBox.style.display = 'none';
-      }
-    }
-
-    // Event listener per il warning
-    const cognomiFields = [
-      document.getElementById('cognomi-base'),
-      document.getElementById('cognomi'),
-      document.getElementById('cap'),
-      document.getElementById('nomi')
-    ];
-
-    cognomiFields.forEach(field => {
-      if (field) {
-        field.addEventListener('input', checkCombinationsWarning);
-      }
-    });
-
-    document.querySelectorAll('input[name="searchMode"]').forEach(radio => {
-      radio.addEventListener('change', checkCombinationsWarning);
-    });
+    // checkCombinationsWarning non serve più (sempre batch mode)
 
     // Event listener per checkbox ASL
     document.querySelectorAll('input[type="checkbox"][id^="asl_"]').forEach(checkbox => {
-      checkbox.addEventListener('change', checkCombinationsWarning);
+      checkbox.addEventListener('change', () => {
+        // Aggiorna solo la visualizzazione
+      });
     });
 
     // Cancel button (batch)
@@ -1365,14 +1298,70 @@
       }
     });
 
-    // Cancel button (standard)
-    cancelBtnStandard.addEventListener('click', () => {
-      if (batchClient) {
-        batchClient.abort();
-        hideLoading();
-        showError('Ricerca annullata dall\'utente.');
+    // Toggle batch info collapse
+    function toggleBatchInfo() {
+      const content = document.getElementById('batchInfoContent');
+      const arrow = document.getElementById('batchInfoArrow');
+
+      if (content.style.display === 'none') {
+        content.style.display = 'block';
+        arrow.style.transform = 'rotate(0deg)';
+      } else {
+        content.style.display = 'none';
+        arrow.style.transform = 'rotate(-90deg)';
       }
-    });
+    }
+
+    // Filtra risultati in base al counter selezionato
+    let activeFilter = 'totali';
+
+    function filterResults(filter) {
+      activeFilter = filter;
+
+      // Update active state sui filtri
+      document.querySelectorAll('.summary-filter').forEach(el => {
+        if (el.dataset.filter === filter) {
+          el.classList.add('active');
+        } else {
+          el.classList.remove('active');
+        }
+      });
+
+      // Filtra i dati in base al tipo
+      let filteredData = currentData.results;
+
+      if (filter === 'assegnabili') {
+        filteredData = currentData.results.filter(m => {
+          if (!m.assegnabilita) return false;
+          const stato = m.assegnabilita.toLowerCase();
+          return stato.includes('assegnazione libera');
+        });
+      } else if (filter === 'deroga') {
+        filteredData = currentData.results.filter(m => {
+          if (!m.assegnabilita) return false;
+          const stato = m.assegnabilita.toLowerCase();
+          return stato.includes('deroga') && !stato.includes('assegnazione libera');
+        });
+      } else if (filter === 'altro') {
+        filteredData = currentData.results.filter(m => {
+          if (!m.assegnabilita) return true;
+          const stato = m.assegnabilita.toLowerCase();
+          return !stato.includes('assegnazione libera') && !stato.includes('deroga');
+        });
+      }
+      // 'totali' mostra tutto, quindi non filtriamo
+
+      // Ricrea il visualizer con i dati filtrati
+      if (mediciVisualizer) {
+        mediciVisualizer.destroy();
+      }
+
+      mediciVisualizer = new MediciVisualizer({
+        preset: 'MAIN_SEARCH',
+        container: '#mediciList',
+        data: filteredData
+      });
+    }
 
     function displayResults(data) {
       currentData = data;
@@ -1382,6 +1371,16 @@
       document.getElementById('liberiCount').textContent = data.counters.assegnabili;
       document.getElementById('derogaCount').textContent = data.counters.conDeroga;
       document.getElementById('altroCount').textContent = data.counters.nonAssegnabili;
+
+      // Reset filtro a "totali" e attiva il primo filtro
+      activeFilter = 'totali';
+      document.querySelectorAll('.summary-filter').forEach(el => {
+        if (el.dataset.filter === 'totali') {
+          el.classList.add('active');
+        } else {
+          el.classList.remove('active');
+        }
+      });
 
       if (data.results.length === 0) {
         document.getElementById('mediciList').innerHTML = '<p style="text-align: center; color: #777; padding: 20px;">Nessun medico trovato con i criteri specificati.</p>';
@@ -1403,8 +1402,6 @@
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-
-      const searchMode = document.querySelector('input[name="searchMode"]:checked').value;
 
       // Tipo medico fisso a "Medicina generale"
       const tipo = 'Medicina generale';
@@ -1435,61 +1432,45 @@
         return;
       }
 
+      // Validazione formato cognomi
+      for (const cognome of cognomi) {
+        if (!/^[A-Z'\s]+$/.test(cognome)) {
+          showError(`Cognome non valido: "${cognome}". Usa solo lettere maiuscole, apostrofi e spazi.`);
+          return;
+        }
+      }
+
+      // Validazione formato nomi
+      for (const nome of nomi) {
+        if (!/^[A-Z'\s]+$/.test(nome)) {
+          showError(`Nome non valido: "${nome}". Usa solo lettere maiuscole, apostrofi e spazi.`);
+          return;
+        }
+      }
+
+      // Validazione formato CAP
+      for (const c of cap) {
+        if (!/^\d{5}$/.test(c)) {
+          showError(`CAP non valido: "${c}". Deve essere esattamente 5 cifre.`);
+          return;
+        }
+      }
+
       // Ottimizzazione: se tutte ASL selezionate + almeno un altro campo, usa ASL vuoto
       const hasOtherFields = cognomi.length > 0 || cap.length > 0 || nomi.length > 0;
       if (selectedAsl.length === ALL_ASL_OPTIONS.length && hasOtherFields) {
         aslToSend = [];
       }
 
-      // MODALITÀ BATCH
-      if (searchMode === 'batch') {
-        showBatchProgress();
-
-        try {
-          batchClient = new BatchSearchClient({
-            parallelism: 5,
-            onProgress: (progress) => {
-              updateBatchProgress(progress);
-            }
-          });
-
-          const result = await batchClient.search({
-            cognomi,
-            cap,
-            nomi,
-            tipo,
-            asl: aslToSend
-          });
-
-          hideBatchProgress();
-
-          if (!result.success) {
-            showError(result.error || 'Errore durante la ricerca batch.');
-            return;
-          }
-
-          // Mostra batch info
-          if (result.meta) {
-            displayBatchInfo(result.meta);
-          }
-
-          displayResults(result);
-        } catch (err) {
-          hideBatchProgress();
-          showError('Errore durante la ricerca batch. Riprova più tardi.');
-          console.error('Batch search error:', err);
-        }
-
-        return;
-      }
-
-      // MODALITÀ STANDARD (usa BatchSearchClient senza progress UI)
-      showLoading();
+      // USA SEMPRE MODALITÀ BATCH
+      showBatchProgress();
 
       try {
-        batchClient = new BatchSearchClient({
-          parallelism: 5
-          // Nessun onProgress callback per Standard mode
+        batchClient = new window.BatchSearchClient({
+          parallelism: 5,
+          onProgress: (progress) => {
+            updateBatchProgress(progress);
+          }
         });
 
         const result = await batchClient.search({
@@ -1500,25 +1481,23 @@
           asl: aslToSend
         });
 
-        hideLoading();
+        hideBatchProgress();
 
         if (!result.success) {
-          showError(result.error || 'Errore durante la ricerca.');
+          showError(result.error || 'Errore durante la ricerca batch.');
           return;
         }
 
-        // Nascondi batch info in standard mode
-        batchInfo.style.display = 'none';
+        // Mostra batch info
+        if (result.meta) {
+          displayBatchInfo(result.meta);
+        }
 
         displayResults(result);
       } catch (err) {
-        hideLoading();
-        if (err.name === 'AbortError') {
-          // Ricerca annullata, non mostrare errore
-          return;
-        }
-        showError('Errore di connessione. Riprova più tardi.');
-        console.error('Search error:', err);
+        hideBatchProgress();
+        showError('Errore durante la ricerca batch. Riprova più tardi.');
+        console.error('Batch search error:', err);
       }
     });
 
@@ -1600,7 +1579,6 @@
     aslCheckboxes.forEach(cb => {
       cb.addEventListener('change', () => {
         updateAslHeaderText();
-        checkCombinationsWarning();
       });
     });
 
@@ -1610,11 +1588,8 @@
 
     // Close dropdowns when clicking outside
     document.addEventListener('click', (e) => {
-      if (!document.getElementById('aslMultiselectBase').contains(e.target)) {
-        closeAslDropdownBase();
-        updateAslHeaderTextBase();
-      }
-      if (!document.getElementById('aslMultiselect').contains(e.target)) {
+      const aslMultiselect = document.getElementById('aslMultiselect');
+      if (aslMultiselect && !aslMultiselect.contains(e.target)) {
         closeAslDropdown();
         updateAslHeaderText();
       }
