@@ -1105,6 +1105,13 @@
   <script src="/lib/medici-visualizer-presets.js"></script>
   <script src="/lib/medici-visualizer.js"></script>
 
+  <!-- Logger (deve essere caricato PRIMA di batch-search-client) -->
+  <script src="/lib/logger.js"></script>
+  <script>
+    // Configura log level per il browser
+    window.LOG_LEVEL = 'debug'; // Cambia a 'info' o 'error' per produzione
+  </script>
+
   <script src="/batch-search-client.js"></script>
   <script>
     const form = document.getElementById('searchForm');

@@ -31,6 +31,15 @@
  * });
  */
 
+// Logger client-side
+const log = window.createLogger ? window.createLogger('batch-client') : {
+  error: console.error.bind(console, '[batch-client]'),
+  warn: console.warn.bind(console, '[batch-client]'),
+  info: console.log.bind(console, '[batch-client]'),
+  debug: console.log.bind(console, '[batch-client]'),
+  trace: console.log.bind(console, '[batch-client]')
+};
+
 class BatchSearchClient {
   constructor(options = {}) {
     this.baseUrl = options.baseUrl || '';
@@ -102,7 +111,12 @@ class BatchSearchClient {
     }
 
     const result = await response.json();
-    console.log('RISPOSTA search_simple:', result);
+    log.debug('RISPOSTA search_simple:', {
+      results: result.results?.length || 0,
+      counters: result.counters,
+      query: bodyParams
+    });
+    log.trace('RISPOSTA COMPLETA search_simple:', result);
 
     return result;
   }
@@ -349,17 +363,21 @@ class BatchSearchClient {
       asl = []
     } = params;
 
+    log.debug('Search chiamato con parametri:', params);
+
     try {
       // Ottimizzazione: se tutte le ASL sono selezionate E c'è almeno un altro campo, tratta ASL come vuoto
       let aslToUse = asl;
       const hasOtherFields = cognomi.length > 0 || cap.length > 0 || nomi.length > 0;
 
       if (Array.isArray(asl) && asl.length === this.ALL_ASL_OPTIONS.length && hasOtherFields) {
+        log.debug('Tutte ASL selezionate, ottimizzazione: tratto come vuoto');
         aslToUse = [];
       }
 
       // Genera combinazioni
       const combinations = this._generateCombinations(cognomi, cap, nomi, aslToUse);
+      log.debug(`Generato ${combinations.length} combinazioni:`, combinations.slice(0, 3));
 
       // Progress iniziale
       if (this.onProgress) {
