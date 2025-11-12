@@ -31,7 +31,7 @@
  * });
  */
 
-export class BatchSearchClient {
+class BatchSearchClient {
   constructor(options = {}) {
     this.baseUrl = options.baseUrl || '';
     this.parallelism = options.parallelism || 5;
@@ -101,7 +101,10 @@ export class BatchSearchClient {
       throw new Error(error.error || `HTTP ${response.status}`);
     }
 
-    return await response.json();
+    const result = await response.json();
+    console.log('RISPOSTA search_simple:', result);
+
+    return result;
   }
 
   /**
@@ -128,14 +131,16 @@ export class BatchSearchClient {
       try {
         // Prima richiesta: pagina 1 per ottenere totalPages
         totalRequests++;
+
+        // Costruisci params solo con i campi non vuoti
+        const searchParams = { tipo };
+        if (combo.cognome) searchParams.cognome = combo.cognome;
+        if (combo.cap) searchParams.cap = combo.cap;
+        if (combo.nome) searchParams.nome = combo.nome;
+        if (combo.asl) searchParams.asl = combo.asl;
+
         const firstPageResult = await this._searchSingle(
-          {
-            cognome: combo.cognome,
-            cap: combo.cap,
-            nome: combo.nome,
-            tipo,
-            asl: combo.asl
-          },
+          searchParams,
           signal,
           1 // Richiedi esplicitamente pagina 1
         );
@@ -188,13 +193,7 @@ export class BatchSearchClient {
             totalRequests++;
 
             const pageResult = await this._searchSingle(
-              {
-                cognome: combo.cognome,
-                cap: combo.cap,
-                nome: combo.nome,
-                tipo,
-                asl: combo.asl
-              },
+              searchParams,
               signal,
               page
             );
@@ -424,10 +423,5 @@ export class BatchSearchClient {
   }
 }
 
-// Export for ES6 modules
-export { BatchSearchClient };
-
-// Export for browser global
-if (typeof window !== 'undefined') {
-  window.BatchSearchClient = BatchSearchClient;
-}
+// Export to window for browser usage
+window.BatchSearchClient = BatchSearchClient;
