@@ -11,7 +11,10 @@ const MediciVisualizerPresets = {
    */
   MAIN_SEARCH: {
     layout: {
-      main: `{{slot:content}}`,
+      main: `
+        {{slot:content}}
+        {{slot:pagination}}
+      `,
 
       slots: {
         content: {
@@ -117,6 +120,54 @@ const MediciVisualizerPresets = {
               </div>
             {{/if}}
           `
+        },
+
+        pagination: {
+          enabled: true,
+          show: (state) => state.filteredItems.length >= 11,
+          template: `
+            <div class="pagination-container" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+              <!-- Items per page selector -->
+              <div class="pagination-size" style="display: flex; align-items: center; gap: 10px;">
+                <span style="color: #666; font-size: 0.9rem;">Elementi per pagina:</span>
+                <select data-page-size-select class="page-size-select" style="padding: 8px 12px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 0.9rem; cursor: pointer; background: white;">
+                  <option value="10">10</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                  <option value="Tutti">Tutti</option>
+                </select>
+                <span style="color: #666; font-size: 0.9rem;">Totale: {{totalItems}}</span>
+              </div>
+
+              <!-- Page navigation -->
+              <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                <div class="pagination-nav" style="display: flex; align-items: center; gap: 6px;">
+                  <!-- Previous page button -->
+                  <button data-page-action="prev" {{#if isFirstPage}}disabled{{/if}} style="padding: 10px 16px; border: 1px solid #667eea; border-radius: 4px; background: {{#if isFirstPage}}#e8e8e8{{else}}#667eea{{/if}}; font-weight: 400; color: {{#if isFirstPage}}#ccc{{else}}white{{/if}}; cursor: {{#if isFirstPage}}not-allowed{{else}}pointer{{/if}}; min-width: 80px;">
+                    Prec
+                  </button>
+
+                  <!-- Page numbers -->
+                  {{#each visiblePages}}
+                    <button data-page-action="page" data-page="{{this}}" style="padding: 10px 16px; border: 2px solid #667eea; border-radius: 4px; background: {{#if (isCurrentPage this)}}white{{else}}#667eea{{/if}}; color: {{#if (isCurrentPage this)}}#667eea{{else}}white{{/if}}; cursor: pointer; font-weight: {{#if (isCurrentPage this)}}700{{else}}400{{/if}}; min-width: 50px;">
+                      {{this}}
+                    </button>
+                  {{/each}}
+
+                  <!-- Next page button -->
+                  <button data-page-action="next" {{#if isLastPage}}disabled{{/if}} style="padding: 10px 16px; border: 1px solid #667eea; border-radius: 4px; background: {{#if isLastPage}}#e8e8e8{{else}}#667eea{{/if}}; font-weight: 400; color: {{#if isLastPage}}#ccc{{else}}white{{/if}}; cursor: {{#if isLastPage}}not-allowed{{else}}pointer{{/if}}; min-width: 80px;">
+                    Succ
+                  </button>
+                </div>
+
+                <!-- Total pages indicator (only if more than 5 pages) -->
+                {{#if (gt totalPages 5)}}
+                  <div style="font-size: 0.75rem; color: #999; margin-top: 4px;">di {{totalPages}} pagine</div>
+                {{/if}}
+              </div>
+            </div>
+          `
         }
       }
     },
@@ -131,7 +182,13 @@ const MediciVisualizerPresets = {
     },
 
     pagination: {
-      enabled: false
+      enabled: true,
+      pageSize: 10,
+      pageSizeOptions: [10, 25, 50, 100, 'Tutti'],
+      showPageNumbers: true,
+      maxPageButtons: 5,
+      showFirstLast: true,
+      showPrevNext: true
     }
   },
 

@@ -46,8 +46,23 @@ class TemplateEngine {
     const regex = /\{\{#if\s+([^}]+)\}\}([\s\S]*?)\{\{\/if\}\}/g;
 
     return template.replace(regex, (match, condition, content) => {
-      const value = this._resolveValue(condition.trim(), context);
-      return this._isTruthy(value) ? content : '';
+      let conditionValue = condition.trim();
+
+      // Check se è una chiamata a helper con parentesi: (helper arg1 arg2)
+      const helperCallMatch = conditionValue.match(/^\(([^)]+)\)$/);
+      if (helperCallMatch) {
+        const parts = helperCallMatch[1].split(/\s+/);
+        const helperName = parts[0];
+        const args = parts.slice(1).map(arg => this._resolveValue(arg, context));
+
+        if (typeof context[helperName] === 'function') {
+          conditionValue = context[helperName](...args);
+        }
+      } else {
+        conditionValue = this._resolveValue(conditionValue, context);
+      }
+
+      return this._isTruthy(conditionValue) ? content : '';
     });
   }
 
@@ -135,6 +150,11 @@ class TemplateEngine {
     for (const key of keys) {
       if (value === null || value === undefined) return '';
       value = value[key];
+    }
+
+    // Se è una funzione senza argomenti (helper), chiamala
+    if (typeof value === 'function') {
+      return value();
     }
 
     return value;

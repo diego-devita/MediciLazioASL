@@ -16,7 +16,7 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
       line-height: 1.6;
       color: #333;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #667eea;
       min-height: 100vh;
       padding: 20px;
       overflow-x: auto;
@@ -32,10 +32,12 @@
     }
 
     .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #e8e8e8 0%, #c0c0c0 100%);
       color: white;
       padding: 40px 30px;
       text-align: center;
+      border-bottom: 6px solid #999;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     }
 
     .header h1 {
@@ -62,8 +64,8 @@
       gap: 8px;
       margin-top: 15px;
       padding: 10px 20px;
-      background: rgba(255, 255, 255, 0.2);
-      color: white;
+      background: rgba(255, 255, 255, 0.4);
+      color: #888;
       text-decoration: none;
       border-radius: 8px;
       font-size: 0.9rem;
@@ -72,8 +74,16 @@
       border: 2px solid rgba(255, 255, 255, 0.3);
     }
 
+    .bot-link svg {
+      fill: #888;
+    }
+
+    .bot-link svg path {
+      fill: #888;
+    }
+
     .bot-link:hover {
-      background: rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.5);
       transform: translateY(-2px);
     }
 
@@ -125,7 +135,7 @@
     button {
       width: 100%;
       padding: 14px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #667eea;
       color: white;
       border: none;
       border-radius: 8px;
@@ -234,7 +244,7 @@
     .submit-base {
       width: 100%;
       padding: 14px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #667eea;
       color: white;
       border: none;
       border-radius: 8px;
@@ -284,7 +294,7 @@
 
     .progress-bar-fill {
       height: 100%;
-      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      background: #667eea;
       transition: width 0.3s ease;
       display: flex;
       align-items: center;
@@ -342,6 +352,7 @@
       border-left: 4px solid #2196f3;
       padding: 15px;
       margin-top: 15px;
+      margin-bottom: 15px;
       border-radius: 4px;
     }
 
@@ -403,6 +414,7 @@
       display: flex;
       justify-content: space-around;
       text-align: center;
+      gap: 5px;
     }
 
     .summary-item {
@@ -423,12 +435,53 @@
     }
 
     .summary-filter.active {
-      background: #667eea;
       border-color: #667eea;
     }
 
-    .summary-filter.active .summary-number,
-    .summary-filter.active .summary-label {
+    /* Totali - trasparente quando non attivo, blu quando attivo */
+    .summary-filter[data-filter="totali"] {
+      background: transparent;
+    }
+
+    .summary-filter[data-filter="totali"].active {
+      background: #667eea;
+    }
+
+    .summary-filter[data-filter="totali"].active .summary-number,
+    .summary-filter[data-filter="totali"].active .summary-label {
+      color: white !important;
+    }
+
+    /* Assegnabili - verde */
+    .summary-filter[data-filter="assegnabili"].active {
+      background: #22c55e;
+      border-color: #22c55e;
+    }
+
+    .summary-filter[data-filter="assegnabili"].active .summary-number,
+    .summary-filter[data-filter="assegnabili"].active .summary-label {
+      color: white !important;
+    }
+
+    /* Con deroga - arancione */
+    .summary-filter[data-filter="deroga"].active {
+      background: #f59e0b;
+      border-color: #f59e0b;
+    }
+
+    .summary-filter[data-filter="deroga"].active .summary-number,
+    .summary-filter[data-filter="deroga"].active .summary-label {
+      color: white !important;
+    }
+
+    /* Altro - rosso */
+    .summary-filter[data-filter="altro"].active {
+      background: #ef4444;
+      border-color: #ef4444;
+    }
+
+    .summary-filter[data-filter="altro"].active .summary-number,
+    .summary-filter[data-filter="altro"].active .summary-label {
       color: white !important;
     }
 
@@ -466,12 +519,12 @@
     }
 
     .results-table thead {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #667eea;
       color: white;
     }
 
     .results-table th {
-      padding: 15px;
+      padding: 15px 15px 15px 60px;
       text-align: left;
       font-weight: 600;
       font-size: 0.875rem;
@@ -488,19 +541,22 @@
     }
 
     .results-table th::after {
-      content: ' ↕';
+      content: '↕';
       opacity: 0.3;
-      font-size: 0.8rem;
-      vertical-align: top;
+      font-size: 2rem;
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
     }
 
     .results-table th.sort-asc::after {
-      content: ' ↑';
+      content: '↑';
       opacity: 1;
     }
 
     .results-table th.sort-desc::after {
-      content: ' ↓';
+      content: '↓';
       opacity: 1;
     }
 
@@ -755,15 +811,24 @@
     }
 
     .mobile-sort-select {
-      flex: 1;
-      padding: 8px 12px;
+      flex: 2;
+      padding: 8px 10px;
       border: 2px solid #e0e0e0;
       border-radius: 8px;
       font-size: 0.95rem;
+      background: white;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      background-image: url('data:image/svg+xml;charset=UTF-8,<svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L6 6L11 1" stroke="%23666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 34px;
+      min-width: 0;
     }
 
     .mobile-sort-toggle {
-      padding: 8px 16px;
+      padding: 8px 10px;
       background: #667eea;
       color: white;
       border: none;
@@ -771,6 +836,7 @@
       cursor: pointer;
       font-weight: 600;
       white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .mobile-sort-toggle:active {
@@ -879,6 +945,28 @@
         display: flex;
       }
 
+      /* Pagination mobile */
+      .pagination-container {
+        flex-direction: column !important;
+        gap: 15px !important;
+      }
+
+      .pagination-size {
+        width: 100%;
+        justify-content: space-between !important;
+      }
+
+      .pagination-nav {
+        width: 100%;
+        justify-content: center !important;
+        flex-wrap: wrap;
+      }
+
+      .pagination-nav button {
+        font-size: 0.85rem !important;
+        padding: 6px 10px !important;
+      }
+
       /* Toggle più compatto */
       .toggle-options {
         gap: 10px;
@@ -889,23 +977,45 @@
         padding: 10px;
         gap: 6px;
       }
+
+      .header h1 {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 1em;
+      }
+
+      .header h1 img {
+        align-self: flex-start;
+      }
+
+      .header h1 span {
+        width: 100%;
+        text-align: center;
+        white-space: nowrap;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1><img src="/logo-salute-lazio.svg" alt="Salute Lazio" style="height: 2em; vertical-align: middle; margin-right: 0.5em;"> Ricerca Medici ASL Lazio</h1>
+      <h1 style="padding: .5em; display: flex; align-items: center;">
+        <div style="display: flex; flex-direction: column; align-items: flex-start;">
+          <img src="/logo-salute-lazio.svg" alt="Salute Lazio" style="height: 2em; margin-bottom: 0.3em;">
+          <span style="font-size: 0.6em; color: #999; font-weight: 400; font-style: italic;">Dati da salutelazio.it</span>
+        </div>
+        <span style="color: #888; font-size: 1.9em; font-weight: 700; flex-grow: 1; text-shadow: 0 1px 0 rgba(255,255,255,.8), 0 -1px 0 rgba(0,0,0,.2); border: solid 8px #888; padding: 0.3em 0.6em; margin-left: 0.5em; white-space: pre-wrap; text-align: right; line-height: 65px;">RICERCA MEDICI</span>
+      </h1>
       <div class="header-links">
         <a href="/admin" class="bot-link" id="adminLink" style="display: none;">
           <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 18px; height: 18px;">
-            <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 2.182c5.423 0 9.818 4.395 9.818 9.818 0 5.423-4.395 9.818-9.818 9.818-5.423 0-9.818-4.395-9.818-9.818 0-5.423 4.395-9.818 9.818-9.818zM12 6c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zm0 8c-2.667 0-8 1.333-8 4v2h16v-2c0-2.667-5.333-4-8-4z" fill="white"/>
+            <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 2.182c5.423 0 9.818 4.395 9.818 9.818 0 5.423-4.395 9.818-9.818 9.818-5.423 0-9.818-4.395-9.818-9.818 0-5.423 4.395-9.818 9.818-9.818zM12 6c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zm0 8c-2.667 0-8 1.333-8 4v2h16v-2c0-2.667-5.333-4-8-4z"/>
           </svg>
           Admin Panel
         </a>
         <a href="/bot" class="bot-link">
           <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" fill="white"/>
+            <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
           </svg>
           Notifiche su Telegram
         </a>
@@ -996,7 +1106,7 @@
           </div>
 
           <!-- Submit Button -->
-          <button type="submit" id="submitBtn" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); margin-top: 20px;">🔍 Cerca</button>
+          <button type="submit" id="submitBtn" style="width: 100%; padding: 14px; background: #667eea; color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); margin-top: 20px; line-height: 23px;">Cerca</button>
         </div>
       </form>
 
@@ -1040,6 +1150,18 @@
 
       <div id="results" style="display: none;" class="results">
         <div class="search-time" id="searchTime"></div>
+
+        <!-- Batch Info Box (solo per ricerche batch) -->
+        <div id="batchInfo" style="display: none;" class="batch-info">
+          <h4 style="cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: space-between;" onclick="toggleBatchInfo()">
+            <span>Dettagli ricerca batch</span>
+            <span id="batchInfoArrow" style="transition: transform 0.3s; transform: rotate(-90deg);">▼</span>
+          </h4>
+          <div id="batchInfoContent" style="max-height: 300px; overflow-y: auto; display: none; margin-top: 1em;">
+            <ul id="batchInfoList"></ul>
+          </div>
+        </div>
+
         <div class="results-summary">
           <div class="summary-item summary-filter" data-filter="totali" onclick="filterResults('totali')">
             <div class="summary-number" id="totalCount">0</div>
@@ -1059,22 +1181,11 @@
           </div>
         </div>
 
-        <!-- Batch Info Box (solo per ricerche batch) -->
-        <div id="batchInfo" style="display: none;" class="batch-info">
-          <h4 style="cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: space-between;" onclick="toggleBatchInfo()">
-            <span>ℹ️ Dettagli ricerca batch</span>
-            <span id="batchInfoArrow" style="transition: transform 0.3s; transform: rotate(-90deg);">▼</span>
-          </h4>
-          <div id="batchInfoContent" style="max-height: 300px; overflow-y: auto; display: none;">
-            <ul id="batchInfoList"></ul>
-          </div>
-        </div>
-
         <!-- Mobile Sort Control (visibile solo su mobile) -->
         <div class="mobile-sort-control">
           <span class="mobile-sort-label">Ordina per:</span>
           <select id="mobileSortSelect" class="mobile-sort-select">
-            <option value="cognome">Cognome</option>
+            <option value="cognome" selected>Cognome</option>
             <option value="nome">Nome</option>
             <option value="asl">ASL</option>
             <option value="assegnabilita">Stato</option>
@@ -1323,41 +1434,90 @@
     // Filtra risultati in base al counter selezionato
     let activeFilter = 'totali';
 
-    function filterResults(filter) {
-      activeFilter = filter;
+    let activeFilters = ['totali']; // Array di filtri attivi
 
-      // Update active state sui filtri
+    function filterResults(filter) {
+      console.log('filterResults chiamato con:', filter, 'activeFilters prima:', [...activeFilters]);
+      const filterEl = document.querySelector(`.summary-filter[data-filter="${filter}"]`);
+
+      // Se clicco su "totali"
+      if (filter === 'totali') {
+        if (activeFilters.includes('totali')) {
+          // Deseleziona tutti
+          activeFilters = [];
+        } else {
+          // Seleziona tutti
+          activeFilters = ['totali', 'assegnabili', 'deroga', 'altro'];
+        }
+      } else {
+        // Clicco su un filtro specifico
+        if (activeFilters.includes(filter)) {
+          // Deseleziona questo filtro
+          activeFilters = activeFilters.filter(f => f !== filter);
+          // Rimuovi anche "totali" se c'era
+          activeFilters = activeFilters.filter(f => f !== 'totali');
+        } else {
+          // Seleziona questo filtro
+          activeFilters.push(filter);
+          // Rimuovi "totali" se c'era
+          activeFilters = activeFilters.filter(f => f !== 'totali');
+
+          // Se ho selezionato tutti e 3 i filtri specifici, aggiungi anche "totali"
+          const specificFilters = ['assegnabili', 'deroga', 'altro'];
+          const allSelected = specificFilters.every(f => activeFilters.includes(f));
+          if (allSelected) {
+            activeFilters = ['totali', 'assegnabili', 'deroga', 'altro'];
+          }
+        }
+      }
+
+      // Se non c'è nulla selezionato, seleziona totali
+      if (activeFilters.length === 0) {
+        activeFilters = ['totali'];
+      }
+
+      // Update active state e colori
       document.querySelectorAll('.summary-filter').forEach(el => {
-        if (el.dataset.filter === filter) {
+        const elFilter = el.dataset.filter;
+        if (activeFilters.includes(elFilter)) {
           el.classList.add('active');
         } else {
           el.classList.remove('active');
         }
       });
 
-      // Filtra i dati in base al tipo
+      console.log('activeFilters dopo:', [...activeFilters]);
+
+      // Filtra i dati in base ai filtri attivi
       let filteredData = currentData.results;
 
-      if (filter === 'assegnabili') {
+      // Se "totali" è attivo, mostra tutto
+      if (!activeFilters.includes('totali')) {
         filteredData = currentData.results.filter(m => {
-          if (!m.assegnabilita) return false;
-          const stato = m.assegnabilita.toLowerCase();
-          return stato.includes('assegnazione libera');
-        });
-      } else if (filter === 'deroga') {
-        filteredData = currentData.results.filter(m => {
-          if (!m.assegnabilita) return false;
-          const stato = m.assegnabilita.toLowerCase();
-          return stato.includes('deroga') && !stato.includes('assegnazione libera');
-        });
-      } else if (filter === 'altro') {
-        filteredData = currentData.results.filter(m => {
-          if (!m.assegnabilita) return true;
-          const stato = m.assegnabilita.toLowerCase();
-          return !stato.includes('assegnazione libera') && !stato.includes('deroga');
+          // Controlla se il medico appartiene a uno dei filtri attivi
+          if (activeFilters.includes('assegnabili')) {
+            if (m.assegnabilita) {
+              const stato = m.assegnabilita.toLowerCase();
+              if (stato.includes('assegnazione libera')) return true;
+            }
+          }
+
+          if (activeFilters.includes('deroga')) {
+            if (m.assegnabilita) {
+              const stato = m.assegnabilita.toLowerCase();
+              if (stato.includes('deroga') && !stato.includes('assegnazione libera')) return true;
+            }
+          }
+
+          if (activeFilters.includes('altro')) {
+            if (!m.assegnabilita) return true;
+            const stato = m.assegnabilita.toLowerCase();
+            if (!stato.includes('assegnazione libera') && !stato.includes('deroga')) return true;
+          }
+
+          return false;
         });
       }
-      // 'totali' mostra tutto, quindi non filtriamo
 
       // Ricrea il visualizer con i dati filtrati
       if (mediciVisualizer) {
@@ -1380,8 +1540,9 @@
       document.getElementById('derogaCount').textContent = data.counters.conDeroga;
       document.getElementById('altroCount').textContent = data.counters.nonAssegnabili;
 
-      // Reset filtro a "totali" e attiva il primo filtro
+      // Reset filtri a "totali"
       activeFilter = 'totali';
+      activeFilters = ['totali'];
       document.querySelectorAll('.summary-filter').forEach(el => {
         if (el.dataset.filter === 'totali') {
           el.classList.add('active');

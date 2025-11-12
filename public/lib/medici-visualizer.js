@@ -241,17 +241,38 @@ class MediciVisualizer {
       },
 
       currentPage: () => self.state.currentPage,
-      totalPages: () => Math.ceil(self.state.filteredItems.length / self.state.pageSize),
+      totalPages: () => {
+        const pageSize = typeof self.state.pageSize === 'number' ? self.state.pageSize : parseInt(self.state.pageSize);
+        return Math.ceil(self.state.filteredItems.length / pageSize);
+      },
       totalItems: () => self.state.filteredItems.length,
       pageSize: () => self.state.pageSize,
 
       isFirstPage: () => self.state.currentPage === 1,
       isLastPage: () => {
-        const total = Math.ceil(self.state.filteredItems.length / self.state.pageSize);
-        return self.state.currentPage >= total;
+        const pageSize = typeof self.state.pageSize === 'number' ? self.state.pageSize : parseInt(self.state.pageSize);
+        const total = Math.ceil(self.state.filteredItems.length / pageSize);
+        const result = self.state.currentPage >= total;
+        console.log('isLastPage check:', {
+          currentPage: self.state.currentPage,
+          filteredItems: self.state.filteredItems.length,
+          pageSize: pageSize,
+          total: total,
+          result: result
+        });
+        return result;
       },
 
-      isCurrentPage: (page) => page === self.state.currentPage,
+      isCurrentPage: (page) => {
+        const result = page === self.state.currentPage;
+        console.log('isCurrentPage:', { page, currentPage: self.state.currentPage, result });
+        return result;
+      },
+
+      // === COMPARISON ===
+      gt: (a, b) => a > b,
+      lt: (a, b) => a < b,
+      eq: (a, b) => a === b,
 
       // === COUNTERS ===
       countTotal: () => self.state.items.length,
@@ -270,7 +291,8 @@ class MediciVisualizer {
       // === ARRAY HELPERS ===
       visiblePages: () => {
         const current = self.state.currentPage;
-        const total = Math.ceil(self.state.filteredItems.length / self.state.pageSize);
+        const pageSize = typeof self.state.pageSize === 'number' ? self.state.pageSize : parseInt(self.state.pageSize);
+        const total = Math.ceil(self.state.filteredItems.length / pageSize);
         const max = self.config.pagination.maxPageButtons;
 
         if (total <= max) {
@@ -453,6 +475,7 @@ class MediciVisualizer {
   _applyFilters() {
     if (!this.config.filters.enabled || this.state.activeFilters.length === 0) {
       this.state.filteredItems = [...this.state.items];
+      console.log('ApplyFilters (no filters):', { items: this.state.items.length, filteredItems: this.state.filteredItems.length });
       return;
     }
 
@@ -461,6 +484,7 @@ class MediciVisualizer {
         return typeof filterFn === 'function' ? filterFn(item) : true;
       });
     });
+    console.log('ApplyFilters (with filters):', { items: this.state.items.length, filteredItems: this.state.filteredItems.length });
   }
 
   /**
@@ -492,9 +516,21 @@ class MediciVisualizer {
       return;
     }
 
-    const start = (this.state.currentPage - 1) * this.state.pageSize;
-    const end = start + this.state.pageSize;
+    // Assicurati che pageSize sia un numero
+    const pageSize = typeof this.state.pageSize === 'number' ? this.state.pageSize : parseInt(this.state.pageSize);
+
+    const start = (this.state.currentPage - 1) * pageSize;
+    const end = start + pageSize;
     this.state.paginatedItems = this.state.filteredItems.slice(start, end);
+
+    // Debug
+    console.log('Pagination:', {
+      filteredItems: this.state.filteredItems.length,
+      pageSize: pageSize,
+      currentPage: this.state.currentPage,
+      paginatedItems: this.state.paginatedItems.length,
+      totalPages: Math.ceil(this.state.filteredItems.length / pageSize)
+    });
   }
 
   /**
@@ -524,6 +560,57 @@ class MediciVisualizer {
           const medico = this.state.paginatedItems[index];
           this.config.onRowClick(medico, e);
         });
+      });
+    }
+
+    // Pagination controls
+    if (this.config.pagination.enabled) {
+      // Page size select
+      const pageSizeSelect = this.container.querySelector('[data-page-size-select]');
+      if (pageSizeSelect) {
+        pageSizeSelect.value = String(this.state.pageSize);
+        pageSizeSelect.addEventListener('change', (event) => {
+          const size = event.target.value === 'Tutti' ? 'Tutti' : parseInt(event.target.value);
+          this.setPageSize(size);
+        });
+      }
+
+      // Page navigation buttons
+      this.container.querySelectorAll('[data-page-action]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const action = btn.dataset.pageAction;
+
+          if (action === 'first') {
+            this.goToPage(1);
+          } else if (action === 'prev') {
+            this.goToPage(this.state.currentPage - 1);
+          } else if (action === 'next') {
+            this.goToPage(this.state.currentPage + 1);
+          } else if (action === 'last') {
+            const total = Math.ceil(this.state.filteredItems.length / this.state.pageSize);
+            this.goToPage(total);
+          } else if (action === 'page') {
+            const page = parseInt(btn.dataset.page);
+            this.goToPage(page);
+          }
+        });
+
+        // Style page number buttons based on current page
+        if (btn.dataset.pageAction === 'page') {
+          const page = parseInt(btn.dataset.page);
+          if (page === this.state.currentPage) {
+            // Current page: white background, blue text
+            btn.style.background = 'white';
+            btn.style.color = '#667eea';
+            btn.style.fontWeight = '700';
+          } else {
+            // Other pages: blue background, white text
+            btn.style.background = '#667eea';
+            btn.style.color = 'white';
+            btn.style.fontWeight = '400';
+          }
+        }
       });
     }
   }
