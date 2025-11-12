@@ -38,54 +38,58 @@ const MediciVisualizerPresets = {
                       <td style="position: relative; width: 0; padding: 0;">
                         <div class="tooltip">
                           <div class="tooltip-title">Dettagli completi</div>
-                          {{#if this.codiceFiscale}}
-                            <div class="tooltip-row">
-                              <span class="tooltip-label">Codice Fiscale:</span>
-                              <span class="tooltip-value">{{this.codiceFiscale}}</span>
-                            </div>
-                          {{/if}}
-                          {{#if this.email}}
-                            <div class="tooltip-row">
-                              <span class="tooltip-label">Email:</span>
-                              <span class="tooltip-value">{{this.email}}</span>
-                            </div>
-                          {{/if}}
-                          {{#if this.indirizzo}}
-                            <div class="tooltip-row">
-                              <span class="tooltip-label">Indirizzo:</span>
-                              <span class="tooltip-value">{{this.indirizzo}}</span>
-                            </div>
-                          {{/if}}
-                          {{#if this.luogo}}
-                            <div class="tooltip-row">
-                              <span class="tooltip-label">Luogo:</span>
-                              <span class="tooltip-value">{{this.luogo}}</span>
-                            </div>
-                          {{/if}}
-                          {{#if this.luogoNascita}}
-                            <div class="tooltip-row">
-                              <span class="tooltip-label">Luogo Nascita:</span>
-                              <span class="tooltip-value">{{this.luogoNascita}}</span>
-                            </div>
-                          {{/if}}
-                          {{#if this.identificativo}}
-                            <div class="tooltip-row">
-                              <span class="tooltip-label">Identificativo:</span>
-                              <span class="tooltip-value">{{this.identificativo}}</span>
-                            </div>
-                          {{/if}}
-                          {{#if this.codiceDistretto}}
-                            <div class="tooltip-row">
-                              <span class="tooltip-label">Codice Distretto:</span>
-                              <span class="tooltip-value">{{this.codiceDistretto}}</span>
-                            </div>
-                          {{/if}}
-                          {{#if this.descrizioneDistretto}}
-                            <div class="tooltip-row">
-                              <span class="tooltip-label">Distretto:</span>
-                              <span class="tooltip-value">{{this.descrizioneDistretto}}</span>
-                            </div>
-                          {{/if}}
+                          <div class="tooltip-row">
+                            <span class="tooltip-label">Cognome:</span>
+                            <span class="tooltip-value">{{this.cognome}}</span>
+                          </div>
+                          <div class="tooltip-row">
+                            <span class="tooltip-label">Nome:</span>
+                            <span class="tooltip-value">{{this.nome}}</span>
+                          </div>
+                          <div class="tooltip-row">
+                            <span class="tooltip-label">Codice Fiscale:</span>
+                            <span class="tooltip-value">{{this.codiceFiscale}}</span>
+                          </div>
+                          <div class="tooltip-row">
+                            <span class="tooltip-label">Tipo:</span>
+                            <span class="tooltip-value">{{this.tipo}}</span>
+                          </div>
+                          <div class="tooltip-row">
+                            <span class="tooltip-label">ASL:</span>
+                            <span class="tooltip-value">{{this.asl}}</span>
+                          </div>
+                          <div class="tooltip-row">
+                            <span class="tooltip-label">Assegnabilità:</span>
+                            <span class="tooltip-value">{{this.assegnabilita}}</span>
+                          </div>
+                          <div class="tooltip-row">
+                            <span class="tooltip-label">Email:</span>
+                            <span class="tooltip-value">{{this.email}}</span>
+                          </div>
+                          <div class="tooltip-row">
+                            <span class="tooltip-label">Indirizzo:</span>
+                            <span class="tooltip-value">{{this.indirizzo}}</span>
+                          </div>
+                          <div class="tooltip-row">
+                            <span class="tooltip-label">Luogo:</span>
+                            <span class="tooltip-value">{{this.luogo}}</span>
+                          </div>
+                          <div class="tooltip-row">
+                            <span class="tooltip-label">Luogo Nascita:</span>
+                            <span class="tooltip-value">{{this.luogoNascita}}</span>
+                          </div>
+                          <div class="tooltip-row">
+                            <span class="tooltip-label">Identificativo:</span>
+                            <span class="tooltip-value">{{this.identificativo}}</span>
+                          </div>
+                          <div class="tooltip-row">
+                            <span class="tooltip-label">Codice Distretto:</span>
+                            <span class="tooltip-value">{{this.codiceDistretto}}</span>
+                          </div>
+                          <div class="tooltip-row">
+                            <span class="tooltip-label">Distretto:</span>
+                            <span class="tooltip-value">{{this.descrizioneDistretto}}</span>
+                          </div>
                         </div>
                       </td>
                       <td>{{this.nome}}</td>
