@@ -94,14 +94,18 @@
     }
 
     .section {
-      margin-bottom: 10px;
+      border-radius: 8px;
+      padding: .5em 1em;
+      margin-bottom: 20px;
+      background: #dbeafe;
+      border: 3px solid #bfdbfe;
     }
 
     .section h2 {
       color: #555;
       font-size: 1.75rem;
-      margin-bottom: 15px;
-      margin-top: 30px;
+      margin-bottom: 30px;
+      font-weight: 500;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -169,7 +173,6 @@
     }
 
     .info-box {
-      background: #f0f4ff;
       border-radius: 8px;
       margin-bottom: 20px;
     }
@@ -247,9 +250,8 @@
 
     .cognome-tag {
       background: #667eea;
-      padding: 6px 10px;
-      padding-top: 2px;
-      border-radius: 9px;
+      padding: 4px 0;
+      border-radius: 5px;
       display: inline-flex;
       flex-direction: column;
       gap: 6px;
@@ -266,6 +268,8 @@
       justify-content: space-between;
       align-items: center;
       gap: 12px;
+      padding-right: 5px !important;
+      padding-left: 8px !important;
     }
 
     .cognome-tag-name {
@@ -314,6 +318,9 @@
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
+      padding-right: 10px;
+      padding-left: 10px;
+      margin-bottom: 4px;
     }
 
     .tag-detail {
@@ -321,7 +328,7 @@
       font-weight: 500;
       color: white;
       background: rgba(255, 255, 255, 0.2);
-      padding: 0px 3px;
+      padding: 0px 5px;
       border-radius: 6px;
     }
 
@@ -456,29 +463,18 @@
       margin: 20px 0;
     }
 
-    .last-run-info {
-      background: #f0fdf4;
-      border-radius: 8px;
-      margin: 20px 0;
-    }
-
-    .last-run-info h4 {
-      color: #22c55e;
-      margin-bottom: 12px;
-      font-size: 1.1rem;
-    }
-
-    .last-run-info .detail {
+    .detail {
       display: flex;
       justify-content: space-between;
       margin-bottom: 10px;
+      color: #555;
     }
 
-    .last-run-info .label {
+    .label {
       font-weight: 600;
     }
 
-    .last-run-info .value {
+    .value {
       color: #555;
     }
 
@@ -907,6 +903,7 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
+      margin-bottom: 15px;
     }
 
     .notification-toggle {
@@ -1003,7 +1000,13 @@
 
     @media (max-width: 768px) {
       .mobile-only-br {
-        display: inline;
+        display: block;
+      }
+
+      .next-check-label {
+        display: inline-block;
+        width: 100%;
+        text-align: right;
       }
     }
 
@@ -1169,10 +1172,10 @@
       <div id="configError" class="error-message" style="display: none;"></div>
 
       <div id="configContent" style="display: none;">
-        <div class="last-run-info">
-          <h2 style="color: #555; font-size: 1.75rem; margin-bottom: 15px;">Attività Pianificata</h2>
-          <div style="display: flex; align-items: center; gap: 15px; padding: 0; margin-bottom: 15px;">
-            <label style="font-weight: 600; font-size: 0.95rem; flex: 1;">
+        <div class="section">
+          <h2>Attività Pianificata</h2>
+          <div class="detail" style="display: flex; align-items: center; gap: 15px; padding: 0; margin-bottom: 15px;">
+            <label class="label">
               Monitoraggio automatico:
             </label>
             <label class="toggle-switch">
@@ -1199,36 +1202,38 @@
 
         <div class="section">
           <h2>
-            Cognomi
+            <span style="flex-grow: 1;">Cognomi</span>
             <button id="copyCognomiBtn" style="
               margin-left: 15px;
               margin-top: 5px;
-              padding: 6px 12px;
-              background: #f0f0f0;
-              border: 1px solid #d0d0d0;
-              border-radius: 6px;
-              color: #667eea;
+              padding: 8px 16px;
+              background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+              border: none;
+              border-radius: 20px;
+              color: white;
               font-size: 0.85rem;
-              font-weight: 500;
+              font-weight: 600;
               cursor: pointer;
-              transition: all 0.2s;
-            " onmouseover="this.style.background='#e0e0e0'" onmouseout="this.style.background='#f0f0f0'">
+              transition: all 0.3s;
+              box-shadow: 0 2px 8px rgba(20, 184, 166, 0.3);
+            " onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 16px rgba(20, 184, 166, 0.5)'" onmouseout="this.style.transform=''; this.style.boxShadow='0 2px 8px rgba(20, 184, 166, 0.3)'">
               Copia
             </button>
             <button id="testQueryBtn" onclick="openTestQuery()" style="
               margin-left: 10px;
               margin-top: 5px;
-              padding: 6px 12px;
-              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              padding: 8px 16px;
+              background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
               border: none;
-              border-radius: 6px;
+              border-radius: 20px;
               color: white;
               font-size: 0.85rem;
               font-weight: 600;
               cursor: pointer;
-              transition: all 0.2s;
-            " onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(102,126,234,0.4)'" onmouseout="this.style.transform=''; this.style.boxShadow=''">
-              🧪 Testa Query
+              transition: all 0.3s;
+              box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
+            " onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 16px rgba(249, 115, 22, 0.5)'" onmouseout="this.style.transform=''; this.style.boxShadow='0 2px 8px rgba(249, 115, 22, 0.3)'">
+              Test
             </button>
           </h2>
           <div class="info-box">
@@ -1276,104 +1281,110 @@
           </div>
         </div>
 
-        <!-- Statistiche compatte ultima ricerca -->
-        <div id="statsSection" class="section" style="display: none;">
+        <!-- Ultima Ricerca -->
+        <div class="section" style="display: none;" id="ultimaRicercaSection">
           <h2>Ultima Ricerca</h2>
-          <div class="stats-compact">
-            <div class="stat-compact active" data-filter="totale">
-              <span class="stat-compact-value" id="statTotal">0</span>
-              <span class="stat-compact-label">Totale</span>
+
+          <!-- Statistiche compatte ultima ricerca -->
+          <div id="statsSection">
+            <div class="stats-compact">
+              <div class="stat-compact active" data-filter="totale">
+                <span class="stat-compact-value" id="statTotal">0</span>
+                <span class="stat-compact-label">Totale</span>
+              </div>
+              <div class="stat-compact stat-success active" data-filter="libero">
+                <span class="stat-compact-value" id="statLiberi">0</span>
+                <span class="stat-compact-label">Liberi</span>
+              </div>
+              <div class="stat-compact stat-warning active" data-filter="deroga">
+                <span class="stat-compact-value" id="statDeroga">0</span>
+                <span class="stat-compact-label">Deroga</span>
+              </div>
+              <div class="stat-compact stat-info active" data-filter="altro">
+                <span class="stat-compact-value" id="statAltri">0</span>
+                <span class="stat-compact-label">Altri</span>
+              </div>
             </div>
-            <div class="stat-compact stat-success active" data-filter="libero">
-              <span class="stat-compact-value" id="statLiberi">0</span>
-              <span class="stat-compact-label">Liberi</span>
-            </div>
-            <div class="stat-compact stat-warning active" data-filter="deroga">
-              <span class="stat-compact-value" id="statDeroga">0</span>
-              <span class="stat-compact-label">Deroga</span>
-            </div>
-            <div class="stat-compact stat-info active" data-filter="altro">
-              <span class="stat-compact-value" id="statAltri">0</span>
-              <span class="stat-compact-label">Altri</span>
+          </div>
+
+          <!-- Lista risultati espandibile -->
+          <div id="resultsSection">
+            <button class="results-toggle" id="resultsToggle">
+              <span>
+                <span class="results-toggle-emoji">📋</span>
+                Mostra dettaglio medici (<span id="resultsCount">0</span>)
+              </span>
+              <span class="results-toggle-icon">▼</span>
+            </button>
+            <div class="results-list-container" id="resultsListContainer">
+              <div id="resultsList"></div>
             </div>
           </div>
         </div>
 
-        <!-- Lista risultati espandibile -->
-        <div id="resultsSection" class="section" style="display: none;">
-          <button class="results-toggle" id="resultsToggle">
-            <span>
-              <span class="results-toggle-emoji">📋</span>
-              Mostra dettaglio medici (<span id="resultsCount">0</span>)
-            </span>
-            <span class="results-toggle-icon">▼</span>
-          </button>
-          <div class="results-list-container" id="resultsListContainer">
-            <div id="resultsList"></div>
-          </div>
-        </div>
-
-        <div class="section">
+        <!-- Ultime Variazioni -->
+        <div class="section" style="display: none;" id="ultimeVariazioniSection">
           <h2>Ultime Variazioni</h2>
-        </div>
 
-        <!-- Medici aggiunti -->
-        <div id="addedSection" class="section" style="display: none;">
-          <button class="results-toggle" id="addedToggle">
-            <span>
-              <span class="results-toggle-emoji">➕</span>
-              Mostra medici aggiunti (<span id="addedCount">0</span>)
-            </span>
-            <span class="results-toggle-icon">▼</span>
-          </button>
-          <div class="results-list-container" id="addedListContainer">
-            <div id="addedList"></div>
+          <!-- Medici aggiunti -->
+          <div id="addedSection" style="display: none;">
+            <button class="results-toggle" id="addedToggle">
+              <span>
+                <span class="results-toggle-emoji">➕</span>
+                Mostra medici aggiunti (<span id="addedCount">0</span>)
+              </span>
+              <span class="results-toggle-icon">▼</span>
+            </button>
+            <div class="results-list-container" id="addedListContainer">
+              <div id="addedList"></div>
+            </div>
+          </div>
+
+          <!-- Medici rimossi -->
+          <div id="removedSection" style="display: none;">
+            <button class="results-toggle" id="removedToggle">
+              <span>
+                <span class="results-toggle-emoji">➖</span>
+                Mostra medici rimossi (<span id="removedCount">0</span>)
+              </span>
+              <span class="results-toggle-icon">▼</span>
+            </button>
+            <div class="results-list-container" id="removedListContainer">
+              <div id="removedList"></div>
+            </div>
+          </div>
+
+          <!-- Differenze assegnabilità -->
+          <div id="changedSection" style="display: none;">
+            <button class="results-toggle" id="changedToggle">
+              <span>
+                <span class="results-toggle-emoji">🔄</span>
+                Mostra differenze assegnabilità (<span id="changedCount">0</span>)
+              </span>
+              <span class="results-toggle-icon">▼</span>
+            </button>
+            <div class="results-list-container" id="changedListContainer">
+              <div id="changedList"></div>
+            </div>
           </div>
         </div>
 
-        <!-- Medici rimossi -->
-        <div id="removedSection" class="section" style="display: none;">
-          <button class="results-toggle" id="removedToggle">
-            <span>
-              <span class="results-toggle-emoji">➖</span>
-              Mostra medici rimossi (<span id="removedCount">0</span>)
-            </span>
-            <span class="results-toggle-icon">▼</span>
-          </button>
-          <div class="results-list-container" id="removedListContainer">
-            <div id="removedList"></div>
-          </div>
-        </div>
-
-        <!-- Differenze assegnabilità -->
-        <div id="changedSection" class="section" style="display: none;">
-          <button class="results-toggle" id="changedToggle">
-            <span>
-              <span class="results-toggle-emoji">🔄</span>
-              Mostra differenze assegnabilità (<span id="changedCount">0</span>)
-            </span>
-            <span class="results-toggle-icon">▼</span>
-          </button>
-          <div class="results-list-container" id="changedListContainer">
-            <div id="changedList"></div>
-          </div>
-        </div>
-
+        <!-- Storia Variazioni -->
         <div class="section">
           <h2>Storia Variazioni</h2>
-        </div>
 
-        <!-- Storia variazioni -->
-        <div id="historySection" class="section">
-          <button class="results-toggle" id="historyToggle">
-            <span>
-              <span class="results-toggle-emoji">📜</span>
-              Mostra storia variazioni
-            </span>
-            <span class="results-toggle-icon">▼</span>
-          </button>
-          <div class="results-list-container" id="historyListContainer">
-            <div id="historyList"></div>
+          <!-- Storia variazioni -->
+          <div id="historySection">
+            <button class="results-toggle" id="historyToggle">
+              <span>
+                <span class="results-toggle-emoji">📜</span>
+                Mostra storia variazioni
+              </span>
+              <span class="results-toggle-icon">▼</span>
+            </button>
+            <div class="results-list-container" id="historyListContainer">
+              <div id="historyList"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -1712,7 +1723,7 @@
           hour: '2-digit',
           minute: '2-digit'
         });
-        nextCheckElement.innerHTML = `<span>A partire dalle</span><br class="mobile-only-br"><span>${formattedNextCheck}</span>`;
+        nextCheckElement.innerHTML = `<span class="next-check-label">A partire dalle</span><br class="mobile-only-br"> <span>${formattedNextCheck}</span>`;
       }
     }
 
@@ -2009,7 +2020,7 @@
             hour: '2-digit',
             minute: '2-digit'
           });
-          document.getElementById('nextCheckTime').innerHTML = `<span>A partire dalle</span><br class="mobile-only-br"><span>${formattedNextCheck}</span>`;
+          document.getElementById('nextCheckTime').innerHTML = `<span class="next-check-label">A partire dalle</span><br class="mobile-only-br"> <span>${formattedNextCheck}</span>`;
         }
 
         closeChangeIntervalModal();
@@ -2228,7 +2239,7 @@
             hour: '2-digit',
             minute: '2-digit'
           });
-          nextCheckElement.innerHTML = `<span>A partire dalle</span><br class="mobile-only-br"><span>${formattedNextCheck}</span>`;
+          nextCheckElement.innerHTML = `<span class="next-check-label">A partire dalle</span><br class="mobile-only-br"> <span>${formattedNextCheck}</span>`;
         }
 
         // Mostra ultimo controllo (senza secondi)
@@ -2265,13 +2276,12 @@
         document.getElementById('statDeroga').textContent = deroga;
         document.getElementById('statAltri').textContent = altri;
 
-        document.getElementById('statsSection').style.display = 'block';
+        // Mostra la section "Ultima Ricerca" (che contiene statsSection e resultsSection)
+        document.getElementById('ultimaRicercaSection').style.display = 'block';
 
         // Salva risultati globalmente e renderizza con filtri
         allResults = lastResults;
         renderFilteredResults();
-
-        document.getElementById('resultsSection').style.display = 'block';
 
         // === GESTIONE DIFFERENZE ===
         const differences = data.user.lastDifferences || { nuovi: [], rimossi: [], cambiati: [] };
@@ -2312,6 +2322,7 @@
           addedList.innerHTML = '<p style="color: #999; font-style: italic; padding: 10px;">Nessun medico aggiunto</p>';
         }
         document.getElementById('addedSection').style.display = 'block';
+        document.getElementById('ultimeVariazioniSection').style.display = 'block';
 
         // Medici rimossi
         const rimossi = differences.rimossi || [];
@@ -2348,6 +2359,7 @@
           removedList.innerHTML = '<p style="color: #999; font-style: italic; padding: 10px;">Nessun medico rimosso</p>';
         }
         document.getElementById('removedSection').style.display = 'block';
+        document.getElementById('ultimeVariazioniSection').style.display = 'block';
 
         // Medici cambiati
         const cambiati = differences.cambiati || [];
@@ -2371,6 +2383,7 @@
           changedList.innerHTML = '<p style="color: #999; font-style: italic; padding: 10px;">Nessuna differenza di assegnabilità</p>';
         }
         document.getElementById('changedSection').style.display = 'block';
+        document.getElementById('ultimeVariazioniSection').style.display = 'block';
 
         // ===== CARICA PREFERENZE NOTIFICHE =====
         const notifications = data.user.notifications || {
@@ -2657,16 +2670,342 @@
     });
   </script>
 
+  <!-- Stili custom per tabella test query -->
+  <style>
+    #testQueryDialog::backdrop {
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    #testQueryDialog table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    #testQueryDialog table thead th {
+      background: #667eea;
+      color: white;
+      padding: 12px 16px;
+      text-align: left;
+      font-weight: 600;
+      border: none;
+      font-size: 0.9rem;
+    }
+
+    #testQueryDialog table tbody td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 0.9rem;
+      color: #374151;
+    }
+
+    td.emoji-cell {
+      width: 70px;
+      text-align: right;
+    }
+
+    #testQueryDialog table tbody tr:hover {
+      filter: brightness(0.95);
+    }
+
+    #testQueryDialog table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Background colorati per stato - Desktop */
+    #testQueryDialog table tbody tr.stato-libero {
+      background-color: rgba(34, 197, 94, 0.3) !important;
+    }
+
+    #testQueryDialog table tbody tr.stato-deroga {
+      background-color: rgba(245, 158, 11, 0.3) !important;
+    }
+
+    #testQueryDialog table tbody tr.stato-altro {
+      background-color: rgba(239, 68, 68, 0.3) !important;
+    }
+
+    /* Stat compact nel dialog */
+    #testQueryDialog .stats-compact {
+      display: flex;
+      gap: 10px;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+    }
+
+    #testQueryDialog .stat-compact {
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 8px 12px;
+      flex: 1;
+      min-width: 0;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      min-height: 100px;
+    }
+
+    #testQueryDialog .stat-compact:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    #testQueryDialog .stat-compact::before {
+      content: '';
+      width: 16px;
+      height: 16px;
+      border: 2px solid #999;
+      border-radius: 3px;
+      display: block;
+      margin-bottom: 8px;
+      transition: all 0.2s;
+    }
+
+    #testQueryDialog .stat-compact.active::before {
+      background: #667eea;
+      border-color: #667eea;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+      background-size: 12px;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    #testQueryDialog .stat-compact.stat-success {
+      border-color: #22c55e;
+      background: rgba(34, 197, 94, 0.3);
+    }
+
+    #testQueryDialog .stat-compact.stat-success .stat-compact-value {
+      color: #22c55e;
+    }
+
+    #testQueryDialog .stat-compact.stat-success.active::before {
+      background-color: #22c55e;
+      border-color: #22c55e;
+    }
+
+    #testQueryDialog .stat-compact.stat-warning {
+      border-color: #f59e0b;
+      background: rgba(245, 158, 11, 0.3);
+    }
+
+    #testQueryDialog .stat-compact.stat-warning .stat-compact-value {
+      color: #f59e0b;
+    }
+
+    #testQueryDialog .stat-compact.stat-warning.active::before {
+      background-color: #f59e0b;
+      border-color: #f59e0b;
+    }
+
+    #testQueryDialog .stat-compact.stat-info {
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.3);
+    }
+
+    #testQueryDialog .stat-compact.stat-info .stat-compact-value {
+      color: #ef4444;
+    }
+
+    #testQueryDialog .stat-compact.stat-info.active::before {
+      background-color: #ef4444;
+      border-color: #ef4444;
+    }
+
+    /* Totali - stile neutro */
+    #testQueryDialog .stat-compact[data-filter="totali"] {
+      border-color: #667eea;
+      background: rgba(102, 126, 234, 0.3);
+    }
+
+    #testQueryDialog .stat-compact[data-filter="totali"] .stat-compact-value {
+      color: #667eea;
+    }
+
+    #testQueryDialog .stat-compact[data-filter="totali"].active::before {
+      background-color: #667eea;
+      border-color: #667eea;
+    }
+
+    #testQueryDialog .stat-compact-value {
+      font-size: 1.7em;
+      font-weight: 700;
+      color: #667eea;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    #testQueryDialog .stat-compact-label {
+      font-size: 0.8em;
+      color: #666;
+      font-weight: 500;
+      display: block;
+      line-height: 1.2em;
+    }
+
+    #testQueryDialog .stat-compact-label .full-label {
+      display: inline;
+    }
+
+    #testQueryDialog .stat-compact-label .short-label {
+      display: none;
+    }
+
+    /* Responsive table -> cards transform su mobile */
+    @media (max-width: 768px) {
+      #testQueryDialog table.medici-table-responsive thead {
+        display: none;
+      }
+
+      #testQueryDialog table.medici-table-responsive,
+      #testQueryDialog table.medici-table-responsive tbody,
+      #testQueryDialog table.medici-table-responsive tr {
+        display: block;
+        width: 100%;
+      }
+
+      #testQueryDialog table.medici-table-responsive tr {
+        position: relative;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        padding: 16px;
+        padding-right: 50px;
+        margin-bottom: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      }
+
+      /* Background colorati per stato - Mobile Card */
+      #testQueryDialog table.medici-table-responsive tr.stato-libero {
+        background-color: rgba(34, 197, 94, 0.3) !important;
+      }
+
+      #testQueryDialog table.medici-table-responsive tr.stato-deroga {
+        background-color: rgba(245, 158, 11, 0.3) !important;
+      }
+
+      #testQueryDialog table.medici-table-responsive tr.stato-altro {
+        background-color: rgba(239, 68, 68, 0.3) !important;
+      }
+
+      /* Reset tutti i td */
+      #testQueryDialog table.medici-table-responsive td {
+        display: block;
+        padding: 0 !important;
+        border: none !important;
+        margin: 0;
+      }
+
+      /* Nome - inline */
+      #testQueryDialog table.medici-table-responsive tbody tr td:nth-child(1) {
+        display: inline;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #111827;
+        margin-right: 5px;
+      }
+
+      /* Cognome - inline dopo nome */
+      #testQueryDialog table.medici-table-responsive tbody tr td:nth-child(2) {
+        display: inline;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #111827;
+      }
+
+      /* ASL - sotto nome/cognome in grigio */
+      #testQueryDialog table.medici-table-responsive tbody tr td:nth-child(3) {
+        display: block;
+        font-size: 0.875rem;
+        color: #555;
+        margin-top: 6px;
+      }
+
+      /* Stato emoji - in alto a destra */
+      #testQueryDialog table.medici-table-responsive tbody tr td:nth-child(4) {
+        position: absolute !important;
+        top: 16px;
+        right: 16px;
+        font-size: 1.5rem;
+        display: block !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      #testQueryDialog {
+        width: 100vw !important;
+        height: 100vh !important;
+        max-width: 100vw !important;
+        border-radius: 0 !important;
+      }
+
+      #testQueryDialog #testQueryContent {
+        padding: 0;
+      }
+
+      #testQueryDialog #testProgress {
+        padding: 20px 15px;
+      }
+
+      #testQueryDialog #testCounters {
+        padding: 15px;
+      }
+
+      #testQueryDialog #testTable {
+        margin: 15px;
+        padding: 15px;
+      }
+
+      #testQueryDialog .stats-compact {
+        gap: 8px;
+      }
+
+      /* Mobile: stesso layout ma più compatto */
+      #testQueryDialog .stat-compact {
+        min-height: auto;
+        padding: 6px 10px;
+      }
+
+      #testQueryDialog .stat-compact::before {
+        margin-bottom: 6px;
+      }
+
+      #testQueryDialog .stat-compact-value {
+        font-size: 1.5em;
+        margin-bottom: 2px;
+      }
+
+      #testQueryDialog .stat-compact-label {
+        font-size: 0.75em;
+      }
+
+      /* Mostra label short in mobile */
+      #testQueryDialog .stat-compact-label .full-label {
+        display: none;
+      }
+
+      #testQueryDialog .stat-compact-label .short-label {
+        display: inline;
+      }
+    }
+  </style>
+
   <!-- Dialog modale test query -->
   <dialog id="testQueryDialog" style="
     max-width: 95vw;
-    width: 1200px;
-    max-height: 90vh;
+    width: 700px;
+    height: 90vh;
     padding: 0;
     border: none;
     border-radius: 12px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.3);
     overflow: hidden;
+    background: white;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
   ">
     <div style="display: flex; flex-direction: column; height: 100%;">
       <!-- Header -->
@@ -2677,8 +3016,9 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+        flex-shrink: 0;
       ">
-        <h2 style="margin: 0; font-size: 1.5rem;">🧪 Test Ricerca Query</h2>
+        <h2 style="margin: 0; font-size: 1.5rem;">Test Query</h2>
         <button id="closeTestDialog" style="
           background: rgba(255,255,255,0.2);
           border: none;
@@ -2701,16 +3041,18 @@
       <div id="testQueryContent" style="
         flex: 1;
         overflow-y: auto;
-        padding: 30px;
+        overflow-x: hidden;
+        padding: 0;
+        min-height: 0;
+        background: #fafafa;
       ">
         <!-- Progress (mostra all'inizio) -->
-        <div id="testProgress"></div>
+        <div id="testProgress" style="padding: 30px;"></div>
 
         <!-- Risultati (nascosti all'inizio, mostrati dopo ricerca) -->
         <div id="testResults" style="display: none;">
-          <div id="testCounters" style="margin-bottom: 20px;"></div>
-          <div id="testTable"></div>
-          <div id="testPagination" style="margin-top: 20px;"></div>
+          <div id="testCounters" style="padding: 20px 20px 0 20px;"></div>
+          <div id="testTable" style="background: white; margin: 0 20px 20px 20px; border-radius: 8px; padding: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"></div>
         </div>
       </div>
     </div>
@@ -2732,7 +3074,7 @@
   <script src="/lib/medici-visualizer.js"></script>
 
   <!-- BatchSearchClient -->
-  <script type="module" src="/batch-search-client.js"></script>
+  <script src="/batch-search-client.js"></script>
 
   <script>
     // Test query functionality - NUOVO SISTEMA ATOMICO!
@@ -2759,8 +3101,8 @@
           testView.destroy();
         }
 
-        // Prepara query dai cognomi configurati
-        const cognomiQueries = currentUserData?.query?.cognomi || [];
+        // Prepara query dai cognomi configurati (usa variabile globale currentCognomi)
+        const cognomiQueries = currentCognomi || [];
         console.log('🔵 cognomiQueries:', cognomiQueries);
 
         if (cognomiQueries.length === 0) {
@@ -2770,124 +3112,225 @@
           return;
         }
 
-        console.log('🔵 Creazione MediciView...');
-        // Crea view con composizione atomica
-        testView = new MediciView({
-          data: [],
+        console.log('🔵 Creazione Progress standalone...');
+        // Crea solo progress component per mostrare avanzamento
+        const progressComponent = new MediciProgress({
+          container: '#testProgress',
+          showTimer: true
+        });
 
-          blocks: {
-          progress: {
-            type: 'progress',
-            container: '#testProgress',
-            config: {
-              showTimer: true
-            }
-          },
+        console.log('🔵 Preparazione parametri batch...');
 
-          counters: {
-            type: 'counters',
-            container: '#testCounters',
-            config: {
-              variant: 'summary-item'
-            }
-          },
+        // Mappa descrizioni ASL -> codici
+        const aslMap = {
+          'Roma 1': '120201',
+          'Roma 2': '120202',
+          'Roma 3': '120203',
+          'Roma 4': '120204',
+          'Roma 5': '120205',
+          'Roma 6': '120206',
+          'Frosinone': '120207',
+          'Latina': '120208',
+          'Rieti': '120209',
+          'Viterbo': '120210'
+        };
 
-          table: {
-            type: 'table',
-            container: '#testTable',
-            config: {
-              sorting: true,
-              tooltip: { enabled: true },
-              responsive: true,
-              usePaginated: true  // Usa dati paginati
-            }
-          },
+        // Raggruppa i cognomi per "profilo" di parametri (nome, cap, asl)
+        const profileMap = new Map();
+        cognomiQueries.forEach(q => {
+          const aslCode = q.asl ? (aslMap[q.asl] || q.asl) : '';
+          const profileKey = `${q.nome || ''}|${q.cap || ''}|${aslCode}`;
 
-          pagination: {
-            type: 'pagination',
-            container: '#testPagination',
-            config: {
-              pageSize: 25,
-              pageSizeOptions: [10, 25, 50, 100, 'Tutti']
-            }
+          if (!profileMap.has(profileKey)) {
+            profileMap.set(profileKey, {
+              cognomi: [],
+              nome: q.nome || null,
+              cap: q.cap || null,
+              asl: aslCode || null
+            });
           }
-        },
+          profileMap.get(profileKey).cognomi.push(q.cognome);
+        });
 
-        events: {
-          'table.sort': ({ column, direction }) => {
-            console.log('✅ Table sorted:', column, direction);
-          },
-          'pagination.pageChange': ({ page }) => {
-            console.log('✅ Page changed:', page);
-          }
-        },
+        console.log('🔵 Profili unici trovati:', profileMap.size);
 
-        onReady: (view) => {
-          console.log('✅ MediciView ready with blocks:', Object.keys(view.components));
-        }
-      });
+        // Calcola il totale di combinazioni (cognomi) da tutti i profili
+        const totalCombinations = Array.from(profileMap.values())
+          .reduce((sum, profile) => sum + profile.cognomi.length, 0);
 
-      console.log('🔵 MediciView creata:', testView);
-      console.log('🔵 Creazione BatchSearchClient...');
+        console.log('🔵 Totale combinazioni globali:', totalCombinations);
 
-      // Avvia ricerca con BatchSearchClient
-      testBatchClient = new window.BatchSearchClient({
-        parallelism: 5,
-        onProgress: (progress) => {
-          // Update progress nel componente atomico
-          testView.updateProgress(progress);
-        }
-      });
+        // Progress tracker globale
+        let globalCompleted = 0;
+        let globalResults = new Map();
+        let globalErrors = 0;
+        let globalTotalRequests = 0;
 
-        console.log('🔵 BatchSearchClient creato, inizio ricerche...');
-
-        // Prepara parametri
-        console.log('🔵 Preparazione queries...');
-        const queries = cognomiQueries.map(q => ({
-          cognomi: [q.cognome],
-          asl: q.asl ? [q.asl] : [],
-          cap: q.cap ? [q.cap] : [],
-          nomi: q.nome ? [q.nome] : [],
-          tipo: 'Medicina generale'
-        }));
-
-        console.log('🔵 Queries preparate:', queries);
-
-        // Esegui ricerche per ogni query
+        // Esegui ricerche per ogni profilo e aggrega risultati
         const allResults = [];
-        console.log('🔵 Inizio ciclo ricerche, totale queries:', queries.length);
-        for (const query of queries) {
-          console.log('🔵 Ricerca per query:', query);
-          const result = await testBatchClient.search(query);
-          console.log('🔵 Risultato ricerca:', result);
+        let profileIndex = 0;
+
+        for (const [profileKey, profile] of profileMap.entries()) {
+          profileIndex++;
+          console.log(`🔵 Ricerca profilo ${profileIndex}/${profileMap.size}:`, profile);
+
+          const searchParams = {
+            cognomi: profile.cognomi,
+            nomi: profile.nome ? [profile.nome] : [],
+            cap: profile.cap ? [profile.cap] : [],
+            asl: profile.asl ? [profile.asl] : [],
+            tipo: 'Medicina generale'
+          };
+
+          console.log('🔵 Parametri ricerca:', searchParams);
+
+          // Crea BatchSearchClient per questo profilo
+          testBatchClient = new window.BatchSearchClient({
+            parallelism: 5,
+            onProgress: (progress) => {
+              // Aggiorna progress globale
+              const globalPercentage = Math.round(((globalCompleted + progress.completed) / totalCombinations) * 100);
+
+              progressComponent.update({
+                percentage: globalPercentage,
+                completed: globalCompleted + progress.completed,
+                total: totalCombinations,
+                results: globalResults.size,
+                errors: globalErrors + (progress.errors || 0),
+                totalRequests: globalTotalRequests + (progress.totalRequests || 0),
+                currentPage: progress.currentPage,
+                totalPagesForCombination: progress.totalPagesForCombination
+              });
+            }
+          });
+
+          const result = await testBatchClient.search(searchParams);
+          console.log('🔵 Risultato:', result);
+
           if (result.success && result.results) {
             allResults.push(...result.results);
+
+            // Aggiungi a mappa globale per count real-time
+            result.results.forEach(medico => {
+              if (medico.identificativo) {
+                globalResults.set(medico.identificativo, medico);
+              }
+            });
+
+            // Aggiorna contatori globali
+            if (result.meta) {
+              globalTotalRequests += result.meta.totalRequests || 0;
+            }
+            globalCompleted += profile.cognomi.length;
+
+          } else if (!result.success) {
+            console.error('❌ Errore ricerca profilo:', result.error);
+            globalErrors++;
+            globalCompleted += profile.cognomi.length;
           }
         }
 
-        console.log('🔵 Tutte le ricerche completate, totale risultati:', allResults.length);
-
-        // Deduplica per identificativo
-        const uniqueResults = new Map();
+        // Deduplica finale per identificativo
+        const uniqueMap = new Map();
         allResults.forEach(medico => {
           if (medico.identificativo) {
-            uniqueResults.set(medico.identificativo, medico);
+            uniqueMap.set(medico.identificativo, medico);
           } else {
-            const key = `${medico.nome}_${medico.cognome}_${Date.now()}_${Math.random()}`;
-            uniqueResults.set(key, medico);
+            const key = `${medico.nome}_${medico.cognome}_${medico.indirizzo}`;
+            uniqueMap.set(key, medico);
           }
         });
 
-        const finalResults = Array.from(uniqueResults.values());
+        const finalResults = Array.from(uniqueMap.values());
 
-        // Complete progress
-        testView.completeProgress();
+        console.log('🔵 Ricerca completata! Totale risultati deduplicati:', finalResults.length);
 
-        // Set dati - AGGIORNA AUTOMATICAMENTE tutti i componenti!
-        testView.setData(finalResults);
+        // Complete progress standalone
+        progressComponent.complete();
 
-        // Nascondi progress, mostra risultati
+        // Nascondi progress
         document.getElementById('testProgress').style.display = 'none';
+
+        // ORA crea MediciView con i dati COMPLETI
+        console.log('🔵 Creazione MediciView con dati completi...');
+        testView = new MediciView({
+          data: finalResults,  // DATI COMPLETI, non vuoti!
+
+          blocks: {
+            counters: {
+              type: 'counters',
+              container: '#testCounters',
+              config: {
+                variant: 'stat-compact',
+                interactive: true,
+                activeFilters: ['liberi', 'deroga', 'altri'], // Inizia con tutti selezionati
+                counters: [
+                  {
+                    key: 'totali',
+                    label: 'Totali',
+                    filter: null
+                  },
+                  {
+                    key: 'liberi',
+                    label: 'Assegnabili',
+                    color: '#22c55e',
+                    icon: '🟢',
+                    filter: (m) => String(m.assegnabilita || '').toLowerCase().includes('assegnazione libera')
+                  },
+                  {
+                    key: 'deroga',
+                    label: 'Con deroga',
+                    color: '#f59e0b',
+                    icon: '🟠',
+                    filter: (m) => {
+                      const stato = String(m.assegnabilita || '').toLowerCase();
+                      return stato.includes('deroga') && !stato.includes('assegnazione libera');
+                    }
+                  },
+                  {
+                    key: 'altri',
+                    label: 'Altro',
+                    color: '#ef4444',
+                    icon: '🔴',
+                    filter: (m) => {
+                      const stato = String(m.assegnabilita || '').toLowerCase();
+                      return !stato.includes('assegnazione libera') && !stato.includes('deroga');
+                    }
+                  }
+                ]
+              }
+            },
+
+            table: {
+              type: 'table',
+              container: '#testTable',
+              config: {
+                columns: [
+                  { key: 'nome', label: 'Nome', sortable: true },
+                  { key: 'cognome', label: 'Cognome', sortable: true },
+                  { key: 'asl', label: 'ASL', sortable: true },
+                  { key: 'assegnabilita', label: 'Stato', type: 'emoji', sortable: true }
+                ],
+                sorting: true,
+                tooltip: { enabled: false },
+                responsive: true,
+                usePaginated: false
+              }
+            }
+          },
+
+          events: {
+            'table.sort': ({ column, direction }) => {
+              console.log('✅ Table sorted:', column, direction);
+            }
+          },
+
+          onReady: (view) => {
+            console.log('✅ MediciView ready with blocks:', Object.keys(view.components));
+          }
+        });
+
+        // Mostra risultati
         document.getElementById('testResults').style.display = 'block';
 
         console.log('✅ Test query completed:', {
