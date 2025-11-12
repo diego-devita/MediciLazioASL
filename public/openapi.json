@@ -55,10 +55,10 @@
             "name": "asl",
             "in": "query",
             "required": false,
-            "description": "Codice ASL del Lazio (120201-120210). Se specificata, può soddisfare da sola il requisito 'almeno un parametro'.",
+            "description": "Codice ASL del Lazio. Se specificata, può soddisfare da sola il requisito 'almeno un parametro'.",
             "schema": {
               "type": "string",
-              "enum": ["120201", "120202", "120203", "120204", "120205", "120206", "120207", "120208", "120209", "120210"],
+              "enum": ["120201", "120202", "120203", "120204", "120205", "120206", "120112", "120111", "120110", "120109"],
               "example": "120201"
             }
           },
@@ -128,15 +128,6 @@
                         "cap": "",
                         "nome": ""
                       },
-                      "singleQueries": [
-                        {
-                          "cognome": "ROSSI",
-                          "asl": "120201",
-                          "tipo": "Medicina generale",
-                          "cap": "",
-                          "nome": ""
-                        }
-                      ],
                       "results": [
                         {
                           "nome": "MARIO",
@@ -177,15 +168,6 @@
                         "cap": "00100",
                         "nome": ""
                       },
-                      "singleQueries": [
-                        {
-                          "cognome": "BIANCHI",
-                          "asl": "",
-                          "tipo": "Medicina generale",
-                          "cap": "00100",
-                          "nome": ""
-                        }
-                      ],
                       "results": [
                         {
                           "nome": "LUCA",
@@ -383,7 +365,7 @@
           },
           "asl": {
             "type": "string",
-            "enum": ["120201", "120202", "120203", "120204", "120205", "120206", "120207", "120208", "120209", "120210"],
+            "enum": ["120201", "120202", "120203", "120204", "120205", "120206", "120112", "120111", "120110", "120109"],
             "description": "Codice ASL del Lazio",
             "example": "120201"
           },
@@ -447,13 +429,6 @@
               "nome": {
                 "type": "string"
               }
-            }
-          },
-          "singleQueries": {
-            "type": "array",
-            "description": "Array delle query singole eseguite (utile per debug)",
-            "items": {
-              "type": "object"
             }
           },
           "results": {

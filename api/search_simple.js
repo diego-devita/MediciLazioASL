@@ -8,7 +8,7 @@ const TIPO_MAP = {
 };
 
 // Codici ASL validi (ora il frontend passa direttamente i codici)
-const VALID_ASL_CODES = ['120201', '120202', '120203', '120204', '120205', '120206', '120207', '120208', '120209', '120210'];
+const VALID_ASL_CODES = ['120201', '120202', '120203', '120204', '120205', '120206', '120112', '120111', '120110', '120109'];
 
 // Valori validi per i parametri
 const VALID_TIPO = Object.keys(TIPO_MAP);
@@ -193,7 +193,6 @@ async function handler(req, res) {
     );
 
     const medici = result.medici;
-    const singleQueries = result.singleQueries;
     const pagination = result.pagination;
 
     // Conta per categoria
@@ -226,7 +225,6 @@ async function handler(req, res) {
         cognome: params.cognome || '',
         nome: params.nome || ''
       },
-      singleQueries: singleQueries,
       results: medici,
       counters: {
         totali: medici.length,

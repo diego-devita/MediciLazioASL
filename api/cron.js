@@ -134,7 +134,6 @@ async function handler(req, res) {
 
         // Esegui una query singola per ogni elemento configurato
         const allMedici = [];
-        const allQueries = [];
 
         for (const queryItem of user.query.cognomi) {
           // Supporto retrocompatibilità: se è una stringa, converti in oggetto query
@@ -156,7 +155,6 @@ async function handler(req, res) {
           );
 
           allMedici.push(...result.medici);
-          allQueries.push(...result.singleQueries);
         }
 
         // Deduplicazione per codiceFiscale
