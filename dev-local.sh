@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Script per avviare rapidamente il progetto in locale
-# Usage: ./dev-local.sh
+# Usage: ./dev-local.sh [log_level]
+#   log_level: error, warn, info, debug, trace (opzionale)
 
 set -e
 
@@ -40,6 +41,39 @@ if [ ! -d "node_modules" ]; then
     echo "✅ Dipendenze installate"
     echo ""
 fi
+
+# Gestione LOG_LEVEL
+if [ -z "$1" ]; then
+    # Non specificato come argomento, chiedi interattivamente
+    echo "🔍 Seleziona il livello di logging:"
+    echo "   1) error   - Solo errori"
+    echo "   2) warn    - Errori + warning"
+    echo "   3) info    - Errori + warning + info (default)"
+    echo "   4) debug   - Molto dettagliato (raccomandato per sviluppo)"
+    echo "   5) trace   - Estremamente dettagliato (ogni chiamata)"
+    echo ""
+    echo -n "Scelta [1-5] (default: 3): "
+    read -r choice
+
+    case $choice in
+        1) export LOG_LEVEL=error ;;
+        2) export LOG_LEVEL=warn ;;
+        3|"") export LOG_LEVEL=info ;;
+        4) export LOG_LEVEL=debug ;;
+        5) export LOG_LEVEL=trace ;;
+        *)
+            echo "❌ Scelta non valida, uso 'info'"
+            export LOG_LEVEL=info
+            ;;
+    esac
+else
+    # Specificato come argomento
+    export LOG_LEVEL="$1"
+fi
+
+echo ""
+echo "📊 LOG_LEVEL impostato a: $LOG_LEVEL"
+echo ""
 
 # Start Vercel dev server
 echo "🌐 Avvio server locale su http://localhost:3000"
