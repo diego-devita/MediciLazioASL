@@ -44,6 +44,10 @@ async function handler(req, res) {
       return handleCronLogsGet(req, res);
     case 'system-settings':
       return handleSystemSettings(req, res);
+    case 'init-system-settings':
+      return handleInitSystemSettings(req, res);
+    case 'init-counters':
+      return handleInitCounters(req, res);
     case 'collection':
       return handleCollection(req, res);
     default:
@@ -795,6 +799,105 @@ async function handleSystemSettings(req, res) {
     return res.status(405).json({
       success: false,
       error: 'Method not allowed. Use GET or POST.'
+    });
+  }
+}
+
+// ===== INIT SYSTEM SETTINGS =====
+async function handleInitSystemSettings(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  try {
+    const { db } = await connectToDatabase();
+    const settingsCollection = db.collection(DATABASE.COLLECTIONS.SYSTEM_SETTINGS);
+
+    // Controlla se esiste già
+    const existing = await settingsCollection.findOne({ _id: 'global' });
+
+    if (existing) {
+      return res.status(200).json({
+        success: true,
+        message: '✅ System settings già esistente',
+        alreadyExists: true,
+        data: existing
+      });
+    }
+
+    // Crea il documento
+    const now = new Date().toISOString();
+    const systemSettings = {
+      _id: 'global',
+      cronEnabled: true,
+      createdAt: now,
+      updatedAt: now
+    };
+
+    await settingsCollection.insertOne(systemSettings);
+
+    console.log('✅ System settings initialized');
+
+    return res.status(200).json({
+      success: true,
+      message: '✅ System settings inizializzato con successo',
+      alreadyExists: false,
+      data: systemSettings
+    });
+
+  } catch (error) {
+    console.error('Error initializing system_settings:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to initialize system_settings'
+    });
+  }
+}
+
+// ===== INIT COUNTERS =====
+async function handleInitCounters(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  try {
+    const { db } = await connectToDatabase();
+    const countersCollection = db.collection('counters');
+
+    // Controlla se esiste già
+    const existing = await countersCollection.findOne({ _id: 'variation_runs' });
+
+    if (existing) {
+      return res.status(200).json({
+        success: true,
+        message: '✅ Counter variation_runs già esistente',
+        alreadyExists: true,
+        data: existing
+      });
+    }
+
+    // Crea il counter
+    const counter = {
+      _id: 'variation_runs',
+      sequence: 0
+    };
+
+    await countersCollection.insertOne(counter);
+
+    console.log('✅ Counter variation_runs initialized');
+
+    return res.status(200).json({
+      success: true,
+      message: '✅ Counter variation_runs inizializzato con successo',
+      alreadyExists: false,
+      data: counter
+    });
+
+  } catch (error) {
+    console.error('Error initializing counters:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to initialize counters'
     });
   }
 }

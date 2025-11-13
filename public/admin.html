@@ -910,6 +910,19 @@
           </div>
 
           <div class="section">
+            <h2>Inizializzazione Database</h2>
+            <p style="color: #666; margin-bottom: 15px;">Usa questi pulsanti per inizializzare le collections mancanti nel database di produzione.</p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <button onclick="initializeSystemSettings()" class="action-btn" style="background: #4CAF50;">
+                ⚙️ Inizializza System Settings
+              </button>
+              <button onclick="initializeCounters()" class="action-btn" style="background: #2196F3;">
+                🔢 Inizializza Counters
+              </button>
+            </div>
+          </div>
+
+          <div class="section">
             <h2>Collections</h2>
             <table id="collectionsTable">
               <thead>
@@ -1752,6 +1765,72 @@
           </div>
         </div>
       `).join('');
+    }
+
+    // Initialize system_settings collection
+    async function initializeSystemSettings() {
+      if (!confirm('Inizializzare la collection system_settings con i valori di default?\n\nQuesto creerà il documento global se non esiste.')) {
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/admin?action=init-system-settings', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          throw new Error(result.error || 'Errore sconosciuto');
+        }
+
+        showNotification(result.message, 'success');
+
+        // Ricarica le info del database
+        await loadOverview();
+        renderDatabaseInfo();
+
+      } catch (error) {
+        console.error('Error initializing system_settings:', error);
+        showNotification(`❌ Errore: ${error.message}`, 'error');
+      }
+    }
+
+    // Initialize counters collection
+    async function initializeCounters() {
+      if (!confirm('Inizializzare la collection counters con i valori di default?\n\nQuesto creerà il counter variation_runs se non esiste.')) {
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/admin?action=init-counters', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          throw new Error(result.error || 'Errore sconosciuto');
+        }
+
+        showNotification(result.message, 'success');
+
+        // Ricarica le info del database
+        await loadOverview();
+        renderDatabaseInfo();
+
+      } catch (error) {
+        console.error('Error initializing counters:', error);
+        showNotification(`❌ Errore: ${error.message}`, 'error');
+      }
     }
 
     // Collection content viewer
