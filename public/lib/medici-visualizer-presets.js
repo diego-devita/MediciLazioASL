@@ -25,7 +25,8 @@ const MediciVisualizerPresets = {
               <table class="results-table">
                 <thead>
                   <tr>
-                    <th class="{{sortClassFor 'assegnabilita'}}" data-column="assegnabilita"></th>
+                    <th class="no-sort" style="width: 50px;"></th>
+                    <th class="{{sortClassFor 'assegnabilita'}}" data-column="assegnabilita" style="width: 50px;"></th>
                     <th class="{{sortClassFor 'cognome'}}" data-column="cognome">Cognome</th>
                     <th style="width: 0; padding: 0; border: none;"></th>
                     <th class="{{sortClassFor 'nome'}}" data-column="nome">Nome</th>
@@ -35,6 +36,7 @@ const MediciVisualizerPresets = {
                 <tbody>
                   {{#each items}}
                     <tr data-medico-index="{{@index}}">
+                      <td style="text-align: center; color: #999; font-size: 0.9em; width: 50px;">{{globalIndex @index}}</td>
                       <td class="emoji-cell">{{emoji this.assegnabilita}}</td>
                       <td class="nome-cell">{{this.cognome}}</td>
                       <td style="position: relative; width: 0; padding: 0;">
@@ -105,6 +107,7 @@ const MediciVisualizerPresets = {
               <div class="results-cards">
                 {{#each items}}
                   <div class="result-card" data-medico-index="{{@index}}">
+                    <div class="card-index">{{globalIndex @index}}</div>
                     <div class="card-header">
                       <div class="card-emoji">{{emoji this.assegnabilita}}</div>
                       <div class="card-name">{{this.cognome}} {{this.nome}}</div>

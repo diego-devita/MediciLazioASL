@@ -277,6 +277,18 @@ class MediciVisualizer {
       lt: (a, b) => a < b,
       eq: (a, b) => a === b,
 
+      // === MATH ===
+      inc: (num) => num + 1,
+
+      // Calcola l'indice globale considerando la paginazione
+      globalIndex: (localIndex) => {
+        const pageSize = self.state.pageSize === 'Tutti'
+          ? self.state.filteredItems.length
+          : (typeof self.state.pageSize === 'number' ? self.state.pageSize : parseInt(self.state.pageSize));
+        const offset = (self.state.currentPage - 1) * pageSize;
+        return offset + localIndex + 1;
+      },
+
       // === COUNTERS ===
       countTotal: () => self.state.items.length,
       countLiberi: () => self.state.items.filter(m =>
