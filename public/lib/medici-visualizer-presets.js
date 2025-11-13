@@ -138,7 +138,7 @@ const MediciVisualizerPresets = {
               </div>
 
               <!-- Page navigation -->
-              <div style="display: flex; flex-direction: column; align-items: flex-end;">
+              <div style="display: {{#if showPagination}}flex{{else}}none{{/if}}; flex-direction: column; align-items: flex-end;">
                 <div class="pagination-nav" style="display: flex; align-items: center; gap: 6px;">
                   <!-- Previous page button -->
                   <button data-page-action="prev" {{#if isFirstPage}}disabled{{/if}} style="padding: 10px 16px; border: 1px solid #667eea; border-radius: 4px; background: {{#if isFirstPage}}#e8e8e8{{else}}#667eea{{/if}}; font-weight: 400; color: {{#if isFirstPage}}#ccc{{else}}white{{/if}}; cursor: {{#if isFirstPage}}not-allowed{{else}}pointer{{/if}}; width: auto;">

@@ -242,14 +242,17 @@ class MediciVisualizer {
 
       currentPage: () => self.state.currentPage,
       totalPages: () => {
+        if (self.state.pageSize === 'Tutti') return 1;
         const pageSize = typeof self.state.pageSize === 'number' ? self.state.pageSize : parseInt(self.state.pageSize);
         return Math.ceil(self.state.filteredItems.length / pageSize);
       },
       totalItems: () => self.state.filteredItems.length,
       pageSize: () => self.state.pageSize,
+      showPagination: () => self.state.pageSize !== 'Tutti',
 
       isFirstPage: () => self.state.currentPage === 1,
       isLastPage: () => {
+        if (self.state.pageSize === 'Tutti') return true;
         const pageSize = typeof self.state.pageSize === 'number' ? self.state.pageSize : parseInt(self.state.pageSize);
         const total = Math.ceil(self.state.filteredItems.length / pageSize);
         const result = self.state.currentPage >= total;
@@ -290,6 +293,7 @@ class MediciVisualizer {
 
       // === ARRAY HELPERS ===
       visiblePages: () => {
+        if (self.state.pageSize === 'Tutti') return [];
         const current = self.state.currentPage;
         const pageSize = typeof self.state.pageSize === 'number' ? self.state.pageSize : parseInt(self.state.pageSize);
         const total = Math.ceil(self.state.filteredItems.length / pageSize);
@@ -715,13 +719,17 @@ class MediciVisualizer {
    * Get current state
    */
   getState() {
+    const effectivePageSize = this.state.pageSize === 'Tutti' ? this.state.filteredItems.length : this.state.pageSize;
+    const totalPages = this.state.pageSize === 'Tutti' ? 1 : Math.ceil(this.state.filteredItems.length / this.state.pageSize);
+
     return {
       totalItems: this.state.items.length,
       filteredItems: this.state.filteredItems.length,
       paginatedItems: this.state.paginatedItems.length,
       currentPage: this.state.currentPage,
-      totalPages: Math.ceil(this.state.filteredItems.length / this.state.pageSize),
+      totalPages: totalPages,
       pageSize: this.state.pageSize,
+      showPagination: this.state.pageSize !== 'Tutti',
       sortColumn: this.state.sortColumn,
       sortDirection: this.state.sortDirection,
       counters: {

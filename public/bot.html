@@ -1230,6 +1230,19 @@
         width: 60px;
         height: 60px;
       }
+
+      .command {
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .command-name {
+        width: auto;
+      }
+
+      .command-desc {
+        padding-left: 0;
+      }
     }
   </style>
 </head>
@@ -1263,10 +1276,9 @@ BOT</span>
       <div class="section">
         <p>Il bot Telegram ti permette di ricevere notifiche automatiche quando ci sono medici disponibili che corrispondono ai tuoi criteri di ricerca.</p>
         <ul>
-          <li>Visualizza i medici disponibili con <code>/medici</code></li>
           <li>Ricevi notifiche automatiche quando il cron gira</li>
           <li>Vedi immediatamente quali medici sono disponibili e le variazioni</li>
-          <li>Ottieni un codice OTP per accedere alla pagina web con <code>/otp</code></li>
+          <li>Ottieni un codice OTP per accedere alla pagina web</li>
         </ul>
       </div>
 
@@ -1339,34 +1351,28 @@ BOT</span>
             <button id="copyCognomiBtn" style="
               margin-left: 15px;
               margin-top: 5px;
-              padding: 8px 16px;
-              background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
-              border: none;
-              border-radius: 20px;
-              color: white;
+              padding: 8px 10px 6px 10px;
+              background: white;
+              border: solid 3px #888;
+              color: #888;
               font-size: 0.85rem;
               font-weight: 600;
               cursor: pointer;
-              transition: all 0.3s;
-              box-shadow: 0 2px 8px rgba(20, 184, 166, 0.3);
-            " onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 16px rgba(20, 184, 166, 0.5)'" onmouseout="this.style.transform=''; this.style.boxShadow='0 2px 8px rgba(20, 184, 166, 0.3)'">
-              Copia
+            ">
+              <i class="fa-solid fa-copy"></i> COPIA
             </button>
             <button id="testQueryBtn" onclick="openTestQuery()" style="
               margin-left: 10px;
               margin-top: 5px;
-              padding: 8px 16px;
-              background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-              border: none;
-              border-radius: 20px;
-              color: white;
+              padding: 8px 10px 6px 10px;
+              background: white;
+              border: solid 3px #888;
+              color: #888;
               font-size: 0.85rem;
               font-weight: 600;
               cursor: pointer;
-              transition: all 0.3s;
-              box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
-            " onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 16px rgba(249, 115, 22, 0.5)'" onmouseout="this.style.transform=''; this.style.boxShadow='0 2px 8px rgba(249, 115, 22, 0.3)'">
-              Test
+            ">
+              TEST <i class="fa-solid fa-arrow-up-right-from-square"></i>
             </button>
           </h2>
           <div class="info-box">
@@ -2371,29 +2377,8 @@ BOT</span>
           nextCheckElement.dataset.lastCheck = lastCheck;
         }
 
-        // Controlla se ci sono cognomi configurati
-        if (cognomi.length === 0) {
-          // Nessun cognome configurato - mostra badge rosso di errore
-          nextCheckElement.innerHTML = '<span style="background: rgb(239 68 68 / 80%); color: white; padding: 2px 10px 4px 10px; border-radius: 12px; font-size: 0.85em; font-weight: 600;">⚠️ La lista cognomi non può essere vuota</span>';
-        } else {
-          // Ci sono cognomi - calcola prossimo controllo
-          let nextCheckDate;
-          if (lastCheck) {
-            const lastCheckDate = new Date(lastCheck);
-            nextCheckDate = new Date(lastCheckDate.getTime() + minIntervalMinutes * 60 * 1000);
-          } else {
-            nextCheckDate = new Date(Date.now() + minIntervalMinutes * 60 * 1000);
-          }
-
-          const formattedNextCheck = nextCheckDate.toLocaleString('it-IT', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-          });
-          nextCheckElement.innerHTML = `<span class="next-check-label">A partire dalle</span><br class="mobile-only-br"> <span>${formattedNextCheck}</span>`;
-        }
+        // Usa la funzione centralizzata che gestisce correttamente le priorità
+        updateNextCheckDisplay(cognomi.length);
 
         // Mostra ultimo controllo (senza secondi)
         if (lastCheck) {
