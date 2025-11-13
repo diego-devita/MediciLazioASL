@@ -285,7 +285,7 @@
       width: 100%;
       height: 35px;
       background: #e0e0e0;
-      border-radius: 17px;
+      border-radius: 5px;
       overflow: hidden;
       margin: 15px 0;
       position: relative;
@@ -1284,15 +1284,15 @@
 
       <!-- Batch Progress Bar -->
       <div id="batchProgress" style="display: none;" class="batch-progress">
-        <h3>🔄 Ricerca batch in corso...</h3>
+        <h3>Ricerca batch in corso...</h3>
         <div style="margin-bottom: 8px;">
-          <div style="font-size: 0.9rem; margin-bottom: 4px; color: #666;">📊 Combinazioni: <strong id="progressQueries">0/0</strong></div>
+          <div style="font-size: 0.9rem; margin-bottom: 4px; color: #666;">Combinazioni: <strong id="progressQueries">0/0</strong></div>
           <div class="progress-bar-container">
             <div id="progressBarFill" class="progress-bar-fill" style="width: 0%;">0%</div>
           </div>
         </div>
         <div id="pagesProgressContainer" style="display: none; margin-bottom: 8px;">
-          <div style="font-size: 0.9rem; margin-bottom: 4px; color: #666;">📄 Pagine (query corrente): <strong id="progressPages">0/0</strong></div>
+          <div style="font-size: 0.9rem; margin-bottom: 4px; color: #666;">Pagine (query corrente): <strong id="progressPages">0/0</strong></div>
           <div class="progress-bar-container">
             <div id="progressBarFillPages" class="progress-bar-fill" style="width: 0%; background: linear-gradient(90deg, #28a745 0%, #20c997 100%);">0%</div>
           </div>
@@ -1576,6 +1576,11 @@
       submitBtn.disabled = true;
       hideError();
       results.style.display = 'none';
+
+      // Scroll al progress bar
+      setTimeout(() => {
+        batchProgress.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
 
       // Avvia timer in tempo reale
       startTime = Date.now();
@@ -1871,10 +1876,10 @@
 
       results.style.display = 'block';
 
-      // Scroll al pannello risultati
+      // Scroll al pannello risultati dopo che il DOM si è aggiornato
       setTimeout(() => {
         results.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
+      }, 200);
     }
 
     form.addEventListener('submit', async (e) => {
