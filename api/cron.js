@@ -278,8 +278,16 @@ async function handler(req, res) {
           ? 'Ci sono state variazioni.'
           : 'Non ci sono state variazioni.';
 
+        console.log(`[CRON DEBUG] Variazioni per user ${user.chatId}:`, {
+          nuovi: nuoviMedici.length,
+          rimossi: mediciRimossi.length,
+          cambiati: medicinCambiati.length,
+          ciSonoVariazioni
+        });
+
         // Salva history delle variazioni (solo se ci sono variazioni)
         if (ciSonoVariazioni) {
+          console.log(`[CRON DEBUG] Calling saveVariationHistory for user ${user.chatId}...`);
           await saveVariationHistory(user.chatId, {
             queries: user.query.cognomi,
             variations: {
@@ -424,7 +432,7 @@ Usa /medici per vedere i dettagli.
             let cambiatoMsg = `🔄 Medici che hanno cambiato stato (${medicinDaNotificare.length}):\n\n`;
             medicinDaNotificare.forEach(item => {
               const emoji = getEmoji(item.statoNuovo);
-              cambiatoMsg += `${emoji} ${item.cognome} ${item.nome}\n`;
+              cambiatoMsg += `${emoji} ${item.medico.cognome} ${item.medico.nome}\n`;
             });
 
             await sendNotificationSafe(user.chatId, cambiatoMsg.trim());

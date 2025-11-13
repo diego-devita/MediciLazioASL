@@ -919,6 +919,19 @@
         <div id="databaseError" class="error" style="display: none;"></div>
         <div id="databaseContent" style="display: none;">
           <div class="section">
+            <h2>Stringa di Connessione</h2>
+            <div style="background: #f5f5f5; padding: 15px; border-radius: 6px; border: 2px solid #ddd;">
+              <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                <strong style="color: #555;">MONGODB_URI:</strong>
+                <button onclick="toggleConnectionString()" class="action-btn" style="padding: 6px 12px; font-size: 0.85rem;">
+                  <span id="toggleConnIcon">👁️</span> <span id="toggleConnText">Mostra</span>
+                </button>
+              </div>
+              <code id="connectionString" style="display: none; word-break: break-all; background: white; padding: 10px; border-radius: 4px; display: block; font-size: 0.85rem; color: #333;">Caricamento...</code>
+            </div>
+          </div>
+
+          <div class="section">
             <h2>Sintesi Database</h2>
             <div class="info-grid" id="databaseSummary"></div>
           </div>
@@ -1705,6 +1718,48 @@
       content.style.display = 'block';
 
       renderDatabaseInfo();
+      await loadConnectionString();
+    }
+
+    let connectionStringVisible = false;
+    let connectionStringValue = null;
+
+    async function loadConnectionString() {
+      try {
+        const response = await fetch('/api/admin?action=get-connection-string', {
+          credentials: 'include'
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          connectionStringValue = data.connectionString;
+        } else {
+          connectionStringValue = 'Errore durante il caricamento';
+        }
+      } catch (error) {
+        console.error('Error loading connection string:', error);
+        connectionStringValue = 'Errore durante il caricamento';
+      }
+    }
+
+    function toggleConnectionString() {
+      const stringElement = document.getElementById('connectionString');
+      const iconElement = document.getElementById('toggleConnIcon');
+      const textElement = document.getElementById('toggleConnText');
+
+      connectionStringVisible = !connectionStringVisible;
+
+      if (connectionStringVisible) {
+        stringElement.style.display = 'block';
+        stringElement.textContent = connectionStringValue || 'Caricamento...';
+        iconElement.textContent = '🙈';
+        textElement.textContent = 'Nascondi';
+      } else {
+        stringElement.style.display = 'none';
+        iconElement.textContent = '👁️';
+        textElement.textContent = 'Mostra';
+      }
     }
 
     function renderDatabaseInfo() {

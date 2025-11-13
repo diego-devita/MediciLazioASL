@@ -50,6 +50,8 @@ async function handler(req, res) {
       return handleInitCounters(req, res);
     case 'trigger-cron':
       return handleTriggerCron(req, res);
+    case 'get-connection-string':
+      return handleGetConnectionString(req, res);
     case 'collection':
       return handleCollection(req, res);
     default:
@@ -959,6 +961,36 @@ async function handleTriggerCron(req, res) {
     return res.status(500).json({
       success: false,
       error: error.message || 'Failed to trigger cron'
+    });
+  }
+}
+
+// ===== GET CONNECTION STRING =====
+async function handleGetConnectionString(req, res) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  try {
+    const connectionString = process.env.MONGODB_URI;
+
+    if (!connectionString) {
+      return res.status(500).json({
+        success: false,
+        error: 'MONGODB_URI not configured'
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      connectionString
+    });
+
+  } catch (error) {
+    console.error('Error getting connection string:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get connection string'
     });
   }
 }

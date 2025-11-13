@@ -1352,7 +1352,7 @@ BOT</span>
           </div>
           <div class="command">
             <div class="command-name">/otp</div>
-            <div class="command-desc">Genera un codice OTP per accedere</div>
+            <div class="command-desc">Genera codice per accedere</div>
           </div>
           <div class="command">
             <div class="command-name">/help</div>
@@ -2708,7 +2708,7 @@ BOT</span>
         }
 
         const data = await response.json();
-        const history = data.history || [];
+        const history = data.variations || [];
 
         if (history.length === 0) {
           historyList.innerHTML = '<p style="text-align: center; color: #999; padding: 20px; font-style: italic;">Nessuna variazione registrata</p>';
