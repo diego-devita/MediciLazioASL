@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
   <title>Telegram Bot - Medici ASL Lazio</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <style>
     * {
       box-sizing: border-box;
@@ -14,7 +15,7 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #667eea;
       min-height: 100vh;
       padding: 20px;
       line-height: 1.6;
@@ -30,29 +31,80 @@
     }
 
     .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #e8e8e8 0%, #c0c0c0 100%);
       color: white;
       padding: 40px 30px;
       text-align: center;
+      border-bottom: 6px solid #999;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     }
 
     .header h1 {
       font-size: 2rem;
-      margin-bottom: 10px;
+      margin: 0;
+      padding: .5em;
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 12px;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+    }
+
+    .header-title {
+      color: #888;
+      font-size: 1.9em;
+      font-weight: 700;
+      flex-grow: 1;
+      text-shadow: 0 1px 0 rgba(255,255,255,.8), 0 -1px 0 rgba(0,0,0,.2);
+      border: solid 8px #888;
+      padding: 0.3em 0.6em;
+      white-space: pre-wrap;
+      text-align: right;
+      line-height: 65px;
     }
 
     .header h1 svg {
-      width: 36px;
-      height: 36px;
+      width: 80px;
+      height: 80px;
     }
 
     .header p {
       opacity: 0.9;
       font-size: 1.1rem;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 15px;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.4);
+      color: #888 !important;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: background 0.3s, transform 0.2s;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .back-link svg {
+      fill: none !important;
+    }
+
+    .back-link svg path {
+      fill: none !important;
+      stroke: #888 !important;
+    }
+
+    .back-link:hover {
+      background: rgba(255, 255, 255, 0.5);
+      transform: translateY(-2px);
     }
 
     .tabs {
@@ -97,8 +149,13 @@
       border-radius: 8px;
       padding: .5em 1em;
       margin-bottom: 20px;
-      background: #dbeafe;
+      /* background: #dbeafe; */
+      background: #667eea24;
       border: 3px solid #bfdbfe;
+    }
+
+    .section:has(.command-list) {
+      padding-bottom: 1.4em;
     }
 
     .section h2 {
@@ -330,6 +387,10 @@
       background: rgba(255, 255, 255, 0.2);
       padding: 0px 5px;
       border-radius: 6px;
+    }
+
+    .tag-detail-placeholder {
+      opacity: 0.7;
     }
 
     .cognome-add-btn {
@@ -685,7 +746,7 @@
       width: 100%;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      gap: 12px;
       transition: all 0.2s;
       margin-bottom: 15px;
       text-align: left;
@@ -698,15 +759,44 @@
 
     .results-toggle-emoji {
       color: white;
-      background: rgba(255, 255, 255, 0.4);
-      padding: 0.2em 0.2em 0.4em;
-      border-radius: 5px;
-      display: inline-block;
-      margin-right: 8px;
+      font-size: 1.5em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .results-toggle-text {
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+    }
+
+    .results-toggle-counter {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.9em;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .counter-value {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 20px;
     }
 
     .results-toggle-icon {
       transition: transform 0.3s;
+      display: flex;
+      align-items: center;
+      font-size: 1.2em;
+      flex-shrink: 0;
     }
 
     .results-toggle.expanded .results-toggle-icon {
@@ -846,6 +936,19 @@
     .modal-input:focus {
       outline: none;
       border-color: #667eea;
+    }
+
+    select.modal-input[value=""],
+    select.modal-input:invalid {
+      color: #999;
+    }
+
+    select.modal-input option {
+      color: #000;
+    }
+
+    select.modal-input option[value=""] {
+      color: #999;
     }
 
     .modal-separator {
@@ -1101,14 +1204,46 @@
       opacity: 0.5;
       cursor: not-allowed;
     }
+
+    /* Media Query per Mobile */
+    @media (max-width: 768px) {
+      .header h1 {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+        padding: 1em;
+      }
+
+      .header-logo {
+        align-self: flex-start;
+      }
+
+      .header-title {
+        font-size: 1.3em;
+        line-height: 1.4;
+        padding: 0.4em 0.8em;
+        border-width: 6px;
+        align-self: stretch;
+      }
+
+      .header h1 svg {
+        width: 60px;
+        height: 60px;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
       <h1>
-        <img src="/logo-salute-lazio.svg" alt="Salute Lazio" style="height: 1.5em; vertical-align: middle; margin-right: 0.3em;">
-        Telegram Bot
+        <div class="header-logo">
+          <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="fill: #888;">
+            <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+          </svg>
+        </div>
+        <span class="header-title">TELEGRAM
+BOT</span>
       </h1>
       <a href="/" class="back-link">
         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 18px; height: 18px;">
@@ -1119,8 +1254,8 @@
     </div>
 
     <div class="tabs">
-      <div class="tab active" data-tab="info">📖 Info</div>
-      <div class="tab" data-tab="config">⚙️ Configurazione</div>
+      <div class="tab active" data-tab="info"><i class="fa-solid fa-circle-info"></i> Info</div>
+      <div class="tab" data-tab="config"><i class="fa-solid fa-gear"></i> Configurazione</div>
     </div>
 
     <!-- TAB INFO -->
@@ -1139,7 +1274,7 @@
         <div class="command-list">
           <div class="command">
             <div class="command-name">/start</div>
-            <div class="command-desc">Avvia il bot e registrati nel sistema</div>
+            <div class="command-desc">Avvia il bot</div>
           </div>
           <div class="command">
             <div class="command-name">/medici</div>
@@ -1147,7 +1282,7 @@
           </div>
           <div class="command">
             <div class="command-name">/otp</div>
-            <div class="command-desc">Genera un codice OTP per accedere alla pagina web (valido 20 minuti)</div>
+            <div class="command-desc">Genera un codice OTP per accedere</div>
           </div>
           <div class="command">
             <div class="command-name">/help</div>
@@ -1157,7 +1292,7 @@
       </div>
 
       <div class="highlight">
-        <strong>💡 Nota:</strong> Il sistema cerca automaticamente medici di Medicina Generale (MMG) in tutte le ASL del Lazio. Le notifiche vengono inviate quando ci sono nuovi medici disponibili o cambiamenti di stato. Quest'attività gira tutti i giorni dalle 7am alle 23pm ogni 10 minuti. Visitare la scheda di <a href="#" class="config-link" onclick="document.querySelector('[data-tab=config]').click(); return false;">Configurazione</a> per maggiori dettagli.
+        <strong><i class="fa-regular fa-lightbulb"></i> Nota:</strong> Il sistema cerca automaticamente medici di Medicina Generale (MMG) in tutte le ASL del Lazio. Le notifiche vengono inviate quando ci sono nuovi medici disponibili o cambiamenti di stato. Quest'attività gira <strong>tutti i giorni dalle 7am alle 23pm ogni 10 minuti</strong>. Visitare la scheda di <a href="#" class="config-link" onclick="document.querySelector('[data-tab=config]').click(); return false;">Configurazione</a> per maggiori dettagli.
       </div>
     </div>
 
@@ -1308,10 +1443,9 @@
           <!-- Lista risultati espandibile -->
           <div id="resultsSection">
             <button class="results-toggle" id="resultsToggle">
-              <span>
-                <span class="results-toggle-emoji">📋</span>
-                Mostra dettaglio medici (<span id="resultsCount">0</span>)
-              </span>
+              <span class="results-toggle-emoji"><i class="fa-solid fa-list"></i></span>
+              <span class="results-toggle-text">Mostra dettaglio medici</span>
+              <span class="results-toggle-counter"><span class="counter-value" id="resultsCount">0</span></span>
               <span class="results-toggle-icon">▼</span>
             </button>
             <div class="results-list-container" id="resultsListContainer">
@@ -1327,10 +1461,9 @@
           <!-- Medici aggiunti -->
           <div id="addedSection" style="display: none;">
             <button class="results-toggle" id="addedToggle">
-              <span>
-                <span class="results-toggle-emoji">➕</span>
-                Mostra medici aggiunti (<span id="addedCount">0</span>)
-              </span>
+              <span class="results-toggle-emoji"><i class="fa-solid fa-plus"></i></span>
+              <span class="results-toggle-text">Mostra medici aggiunti</span>
+              <span class="results-toggle-counter"><span class="counter-value" id="addedCount">0</span></span>
               <span class="results-toggle-icon">▼</span>
             </button>
             <div class="results-list-container" id="addedListContainer">
@@ -1341,10 +1474,9 @@
           <!-- Medici rimossi -->
           <div id="removedSection" style="display: none;">
             <button class="results-toggle" id="removedToggle">
-              <span>
-                <span class="results-toggle-emoji">➖</span>
-                Mostra medici rimossi (<span id="removedCount">0</span>)
-              </span>
+              <span class="results-toggle-emoji"><i class="fa-solid fa-minus"></i></span>
+              <span class="results-toggle-text">Mostra medici rimossi</span>
+              <span class="results-toggle-counter"><span class="counter-value" id="removedCount">0</span></span>
               <span class="results-toggle-icon">▼</span>
             </button>
             <div class="results-list-container" id="removedListContainer">
@@ -1355,10 +1487,9 @@
           <!-- Differenze assegnabilità -->
           <div id="changedSection" style="display: none;">
             <button class="results-toggle" id="changedToggle">
-              <span>
-                <span class="results-toggle-emoji">🔄</span>
-                Mostra differenze assegnabilità (<span id="changedCount">0</span>)
-              </span>
+              <span class="results-toggle-emoji"><i class="fa-solid fa-circle-half-stroke"></i></span>
+              <span class="results-toggle-text">Mostra differenze assegnabilità</span>
+              <span class="results-toggle-counter"><span class="counter-value" id="changedCount">0</span></span>
               <span class="results-toggle-icon">▼</span>
             </button>
             <div class="results-list-container" id="changedListContainer">
@@ -1374,10 +1505,9 @@
           <!-- Storia variazioni -->
           <div id="historySection">
             <button class="results-toggle" id="historyToggle">
-              <span>
-                <span class="results-toggle-emoji">📜</span>
-                Mostra storia variazioni
-              </span>
+              <span class="results-toggle-emoji"><i class="fa-solid fa-clock-rotate-left"></i></span>
+              <span class="results-toggle-text">Mostra storia variazioni</span>
+              <span class="results-toggle-counter"><span class="counter-value">0</span></span>
               <span class="results-toggle-icon">▼</span>
             </button>
             <div class="results-list-container" id="historyListContainer">
@@ -1502,13 +1632,12 @@
       try {
         toggle.disabled = true;
 
-        const token = localStorage.getItem('token');
         const response = await fetch('/api/user?action=cron-enabled', {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           },
+          credentials: 'include',
           body: JSON.stringify({
             cronEnabled: enabled
           })
@@ -1640,7 +1769,7 @@
 
           const detailsHtml = details.length > 0
             ? `<div class="cognome-tag-details">${details.join('')}</div>`
-            : '';
+            : `<div class="cognome-tag-details"><span class="tag-detail tag-detail-placeholder">(solo cognome)</span></div>`;
 
           const queryJson = JSON.stringify(query).replace(/"/g, '&quot;');
 
@@ -1696,10 +1825,10 @@
 
       // Priorità: prima controlla se il monitoraggio è disabilitato
       if (!isCronEnabled) {
-        nextCheckElement.innerHTML = '<span style="background: rgb(239 68 68 / 80%); color: white; padding: 2px 10px 4px 10px; border-radius: 12px; font-size: 0.85em; font-weight: 600;">⚠️ Il monitoraggio è disabilitato</span>';
+        nextCheckElement.innerHTML = '<span style="display: block; background: rgb(239 68 68 / 80%); color: white; padding: 2px 10px 4px 10px; border-radius: 12px; font-size: 0.85em; font-weight: 600;">⚠️ Il monitoraggio è disabilitato</span>';
       } else if (cognomiCount === 0) {
         // Nessun cognome - mostra badge rosso (MA NON cancellare il dataset.lastCheck!)
-        nextCheckElement.innerHTML = '<span style="background: rgb(239 68 68 / 80%); color: white; padding: 2px 10px 4px 10px; border-radius: 12px; font-size: 0.85em; font-weight: 600;">⚠️ La lista cognomi non può essere vuota</span>';
+        nextCheckElement.innerHTML = '<span style="display: block; background: rgb(239 68 68 / 80%); color: white; padding: 2px 10px 4px 10px; border-radius: 12px; font-size: 0.85em; font-weight: 600;">⚠️ La lista cognomi non può essere vuota</span>';
       } else {
         // Ci sono cognomi - calcola prossimo controllo
         const lastCheck = nextCheckElement.dataset.lastCheck;
@@ -1899,13 +2028,29 @@
       const mode = modal.dataset.mode || 'add';
       let success = false;
 
-      if (mode === 'edit') {
-        // Modalità modifica
-        const originalQuery = JSON.parse(modal.dataset.originalQuery);
-        success = await editCognome(originalQuery, cognome, nome, cap, asl);
-      } else {
-        // Modalità aggiunta
-        success = await addCognome(cognome, nome, cap, asl);
+      // Mostra loading sul pulsante
+      const confirmBtn = document.getElementById('modalConfirmBtn');
+      const originalText = confirmBtn.textContent;
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = 'Salvataggio...';
+      confirmBtn.style.opacity = '0.6';
+      confirmBtn.style.cursor = 'not-allowed';
+
+      try {
+        if (mode === 'edit') {
+          // Modalità modifica
+          const originalQuery = JSON.parse(modal.dataset.originalQuery);
+          success = await editCognome(originalQuery, cognome, nome, cap, asl);
+        } else {
+          // Modalità aggiunta
+          success = await addCognome(cognome, nome, cap, asl);
+        }
+      } finally {
+        // Ripristina il pulsante
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = originalText;
+        confirmBtn.style.opacity = '';
+        confirmBtn.style.cursor = '';
       }
 
       // Chiudi modal solo se successo
@@ -1928,6 +2073,16 @@
     cognomeInput.addEventListener('input', () => {
       if (modalError.classList.contains('visible')) {
         hideModalError();
+      }
+    });
+
+    // Gestione colore placeholder del select ASL
+    const aslInput = document.getElementById('aslInput');
+    aslInput.addEventListener('change', function() {
+      if (this.value === '') {
+        this.style.color = '#999';
+      } else {
+        this.style.color = '#000';
       }
     });
 
@@ -2506,7 +2661,7 @@
 
         if (history.length === 0) {
           historyList.innerHTML = '<p style="text-align: center; color: #999; padding: 20px; font-style: italic;">Nessuna variazione registrata</p>';
-          document.querySelector('#historyToggle span:first-child').innerHTML = '<span class="results-toggle-emoji">📜</span> Mostra storia variazioni (0)';
+          document.querySelector('#historyToggle .counter-value').textContent = '0';
           return;
         }
 
@@ -2523,7 +2678,7 @@
         });
 
         // Aggiorna il contatore nel toggle button
-        document.querySelector('#historyToggle span:first-child').innerHTML = `<span class="results-toggle-emoji">📜</span> Mostra storia variazioni (${totalVariations})`;
+        document.querySelector('#historyToggle .counter-value').textContent = totalVariations;
 
         // Renderizza la storia
         let html = '';
