@@ -451,20 +451,23 @@ Usa /medici per vedere i dettagli.
 
     console.log(`✅ Cron job completed: ${successCount} success, ${errorCount} errors`);
 
+    const duration = Date.now() - startTime;
+
     // Salva log esecuzione
     await saveCronLog({
       success: true,
       usersChecked: users.length,
       usersSuccessful: successCount,
       usersErrors: errorCount,
-      duration: Date.now() - startTime
+      duration
     });
 
     return res.status(200).json({
       success: true,
       checked: users.length,
       successful: successCount,
-      errors: errorCount
+      errors: errorCount,
+      duration
     });
 
   } catch (error) {

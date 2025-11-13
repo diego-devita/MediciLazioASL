@@ -77,6 +77,14 @@
       font-size: 1.1rem;
     }
 
+    .header-links {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
     .back-link {
       display: inline-flex;
       align-items: center;
@@ -156,6 +164,40 @@
 
     .section:has(.command-list) {
       padding-bottom: 1.4em;
+    }
+
+    .section.danger-zone {
+      background: #fee;
+      border: 3px solid #fcc;
+      margin-top: 30px;
+    }
+
+    .section.danger-zone h3 {
+      color: #d32f2f;
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .delete-account-btn {
+      background: #d32f2f;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+    }
+
+    .delete-account-btn:hover {
+      background: #b71c1c;
     }
 
     .section h2 {
@@ -1243,6 +1285,16 @@
       .command-desc {
         padding-left: 0;
       }
+
+      .header-links {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .back-link {
+        width: 100%;
+        justify-content: center;
+      }
     }
   </style>
 </head>
@@ -1258,12 +1310,18 @@
         <span class="header-title">TELEGRAM
 BOT</span>
       </h1>
-      <a href="/" class="back-link">
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 18px; height: 18px;">
-          <path d="M21 21L16.65 16.65M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Torna alla ricerca
-      </a>
+      <div class="header-links">
+        <a href="/" class="back-link">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 18px; height: 18px;">
+            <path d="M21 21L16.65 16.65M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Torna alla ricerca
+        </a>
+        <a href="#" class="back-link" onclick="logout(); return false;">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          Logout
+        </a>
+      </div>
     </div>
 
     <div class="tabs">
@@ -1305,6 +1363,14 @@ BOT</span>
 
       <div class="highlight">
         <strong><i class="fa-regular fa-lightbulb"></i> Nota:</strong> Il sistema cerca automaticamente medici di Medicina Generale (MMG) in tutte le ASL del Lazio. Le notifiche vengono inviate quando ci sono nuovi medici disponibili o cambiamenti di stato. Quest'attività gira <strong>tutti i giorni dalle 7am alle 23pm ogni 10 minuti</strong>. Visitare la scheda di <a href="#" class="config-link" onclick="document.querySelector('[data-tab=config]').click(); return false;">Configurazione</a> per maggiori dettagli.
+      </div>
+
+      <div class="section danger-zone">
+        <h3><i class="fa-solid fa-triangle-exclamation"></i> Zona Pericolosa</h3>
+        <p style="color: #666; margin-bottom: 15px;">Questa azione è irreversibile e cancellerà permanentemente il tuo account, tutte le sessioni attive e la cronologia delle variazioni.</p>
+        <button class="delete-account-btn" onclick="deleteAccount()">
+          <i class="fa-solid fa-trash"></i> Elimina Account
+        </button>
       </div>
     </div>
 
@@ -3513,6 +3579,64 @@ BOT</span>
         }
       });
     });
+
+    // Logout function
+    async function logout() {
+      if (!confirm('Sei sicuro di voler effettuare il logout?')) {
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/logout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          // Redirect to login page
+          window.location.href = '/login.html';
+        } else {
+          alert('Errore durante il logout. Riprova.');
+        }
+      } catch (error) {
+        console.error('Logout error:', error);
+        alert('Errore durante il logout. Riprova.');
+      }
+    }
+
+    async function deleteAccount() {
+      if (!confirm('⚠️ ATTENZIONE: Questa azione è irreversibile!\n\nVerranno eliminati:\n- Il tuo account\n- Tutte le sessioni attive\n- La cronologia delle variazioni\n\nSei ASSOLUTAMENTE sicuro di voler procedere?')) {
+        return;
+      }
+
+      // Double confirmation
+      if (!confirm('Questa è la tua ultima possibilità. Vuoi davvero eliminare il tuo account in modo permanente?')) {
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/user/delete-account', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          alert(`Account eliminato con successo.\n\nSessioni revocate: ${data.sessionsRevoked}\nVariazioni eliminate: ${data.variationsDeleted}`);
+          window.location.href = '/login.html';
+        } else {
+          alert(`Errore durante l'eliminazione dell'account: ${data.error || 'Errore sconosciuto'}`);
+        }
+      } catch (error) {
+        console.error('Delete account error:', error);
+        alert('Errore durante l\'eliminazione dell\'account. Riprova.');
+      }
+    }
   </script>
 </body>
 </html>

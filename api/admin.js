@@ -48,6 +48,8 @@ async function handler(req, res) {
       return handleInitSystemSettings(req, res);
     case 'init-counters':
       return handleInitCounters(req, res);
+    case 'trigger-cron':
+      return handleTriggerCron(req, res);
     case 'collection':
       return handleCollection(req, res);
     default:
@@ -898,6 +900,65 @@ async function handleInitCounters(req, res) {
     return res.status(500).json({
       success: false,
       error: error.message || 'Failed to initialize counters'
+    });
+  }
+}
+
+// ===== TRIGGER CRON MANUALLY =====
+async function handleTriggerCron(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  try {
+    const cronSecret = process.env.CRON_SECRET_KEY;
+
+    if (!cronSecret) {
+      return res.status(500).json({
+        success: false,
+        error: 'CRON_SECRET_KEY not configured on server'
+      });
+    }
+
+    console.log('🔧 Admin triggering cron manually...');
+
+    // Chiama l'endpoint /api/cron con il secret
+    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+    const host = req.headers.host || 'localhost:3000';
+    const cronUrl = `${protocol}://${host}/api/cron`;
+
+    const response = await fetch(cronUrl, {
+      method: 'POST',
+      headers: {
+        'X-Cron-Key': cronSecret,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.error || 'Cron execution failed');
+    }
+
+    console.log('✅ Cron triggered successfully:', data);
+
+    // Mappa i campi dal formato cron al formato admin
+    return res.status(200).json({
+      success: true,
+      message: 'Cron job eseguito con successo',
+      usersChecked: data.checked,
+      usersSuccessful: data.successful,
+      usersErrors: data.errors,
+      duration: data.duration || 0,
+      skipped: data.skipped
+    });
+
+  } catch (error) {
+    console.error('Error triggering cron:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to trigger cron'
     });
   }
 }

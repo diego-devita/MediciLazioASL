@@ -859,6 +859,20 @@
           </div>
           <div id="globalCronLoading" class="loading" style="display: none;">Aggiornamento...</div>
           <div id="globalCronError" class="error" style="display: none;"></div>
+
+          <div style="padding: 15px; background: #fff3cd; border-radius: 8px; border: 2px solid #ffc107;">
+            <p style="margin: 0 0 10px 0; font-weight: 600; color: #856404;">
+              🔧 Esecuzione Manuale
+            </p>
+            <p style="margin: 0 0 15px 0; font-size: 0.9rem; color: #856404;">
+              Triggera manualmente il job di monitoraggio per tutti gli utenti con cronEnabled=true
+            </p>
+            <button onclick="triggerCronManually()" class="action-btn" style="background: #ffc107; color: #000; font-weight: 600;">
+              ▶️ Esegui Cron Ora
+            </button>
+            <div id="manualCronLoading" class="loading" style="display: none; margin-top: 10px;">Esecuzione in corso...</div>
+            <div id="manualCronResult" style="display: none; margin-top: 10px; padding: 10px; background: white; border-radius: 4px; font-size: 0.9rem;"></div>
+          </div>
         </div>
 
         <div class="section">
@@ -1969,11 +1983,8 @@
     // Funzioni per il toggle globale cron
     async function loadGlobalCronStatus() {
       try {
-        const token = localStorage.getItem('token');
         const response = await fetch('/api/admin?action=system-settings', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+          credentials: 'include'
         });
 
         if (!response.ok) {
@@ -2000,11 +2011,10 @@
         error.style.display = 'none';
         toggle.disabled = true;
 
-        const token = localStorage.getItem('token');
         const response = await fetch('/api/admin?action=system-settings', {
           method: 'POST',
+          credentials: 'include',
           headers: {
-            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
@@ -2062,6 +2072,68 @@
         notification.style.animation = 'slideOut 0.3s ease-out';
         setTimeout(() => notification.remove(), 300);
       }, 3000);
+    }
+
+    async function triggerCronManually() {
+      const loading = document.getElementById('manualCronLoading');
+      const result = document.getElementById('manualCronResult');
+
+      if (!confirm('Vuoi eseguire manualmente il cron job?\n\nVerranno controllati tutti gli utenti con monitoraggio attivo.')) {
+        return;
+      }
+
+      try {
+        loading.style.display = 'block';
+        result.style.display = 'none';
+
+        const response = await fetch('/api/admin?action=trigger-cron', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          throw new Error(data.error || 'Errore durante l\'esecuzione del cron');
+        }
+
+        // Mostra il risultato
+        result.style.display = 'block';
+        result.style.background = '#d4edda';
+        result.style.color = '#155724';
+        result.style.border = '1px solid #c3e6cb';
+        result.innerHTML = `
+          <strong>✅ Cron eseguito con successo</strong><br>
+          <div style="margin-top: 8px;">
+            👥 Utenti controllati: ${data.usersChecked}<br>
+            ✅ Successi: ${data.usersSuccessful}<br>
+            ❌ Errori: ${data.usersErrors}<br>
+            ⏱️ Durata: ${(data.duration / 1000).toFixed(2)}s
+          </div>
+        `;
+
+        // Ricarica le statistiche
+        setTimeout(() => {
+          loadCronStats();
+          loadCronLogs();
+        }, 1000);
+
+        showNotification('✅ Cron eseguito con successo', 'success');
+
+      } catch (error) {
+        console.error('Error triggering cron:', error);
+        result.style.display = 'block';
+        result.style.background = '#f8d7da';
+        result.style.color = '#721c24';
+        result.style.border = '1px solid #f5c6cb';
+        result.innerHTML = `<strong>❌ Errore:</strong> ${error.message}`;
+        showNotification(`❌ Errore: ${error.message}`, 'error');
+      } finally {
+        loading.style.display = 'none';
+      }
     }
 
     async function loadCronLogs(page = 1) {
