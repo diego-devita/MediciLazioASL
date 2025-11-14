@@ -1085,6 +1085,7 @@ async function handleImpersonate(req, res) {
     await createSession({
       tokenHash: hashToken(impersonationToken),
       chatId: targetUser.chatId,
+      username: targetUser.username,
       role: targetUser.role,
       ipAddress: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
       userAgent: req.headers['user-agent']
@@ -1170,6 +1171,7 @@ async function handleExitImpersonation(req, res) {
     await createSession({
       tokenHash: hashToken(adminToken),
       chatId: adminUser.chatId,
+      username: adminUser.username,
       role: adminUser.role,
       ipAddress: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
       userAgent: req.headers['user-agent']

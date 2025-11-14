@@ -1586,13 +1586,14 @@
         const createdAt = new Date(session.createdAt).toLocaleString('it-IT');
         const lastUsed = new Date(session.lastUsed).toLocaleString('it-IT');
         const userAgent = session.userAgent ? session.userAgent.substring(0, 40) + '...' : '-';
+        const ip = session.ip ? session.ip.replace(/,/g, ', ') : '-';
 
         return `
           <tr>
             <td>${session.chatId}</td>
             <td>${session.username || '-'}</td>
             <td><span class="badge ${session.role === 'admin' ? 'warning' : 'info'}">${session.role}</span></td>
-            <td>${session.ip || '-'}</td>
+            <td style="word-break: break-word;">${ip}</td>
             <td style="font-size: 0.75rem;">${userAgent}</td>
             <td>${createdAt}</td>
             <td>${lastUsed}</td>
@@ -1609,6 +1610,7 @@
         const createdAt = new Date(session.createdAt).toLocaleString('it-IT');
         const lastUsed = new Date(session.lastUsed).toLocaleString('it-IT');
         const userAgent = session.userAgent || '-';
+        const ip = session.ip ? session.ip.replace(/,/g, ', ') : '-';
 
         return `
           <div class="mobile-card">
@@ -1618,7 +1620,7 @@
             </div>
             <div class="mobile-card-row">
               <span class="mobile-card-label">IP:</span>
-              <span class="mobile-card-value">${session.ip || '-'}</span>
+              <span class="mobile-card-value" style="word-break: break-word;">${ip}</span>
             </div>
             <div class="mobile-card-row">
               <span class="mobile-card-label">User Agent:</span>
