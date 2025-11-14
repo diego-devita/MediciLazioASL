@@ -5,7 +5,7 @@
     { "source": "/bot", "destination": "/api/page?name=bot" },
     { "source": "/swagger", "destination": "/swagger.html" },
     { "source": "/admin", "destination": "/api/page?name=admin" },
-    { "source": "/", "destination": "/cerca" }
+    { "source": "/", "destination": "/api/page?name=index" }
   ],
   "headers": [
     {
