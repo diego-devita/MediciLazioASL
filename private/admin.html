@@ -830,22 +830,24 @@
           <div id="sessionsLoading" class="loading">Caricamento sessioni...</div>
           <div id="sessionsError" class="error" style="display: none;"></div>
           <div id="sessionsContent" style="display: none;">
-            <table id="sessionsTable">
-              <thead>
-                <tr>
-                  <th>Chat ID</th>
-                  <th>Username</th>
-                  <th>Ruolo</th>
-                  <th>IP</th>
-                  <th>User Agent</th>
-                  <th>Creata</th>
-                  <th>Ultimo Uso</th>
-                  <th>Scadenza</th>
-                  <th>Azioni</th>
-                </tr>
-              </thead>
-              <tbody id="sessionsTableBody"></tbody>
-            </table>
+            <div style="overflow-x: auto;">
+              <table id="sessionsTable">
+                <thead>
+                  <tr>
+                    <th>Chat ID</th>
+                    <th>Username</th>
+                    <th>Ruolo</th>
+                    <th style="min-width: 150px;">IP</th>
+                    <th>User Agent</th>
+                    <th>Creata</th>
+                    <th>Ultimo Uso</th>
+                    <th>Scadenza</th>
+                    <th>Azioni</th>
+                  </tr>
+                </thead>
+                <tbody id="sessionsTableBody"></tbody>
+              </table>
+            </div>
             <div id="sessionsCards"></div>
 
             <div class="pagination" id="sessionsPagination"></div>
@@ -1625,7 +1627,7 @@
             <td>${session.chatId}</td>
             <td>${session.username || '-'}</td>
             <td><span class="badge ${session.role === 'admin' ? 'warning' : 'info'}">${session.role}</span></td>
-            <td style="word-break: break-word;">${ip}</td>
+            <td>${ip}</td>
             <td style="font-size: 0.75rem;">${userAgent}</td>
             <td>${createdAt}</td>
             <td>${lastUsed}</td>
