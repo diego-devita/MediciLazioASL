@@ -1133,18 +1133,37 @@ async function handleExitImpersonation(req, res) {
       });
     }
 
-    // 2. Salva audit log
+    // 2. Estrai il token corrente (di impersonificazione) dalla richiesta
+    let impersonationToken = null;
+    const cookieHeader = req.headers.cookie || '';
+    const cookies = Object.fromEntries(
+      cookieHeader.split('; ').map(c => {
+        const [key, ...v] = c.split('=');
+        return [key, v.join('=')];
+      })
+    );
+    impersonationToken = cookies.auth_token;
+
+    // 3. Revoca il token di impersonificazione dal DB
+    if (impersonationToken) {
+      const impersonationTokenHash = hashToken(impersonationToken);
+      await deleteSession(impersonationTokenHash);
+      console.log(`🗑️  Revoked impersonation token for user ${currentUser.chatId}`);
+    }
+
+    // 4. Salva audit log
     await saveAuditLog({
       action: 'IMPERSONATE_END',
       adminChatId: currentUser.impersonatedBy,
       targetChatId: currentUser.chatId,
       metadata: {
-        duration: 'unknown' // Potremmo calcolare se salvassimo il timestamp di inizio
+        duration: 'unknown', // Potremmo calcolare se salvassimo il timestamp di inizio
+        tokenRevoked: !!impersonationToken
       },
       ipAddress: req.headers['x-forwarded-for'] || req.socket.remoteAddress
     });
 
-    // 3. Ricrea il token per l'admin originale
+    // 5. Ricrea il token per l'admin originale
     const adminUser = await getUser(currentUser.impersonatedBy);
 
     if (!adminUser) {
@@ -1154,7 +1173,7 @@ async function handleExitImpersonation(req, res) {
       });
     }
 
-    // 4. Crea nuovo JWT per l'admin (scadenza normale: 30 giorni)
+    // 6. Crea nuovo JWT per l'admin (scadenza normale: 30 giorni)
     const secret = new TextEncoder().encode(AUTH.JWT_SECRET);
     const adminToken = await new SignJWT({
       chatId: adminUser.chatId,
@@ -1167,7 +1186,7 @@ async function handleExitImpersonation(req, res) {
       .setExpirationTime(`${AUTH.JWT_EXPIRY_DAYS}d`)
       .sign(secret);
 
-    // 4b. Crea sessione nel DB
+    // 7. Crea sessione nel DB per l'admin
     await createSession({
       tokenHash: hashToken(adminToken),
       chatId: adminUser.chatId,
@@ -1177,7 +1196,7 @@ async function handleExitImpersonation(req, res) {
       userAgent: req.headers['user-agent']
     });
 
-    // 5. Setta il cookie con il token admin
+    // 8. Setta il cookie con il token admin
     res.setHeader(
       'Set-Cookie',
       `auth_token=${adminToken}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${AUTH.COOKIE_MAX_AGE}`
