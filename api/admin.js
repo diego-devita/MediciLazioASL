@@ -1,6 +1,7 @@
-import { requireAdmin } from '../lib/auth.js';
-import { connectToDatabase, getAllSessions, deleteSession, deleteUserSessions, getSystemSettings, updateSystemSettings, getCronLogs, getCronStats } from '../lib/database.js';
-import { DATABASE, LOGGING } from '../lib/config.js';
+import { requireAdmin, hashToken } from '../lib/auth.js';
+import { connectToDatabase, getAllSessions, deleteSession, deleteUserSessions, getSystemSettings, updateSystemSettings, getCronLogs, getCronStats, getUser, saveAuditLog, createSession } from '../lib/database.js';
+import { DATABASE, LOGGING, AUTH } from '../lib/config.js';
+import { SignJWT } from 'jose';
 
 export const config = {
   api: {
@@ -23,7 +24,7 @@ async function handler(req, res) {
   if (!action) {
     return res.status(400).json({
       success: false,
-      error: 'Missing action parameter. Use ?action=stats|users|sessions|login-attempts|cron-logs|cron-logs-get|system-settings|collection'
+      error: 'Missing action parameter. Use ?action=stats|users|sessions|login-attempts|cron-logs|cron-logs-get|system-settings|collection|impersonate|exit-impersonation'
     });
   }
 
@@ -48,6 +49,10 @@ async function handler(req, res) {
       return handleInitSystemSettings(req, res);
     case 'init-counters':
       return handleInitCounters(req, res);
+    case 'impersonate':
+      return handleImpersonate(req, res);
+    case 'exit-impersonation':
+      return handleExitImpersonation(req, res);
     case 'trigger-cron':
       return handleTriggerCron(req, res);
     case 'get-connection-string':
@@ -991,6 +996,196 @@ async function handleGetConnectionString(req, res) {
     return res.status(500).json({
       success: false,
       error: error.message || 'Failed to get connection string'
+    });
+  }
+}
+
+// ===== IMPERSONATE =====
+async function handleImpersonate(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  try {
+    const adminUser = req.user;
+
+    // 1. Verifica che sia admin (già fatto da requireAdmin, ma double-check)
+    if (adminUser.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        error: 'Only admins can impersonate users'
+      });
+    }
+
+    // 2. Verifica che non stia già impersonando
+    if (adminUser.impersonatedBy) {
+      return res.status(403).json({
+        success: false,
+        error: 'Cannot impersonate while already impersonating another user'
+      });
+    }
+
+    // 3. Ottieni target chatId dal body
+    const { targetChatId } = req.body;
+
+    if (!targetChatId) {
+      return res.status(400).json({
+        success: false,
+        error: 'targetChatId is required'
+      });
+    }
+
+    // 4. Verifica che l'utente target esista
+    const targetUser = await getUser(targetChatId);
+
+    if (!targetUser) {
+      return res.status(404).json({
+        success: false,
+        error: 'Target user not found'
+      });
+    }
+
+    // 5. Salva audit log
+    await saveAuditLog({
+      action: 'IMPERSONATE_START',
+      adminChatId: adminUser.chatId,
+      targetChatId: targetUser.chatId,
+      metadata: {
+        targetUsername: targetUser.username,
+        targetRole: targetUser.role
+      },
+      ipAddress: req.headers['x-forwarded-for'] || req.socket.remoteAddress
+    });
+
+    // 7. Crea nuovo JWT con impersonificazione (scadenza più breve: 2 ore)
+    const secret = new TextEncoder().encode(AUTH.JWT_SECRET);
+    const impersonationToken = await new SignJWT({
+      chatId: targetUser.chatId,
+      role: targetUser.role,
+      impersonatedBy: adminUser.chatId,
+      impersonatorRole: 'admin',
+      authenticated: true
+    })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime('2h')
+      .sign(secret);
+
+    // 7b. Crea sessione nel DB
+    await createSession({
+      tokenHash: hashToken(impersonationToken),
+      chatId: targetUser.chatId,
+      role: targetUser.role,
+      ipAddress: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
+      userAgent: req.headers['user-agent']
+    });
+
+    // 8. Setta il cookie con il nuovo token
+    res.setHeader(
+      'Set-Cookie',
+      `auth_token=${impersonationToken}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${2 * 60 * 60}`
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: `Now impersonating user ${targetUser.username || targetUser.chatId}`,
+      impersonating: {
+        chatId: targetUser.chatId,
+        username: targetUser.username,
+        role: targetUser.role
+      }
+    });
+
+  } catch (error) {
+    console.error('Error in impersonate:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+}
+
+// ===== EXIT IMPERSONATION =====
+async function handleExitImpersonation(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  try {
+    const currentUser = req.user;
+
+    // 1. Verifica che stia effettivamente impersonando
+    if (!currentUser.impersonatedBy) {
+      return res.status(400).json({
+        success: false,
+        error: 'Not currently impersonating any user'
+      });
+    }
+
+    // 2. Salva audit log
+    await saveAuditLog({
+      action: 'IMPERSONATE_END',
+      adminChatId: currentUser.impersonatedBy,
+      targetChatId: currentUser.chatId,
+      metadata: {
+        duration: 'unknown' // Potremmo calcolare se salvassimo il timestamp di inizio
+      },
+      ipAddress: req.headers['x-forwarded-for'] || req.socket.remoteAddress
+    });
+
+    // 3. Ricrea il token per l'admin originale
+    const adminUser = await getUser(currentUser.impersonatedBy);
+
+    if (!adminUser) {
+      return res.status(500).json({
+        success: false,
+        error: 'Original admin user not found'
+      });
+    }
+
+    // 4. Crea nuovo JWT per l'admin (scadenza normale: 30 giorni)
+    const secret = new TextEncoder().encode(AUTH.JWT_SECRET);
+    const adminToken = await new SignJWT({
+      chatId: adminUser.chatId,
+      role: adminUser.role,
+      authenticated: true
+      // Nessun campo impersonatedBy
+    })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime(`${AUTH.JWT_EXPIRY_DAYS}d`)
+      .sign(secret);
+
+    // 4b. Crea sessione nel DB
+    await createSession({
+      tokenHash: hashToken(adminToken),
+      chatId: adminUser.chatId,
+      role: adminUser.role,
+      ipAddress: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
+      userAgent: req.headers['user-agent']
+    });
+
+    // 5. Setta il cookie con il token admin
+    res.setHeader(
+      'Set-Cookie',
+      `auth_token=${adminToken}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${AUTH.COOKIE_MAX_AGE}`
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: 'Exited impersonation mode',
+      admin: {
+        chatId: adminUser.chatId,
+        username: adminUser.username,
+        role: adminUser.role
+      }
+    });
+
+  } catch (error) {
+    console.error('Error in exit-impersonation:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Internal server error'
     });
   }
 }

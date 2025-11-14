@@ -12,8 +12,12 @@ async function handler(req, res) {
     });
   }
 
-  // Usa l'utente completo dal DB (non solo il payload JWT)
-  req.user = authResult.user;
+  // Usa l'utente completo dal DB + campi dal JWT payload (impersonatedBy, impersonatorRole)
+  req.user = {
+    ...authResult.user,
+    impersonatedBy: authResult.payload.impersonatedBy,
+    impersonatorRole: authResult.payload.impersonatorRole
+  };
 
   const { action } = req.query;
 
@@ -64,7 +68,10 @@ async function handleMe(req, res) {
 
     return res.status(200).json({
       success: true,
-      user
+      user,
+      // Include impersonation info from JWT if present
+      impersonatedBy: req.user.impersonatedBy || null,
+      impersonatorRole: req.user.impersonatorRole || null
     });
 
   } catch (error) {
