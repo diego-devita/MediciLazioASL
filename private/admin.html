@@ -6,6 +6,9 @@
   <meta name="robots" content="noindex, nofollow">
   <title>Admin Panel - Medici ASL Lazio</title>
 
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
   <!-- Auth check: hide page until verified -->
   <style id="auth-check-style">
     body {
@@ -837,6 +840,7 @@
                     <th>Chat ID</th>
                     <th>Username</th>
                     <th>Ruolo</th>
+                    <th>Device</th>
                     <th style="min-width: 150px;">IP</th>
                     <th>User Agent</th>
                     <th>Creata</th>
@@ -1606,12 +1610,31 @@
       }
     }
 
+    // Helper per detectare device type da user agent
+    function getDeviceIcon(userAgent) {
+      if (!userAgent || userAgent === '-') {
+        return '<i class="fas fa-question" style="color: #888;" title="Unknown"></i>';
+      }
+
+      const ua = userAgent.toLowerCase();
+
+      // Mobile devices
+      if (ua.includes('mobile') || ua.includes('android') || ua.includes('iphone') ||
+          ua.includes('ipad') || ua.includes('ipod') || ua.includes('blackberry') ||
+          ua.includes('windows phone')) {
+        return '<i class="fas fa-mobile-alt" style="color: #10b981;" title="Mobile"></i>';
+      }
+
+      // Desktop/Laptop
+      return '<i class="fas fa-desktop" style="color: #3b82f6;" title="Desktop"></i>';
+    }
+
     function renderSessionsTable(data) {
       const tbody = document.getElementById('sessionsTableBody');
       const { sessions, pagination } = data;
 
       if (sessions.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="9" class="empty">Nessuna sessione trovata</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" class="empty">Nessuna sessione trovata</td></tr>';
         return;
       }
 
@@ -1621,12 +1644,14 @@
         const userAgent = session.userAgent ? session.userAgent.substring(0, 40) + '...' : '-';
         const ip = session.ip ? session.ip.replace(/,/g, ', ') : '-';
         const expiresAt = session.expiresAt ? new Date(session.expiresAt).toLocaleString('it-IT') : 'Mai';
+        const deviceIcon = getDeviceIcon(session.userAgent);
 
         return `
           <tr>
             <td>${session.chatId}</td>
             <td>${session.username || '-'}</td>
             <td><span class="badge ${session.role === 'admin' ? 'warning' : 'info'}">${session.role}</span></td>
+            <td style="text-align: center; font-size: 1.2rem;">${deviceIcon}</td>
             <td>${ip}</td>
             <td style="font-size: 0.75rem;">${userAgent}</td>
             <td>${createdAt}</td>
@@ -1647,12 +1672,16 @@
         const userAgent = session.userAgent || '-';
         const ip = session.ip ? session.ip.replace(/,/g, ', ') : '-';
         const expiresAt = session.expiresAt ? new Date(session.expiresAt).toLocaleString('it-IT') : 'Mai';
+        const deviceIcon = getDeviceIcon(session.userAgent);
 
         return `
           <div class="mobile-card">
             <div class="mobile-card-header">
               <div class="mobile-card-title">${session.username || 'User'} (${session.chatId})</div>
-              <span class="badge ${session.role === 'admin' ? 'warning' : 'info'}">${session.role}</span>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.2rem;">${deviceIcon}</span>
+                <span class="badge ${session.role === 'admin' ? 'warning' : 'info'}">${session.role}</span>
+              </div>
             </div>
             <div class="mobile-card-row">
               <span class="mobile-card-label">IP:</span>
