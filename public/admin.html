@@ -1220,6 +1220,7 @@
               ${statusEmoji}
             </td>
             <td>
+              <button class="action-btn" style="background: #667eea; margin-right: 5px; margin-bottom: 5px;" onclick="impersonateUser('${user.chatId}', '${user.username || user.chatId}')">Impersonifica</button>
               <button class="action-btn" style="background: #f39c12; margin-right: 5px; margin-bottom: 5px;" onclick="revokeUserSessions('${user.chatId}')">Revoca sessioni</button>
               <button class="action-btn" style="margin-bottom: 5px;" onclick="deleteUser('${user.chatId}')">Elimina</button>
             </td>
@@ -1270,6 +1271,7 @@
               <span class="mobile-card-value">${lastCheck}</span>
             </div>
             <div class="mobile-card-actions">
+              <button class="action-btn" style="background: #667eea;" onclick="impersonateUser('${user.chatId}', '${user.username || user.chatId}')">Impersonifica</button>
               <button class="action-btn" style="background: #f39c12;" onclick="revokeUserSessions('${user.chatId}')">Revoca sessioni</button>
               <button class="action-btn" onclick="deleteUser('${user.chatId}')">Elimina</button>
             </div>
@@ -1278,6 +1280,36 @@
       }).join('');
 
       renderPagination('users', pagination);
+    }
+
+    async function impersonateUser(chatId, username) {
+      if (!confirm(`Vuoi impersonare l'utente ${username}?\n\nVedrai il sito esattamente come lo vede quell'utente.`)) {
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/admin?action=impersonate', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ targetChatId: chatId })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || `HTTP ${response.status}`);
+        }
+
+        // Reindirizza alla pagina bot (user view)
+        alert(`Stai ora impersonando ${username}.\n\nSarai reindirizzato alla pagina utente.`);
+        window.location.href = '/bot.html';
+
+      } catch (err) {
+        alert(`Errore impersonificazione: ${err.message}`);
+      }
     }
 
     async function deleteUser(chatId) {
