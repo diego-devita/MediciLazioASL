@@ -1,7 +1,8 @@
 import { requireAdmin, hashToken } from '../lib/auth.js';
-import { connectToDatabase, getAllSessions, deleteSession, deleteUserSessions, getSystemSettings, updateSystemSettings, getCronLogs, getCronStats, getUser, saveAuditLog, createSession } from '../lib/database.js';
+import { connectToDatabase, getAllSessions, deleteSession, deleteUserSessions, getSystemSettings, updateSystemSettings, getCronLogs, getCronStats, getUser, saveAuditLog, createSession, getAllUsers } from '../lib/database.js';
 import { DATABASE, LOGGING, AUTH } from '../lib/config.js';
 import { SignJWT } from 'jose';
+import { sendNotification } from '../lib/telegram.js';
 
 export const config = {
   api: {
@@ -55,6 +56,8 @@ async function handler(req, res) {
       return handleExitImpersonation(req, res);
     case 'trigger-cron':
       return handleTriggerCron(req, res);
+    case 'send-message':
+      return handleSendMessage(req, res);
     case 'get-connection-string':
       return handleGetConnectionString(req, res);
     case 'collection':
@@ -1183,6 +1186,98 @@ async function handleExitImpersonation(req, res) {
 
   } catch (error) {
     console.error('Error in exit-impersonation:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+}
+
+// ===== SEND MESSAGE =====
+async function handleSendMessage(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  try {
+    const { message, chatId } = req.body;
+
+    if (!message || message.trim().length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Message is required'
+      });
+    }
+
+    const adminUser = req.user;
+
+    // Log audit
+    await saveAuditLog({
+      action: 'SEND_MESSAGE',
+      adminChatId: adminUser.chatId,
+      targetChatId: chatId || 'ALL',
+      metadata: {
+        messageLength: message.length,
+        broadcast: !chatId
+      },
+      ipAddress: req.headers['x-forwarded-for'] || req.socket.remoteAddress
+    });
+
+    let successCount = 0;
+    let errorCount = 0;
+    const errors = [];
+
+    if (chatId) {
+      // Invia a singolo utente
+      try {
+        const targetUser = await getUser(chatId);
+        if (!targetUser) {
+          return res.status(404).json({
+            success: false,
+            error: `User with chatId ${chatId} not found`
+          });
+        }
+
+        await sendNotification(chatId, message);
+        successCount = 1;
+      } catch (error) {
+        errorCount = 1;
+        errors.push({
+          chatId,
+          error: error.message
+        });
+      }
+    } else {
+      // Broadcast a tutti gli utenti
+      const users = await getAllUsers();
+
+      for (const user of users) {
+        try {
+          await sendNotification(user.chatId, message);
+          successCount++;
+        } catch (error) {
+          errorCount++;
+          errors.push({
+            chatId: user.chatId,
+            error: error.message
+          });
+        }
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: chatId ? 'Message sent to user' : 'Broadcast completed',
+      stats: {
+        successCount,
+        errorCount,
+        totalAttempted: successCount + errorCount
+      },
+      errors: errors.length > 0 ? errors : undefined
+    });
+
+  } catch (error) {
+    console.error('Error in send-message:', error);
     return res.status(500).json({
       success: false,
       error: 'Internal server error'

@@ -754,6 +754,14 @@
       <!-- Tab Utenti -->
       <div id="tab-users" class="tab-content">
         <div class="section">
+          <h3>📢 Broadcast Messaggio</h3>
+          <div style="margin-bottom: 20px;">
+            <textarea id="broadcastMessage" placeholder="Scrivi un messaggio da inviare a tutti gli utenti..." style="width: 100%; min-height: 100px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit;"></textarea>
+            <button onclick="sendBroadcast()" style="margin-top: 10px; background: #10b981;">Invia a Tutti gli Utenti</button>
+          </div>
+        </div>
+
+        <div class="section">
           <div class="controls">
             <button onclick="loadUsers()">Aggiorna</button>
           </div>
@@ -1222,6 +1230,7 @@
             <td>
               <button class="action-btn" style="background: #667eea; margin-right: 5px; margin-bottom: 5px;" onclick="impersonateUser('${user.chatId}', '${user.username || user.chatId}')">Impersonifica</button>
               <button class="action-btn" style="background: #10b981; margin-right: 5px; margin-bottom: 5px;" onclick="runCronForUser('${user.chatId}', '${user.username || user.chatId}')">Cron</button>
+              <button class="action-btn" style="background: #3b82f6; margin-right: 5px; margin-bottom: 5px;" onclick="sendMessageToUser('${user.chatId}', '${user.username || user.chatId}')">Messaggio</button>
               <button class="action-btn" style="background: #f39c12; margin-right: 5px; margin-bottom: 5px;" onclick="revokeUserSessions('${user.chatId}')">Revoca sessioni</button>
               <button class="action-btn" style="margin-bottom: 5px;" onclick="deleteUser('${user.chatId}')">Elimina</button>
             </td>
@@ -1274,6 +1283,7 @@
             <div class="mobile-card-actions">
               <button class="action-btn" style="background: #667eea;" onclick="impersonateUser('${user.chatId}', '${user.username || user.chatId}')">Impersonifica</button>
               <button class="action-btn" style="background: #10b981;" onclick="runCronForUser('${user.chatId}', '${user.username || user.chatId}')">Cron</button>
+              <button class="action-btn" style="background: #3b82f6;" onclick="sendMessageToUser('${user.chatId}', '${user.username || user.chatId}')">Messaggio</button>
               <button class="action-btn" style="background: #f39c12;" onclick="revokeUserSessions('${user.chatId}')">Revoca sessioni</button>
               <button class="action-btn" onclick="deleteUser('${user.chatId}')">Elimina</button>
             </div>
@@ -1339,6 +1349,81 @@
 
       } catch (err) {
         alert(`Errore esecuzione cron: ${err.message}`);
+      }
+    }
+
+    async function sendMessageToUser(chatId, username) {
+      const message = prompt(`Scrivi un messaggio da inviare a ${username}:`);
+      if (!message || message.trim().length === 0) {
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/admin?action=send-message', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            chatId: chatId,
+            message: message.trim()
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || `HTTP ${response.status}`);
+        }
+
+        alert(`Messaggio inviato con successo a ${username}!`);
+
+      } catch (err) {
+        alert(`Errore invio messaggio: ${err.message}`);
+      }
+    }
+
+    async function sendBroadcast() {
+      const messageEl = document.getElementById('broadcastMessage');
+      const message = messageEl.value.trim();
+
+      if (!message) {
+        alert('Scrivi un messaggio prima di inviare');
+        return;
+      }
+
+      if (!confirm(`Sei sicuro di voler inviare questo messaggio a TUTTI gli utenti?\n\n"${message}"`)) {
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/admin?action=send-message', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ message })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || `HTTP ${response.status}`);
+        }
+
+        let resultMsg = `Broadcast completato!\n\nInviati: ${data.stats.successCount}\nErrori: ${data.stats.errorCount}\nTotale: ${data.stats.totalAttempted}`;
+
+        if (data.errors && data.errors.length > 0) {
+          resultMsg += `\n\nErrori:\n${data.errors.map(e => `- ${e.chatId}: ${e.error}`).join('\n')}`;
+        }
+
+        alert(resultMsg);
+        messageEl.value = '';
+
+      } catch (err) {
+        alert(`Errore broadcast: ${err.message}`);
       }
     }
 
