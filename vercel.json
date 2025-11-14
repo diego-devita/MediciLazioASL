@@ -1,8 +1,8 @@
 {
   "rewrites": [
     { "source": "/login", "destination": "/login.html" },
-    { "source": "/cerca", "destination": "/index.html" },
-    { "source": "/bot", "destination": "/bot.html" },
+    { "source": "/cerca", "destination": "/api/page?name=index" },
+    { "source": "/bot", "destination": "/api/page?name=bot" },
     { "source": "/swagger", "destination": "/swagger.html" },
     { "source": "/admin", "destination": "/api/page?name=admin" },
     { "source": "/", "destination": "/cerca" }
