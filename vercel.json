@@ -4,7 +4,7 @@
     { "source": "/cerca", "destination": "/index.html" },
     { "source": "/bot", "destination": "/bot.html" },
     { "source": "/swagger", "destination": "/swagger.html" },
-    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/admin", "destination": "/api/page?name=admin" },
     { "source": "/", "destination": "/cerca" }
   ],
   "headers": [

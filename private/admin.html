@@ -5,6 +5,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
   <title>Admin Panel - Medici ASL Lazio</title>
+
+  <!-- Auth check: hide page until verified -->
+  <style id="auth-check-style">
+    body {
+      display: none !important;
+    }
+  </style>
+  <script>
+    // Immediate auth check before page renders
+    (async function() {
+      try {
+        const response = await fetch('/api/admin?action=stats', {
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          // Not authorized - redirect to login
+          window.location.href = '/login.html';
+          return;
+        }
+
+        // Authorized - show page
+        document.getElementById('auth-check-style').remove();
+      } catch (err) {
+        // Network error or other issue - redirect to login
+        window.location.href = '/login.html';
+      }
+    })();
+  </script>
+
   <style>
     * {
       box-sizing: border-box;
