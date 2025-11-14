@@ -49,6 +49,12 @@ async function handler(req, res) {
   console.log('🕐 Cron job started:', new Date().toISOString());
   const startTime = Date.now();
 
+  // Parametro opzionale per testare solo un utente specifico
+  const targetChatId = req.query.chatId || req.body?.chatId;
+  if (targetChatId) {
+    console.log(`🎯 Running cron for specific user: ${targetChatId}`);
+  }
+
   try {
     // Check global system settings first
     const systemSettings = await getSystemSettings();
@@ -74,7 +80,19 @@ async function handler(req, res) {
     }
 
     // Ottieni tutti gli utenti
-    const users = await getAllUsers();
+    let users = await getAllUsers();
+
+    // Se specificato chatId, filtra solo quell'utente
+    if (targetChatId) {
+      users = users.filter(u => String(u.chatId) === String(targetChatId));
+      if (users.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: `User with chatId ${targetChatId} not found`
+        });
+      }
+    }
+
     console.log(`Found ${users.length} users`);
 
     if (users.length === 0) {
