@@ -1345,7 +1345,7 @@
           throw new Error(data.error || `HTTP ${response.status}`);
         }
 
-        alert(`Cron eseguito con successo per ${username}!\n\nUtenti controllati: ${data.checked}\nSuccesso: ${data.success}\nErrori: ${data.errors}\nDurata: ${data.duration}ms`);
+        alert(`Cron eseguito con successo per ${username}!\n\nUtenti controllati: ${data.usersChecked}\nSuccesso: ${data.usersSuccessful}\nErrori: ${data.usersErrors}\nDurata: ${data.duration}ms`);
 
       } catch (err) {
         alert(`Errore esecuzione cron: ${err.message}`);

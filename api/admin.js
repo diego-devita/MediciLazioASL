@@ -932,6 +932,12 @@ async function handleTriggerCron(req, res) {
 
     console.log('🔧 Admin triggering cron manually...');
 
+    // Get optional chatId from request body
+    const { chatId } = req.body;
+    if (chatId) {
+      console.log(`🎯 Triggering cron for specific user: ${chatId}`);
+    }
+
     // Chiama l'endpoint /api/cron con il secret
     const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
     const host = req.headers.host || 'localhost:3000';
@@ -942,7 +948,8 @@ async function handleTriggerCron(req, res) {
       headers: {
         'X-Cron-Key': cronSecret,
         'Content-Type': 'application/json'
-      }
+      },
+      body: JSON.stringify(chatId ? { chatId } : {})
     });
 
     const data = await response.json();
