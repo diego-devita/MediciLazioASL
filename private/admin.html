@@ -840,6 +840,7 @@
                   <th>User Agent</th>
                   <th>Creata</th>
                   <th>Ultimo Uso</th>
+                  <th>Scadenza</th>
                   <th>Azioni</th>
                 </tr>
               </thead>
@@ -1608,7 +1609,7 @@
       const { sessions, pagination } = data;
 
       if (sessions.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" class="empty">Nessuna sessione trovata</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" class="empty">Nessuna sessione trovata</td></tr>';
         return;
       }
 
@@ -1617,6 +1618,7 @@
         const lastUsed = new Date(session.lastUsed).toLocaleString('it-IT');
         const userAgent = session.userAgent ? session.userAgent.substring(0, 40) + '...' : '-';
         const ip = session.ip ? session.ip.replace(/,/g, ', ') : '-';
+        const expiresAt = session.expiresAt ? new Date(session.expiresAt).toLocaleString('it-IT') : 'Mai';
 
         return `
           <tr>
@@ -1627,6 +1629,7 @@
             <td style="font-size: 0.75rem;">${userAgent}</td>
             <td>${createdAt}</td>
             <td>${lastUsed}</td>
+            <td>${expiresAt}</td>
             <td>
               <button class="action-btn" onclick="revokeSession('${session.tokenHash}')">Revoca</button>
             </td>
@@ -1641,6 +1644,7 @@
         const lastUsed = new Date(session.lastUsed).toLocaleString('it-IT');
         const userAgent = session.userAgent || '-';
         const ip = session.ip ? session.ip.replace(/,/g, ', ') : '-';
+        const expiresAt = session.expiresAt ? new Date(session.expiresAt).toLocaleString('it-IT') : 'Mai';
 
         return `
           <div class="mobile-card">
@@ -1663,6 +1667,10 @@
             <div class="mobile-card-row">
               <span class="mobile-card-label">Ultimo Uso:</span>
               <span class="mobile-card-value">${lastUsed}</span>
+            </div>
+            <div class="mobile-card-row">
+              <span class="mobile-card-label">Scadenza:</span>
+              <span class="mobile-card-value">${expiresAt}</span>
             </div>
             <div class="mobile-card-actions">
               <button class="action-btn" onclick="revokeSession('${session.tokenHash}')">Revoca</button>

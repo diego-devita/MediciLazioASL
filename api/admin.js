@@ -1081,14 +1081,19 @@ async function handleImpersonate(req, res) {
       .setExpirationTime('2h')
       .sign(secret);
 
-    // 7b. Crea sessione nel DB
+    // 7b. Calcola expiresAt (2 ore da ora)
+    const impersonationExpiresAt = new Date();
+    impersonationExpiresAt.setHours(impersonationExpiresAt.getHours() + 2);
+
+    // 7c. Crea sessione nel DB
     await createSession({
       tokenHash: hashToken(impersonationToken),
       chatId: targetUser.chatId,
       username: targetUser.username,
       role: targetUser.role,
-      ipAddress: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
-      userAgent: req.headers['user-agent']
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown',
+      userAgent: req.headers['user-agent'] || 'unknown',
+      expiresAt: impersonationExpiresAt.toISOString()
     });
 
     // 8. Setta il cookie con il nuovo token
@@ -1173,7 +1178,11 @@ async function handleExitImpersonation(req, res) {
       });
     }
 
-    // 6. Crea nuovo JWT per l'admin (scadenza normale: 30 giorni)
+    // 6. Ottieni scadenza JWT dai settings
+    const settings = await getSystemSettings();
+    const jwtExpiryDays = settings.jwtExpiryDays || 30;
+
+    // 7. Crea nuovo JWT per l'admin (scadenza configurabile)
     const secret = new TextEncoder().encode(AUTH.JWT_SECRET);
     const adminToken = await new SignJWT({
       chatId: adminUser.chatId,
@@ -1183,20 +1192,25 @@ async function handleExitImpersonation(req, res) {
     })
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
-      .setExpirationTime(`${AUTH.JWT_EXPIRY_DAYS}d`)
+      .setExpirationTime(`${jwtExpiryDays}d`)
       .sign(secret);
 
-    // 7. Crea sessione nel DB per l'admin
+    // 8. Calcola expiresAt
+    const adminExpiresAt = new Date();
+    adminExpiresAt.setDate(adminExpiresAt.getDate() + jwtExpiryDays);
+
+    // 9. Crea sessione nel DB per l'admin
     await createSession({
       tokenHash: hashToken(adminToken),
       chatId: adminUser.chatId,
       username: adminUser.username,
       role: adminUser.role,
-      ipAddress: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
-      userAgent: req.headers['user-agent']
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown',
+      userAgent: req.headers['user-agent'] || 'unknown',
+      expiresAt: adminExpiresAt.toISOString()
     });
 
-    // 8. Setta il cookie con il token admin
+    // 10. Setta il cookie con il token admin
     res.setHeader(
       'Set-Cookie',
       `auth_token=${adminToken}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${AUTH.COOKIE_MAX_AGE}`

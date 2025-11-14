@@ -1,5 +1,5 @@
 import { createJWT, hashToken } from '../lib/auth.js';
-import { validateWebAuthToken, markWebAuthTokenAsUsed, createSession, logLoginAttempt, checkRateLimit } from '../lib/database.js';
+import { validateWebAuthToken, markWebAuthTokenAsUsed, createSession, logLoginAttempt, checkRateLimit, getSystemSettings } from '../lib/database.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -61,12 +61,20 @@ export default async function handler(req, res) {
     // Marca token come usato
     await markWebAuthTokenAsUsed(token);
 
+    // Ottieni settings per scadenza JWT
+    const settings = await getSystemSettings();
+    const jwtExpiryDays = settings.jwtExpiryDays || 30;
+
     // Genera JWT token con informazioni utente
     const jwtToken = await createJWT({
       chatId: user.chatId,
       username: user.username,
       role: user.role || 'user'
-    });
+    }, jwtExpiryDays);
+
+    // Calcola data di scadenza
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + jwtExpiryDays);
 
     // Salva sessione nel DB
     const tokenHash = hashToken(jwtToken);
@@ -76,7 +84,8 @@ export default async function handler(req, res) {
       username: user.username,
       role: user.role || 'user',
       userAgent,
-      ip
+      ip,
+      expiresAt: expiresAt.toISOString()
     });
 
     // Log tentativo riuscito
