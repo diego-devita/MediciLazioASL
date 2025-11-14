@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "description": "Sistema completo per ricerca medici ASL Lazio - API REST, Bot Telegram, Web UI",
   "type": "module",
-  "scripts": {
-  },
+  "scripts": {},
   "keywords": [
     "medici",
     "asl",
@@ -16,9 +15,10 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "node-fetch": "^3.3.2",
+    "jose": "^5.2.0",
     "jsdom": "^23.0.0",
+    "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.3.0",
-    "jose": "^5.2.0"
+    "node-fetch": "^3.3.2"
   }
 }
