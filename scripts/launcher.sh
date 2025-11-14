@@ -246,7 +246,7 @@ if [ $START_MONGO -eq 1 ]; then
     tmux send-keys -t "$SESSION_NAME:main" "echo -e '${GREEN}🗄️  MONGODB${NC}'" C-m
     tmux send-keys -t "$SESSION_NAME:main" "echo -e '${CYAN}────────────────────────────────────────${NC}'" C-m
     tmux send-keys -t "$SESSION_NAME:main" "echo ''" C-m
-    tmux send-keys -t "$SESSION_NAME:main" "./dev-mongodb-local.sh && docker logs -f mongodb-dev" C-m
+    tmux send-keys -t "$SESSION_NAME:main" "./scripts/dev-mongodb-local.sh && docker logs -f mongodb-dev" C-m
 fi
 
 # Pannello 3: ngrok (se richiesto)

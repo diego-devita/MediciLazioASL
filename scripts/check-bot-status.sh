@@ -79,7 +79,7 @@ if echo "$WEBHOOK_INFO" | grep -q '"ok":true'; then
         echo -e "${YELLOW}💡 Per abilitare il webhook:${NC}"
         echo -e "   1. Avvia ngrok: ${BOLD}ngrok http 3000${NC}"
         echo -e "   2. Copia l'URL ngrok"
-        echo -e "   3. Registra webhook: ${BOLD}./register-webhook.sh <NGROK_URL>${NC}"
+        echo -e "   3. Registra webhook: ${BOLD}./scripts/register-webhook.sh <NGROK_URL>${NC}"
     else
         echo -e "  ${GREEN}✓${NC} Webhook configurato"
         echo -e "  URL: ${BOLD}${WEBHOOK_URL}${NC}"
@@ -114,7 +114,7 @@ else
             echo -e "  ${GREEN}✓${NC} Container mongodb-dev in esecuzione"
         else
             echo -e "  ${RED}✗${NC} Container mongodb-dev NON in esecuzione"
-            echo -e "  ${CYAN}💡 Avvia con:${NC} ./dev-mongodb-local.sh"
+            echo -e "  ${CYAN}💡 Avvia con:${NC} ./scripts/dev-mongodb-local.sh"
         fi
     else
         echo -e "  ${GREEN}✓${NC} Usando MongoDB remoto"
@@ -181,6 +181,6 @@ echo ""
 echo -e "${CYAN}💡 Comandi utili:${NC}"
 echo -e "  • Test bot: ${BOLD}Manda /start a @${BOT_USERNAME}${NC}"
 echo -e "  • Genera OTP: ${BOLD}Manda /otp al bot${NC}"
-echo -e "  • Webhook: ${BOLD}./register-webhook.sh <NGROK_URL>${NC}"
-echo -e "  • Avvia tutto: ${BOLD}./launcher.sh${NC}"
+echo -e "  • Webhook: ${BOLD}./scripts/register-webhook.sh <NGROK_URL>${NC}"
+echo -e "  • Avvia tutto: ${BOLD}./scripts/launcher.sh${NC}"
 echo ""

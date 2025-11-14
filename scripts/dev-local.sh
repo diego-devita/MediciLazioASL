@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script per avviare rapidamente il progetto in locale
-# Usage: ./dev-local.sh [log_level]
+# Usage: ./scripts/dev-local.sh [log_level]
 #   log_level: error, warn, info, debug, trace (opzionale)
 
 set -e
@@ -77,8 +77,8 @@ echo ""
 
 # Start Vercel dev server
 echo "🌐 Avvio server locale su http://localhost:3000"
-echo "   - Admin panel: http://localhost:3000/admin.html"
-echo "   - Bot config: http://localhost:3000/bot.html"
+echo "   - Admin panel: http://localhost:3000/admin"
+echo "   - Bot config: http://localhost:3000/bot"
 echo ""
 echo "📝 Premi Ctrl+C per fermare"
 echo ""

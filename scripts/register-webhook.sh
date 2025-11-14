@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Script per registrare webhook Telegram bot
-# Usage: ./register-webhook.sh <NGROK_URL>
-# Example: ./register-webhook.sh https://abc123.ngrok-free.dev
+# Usage: ./scripts/register-webhook.sh <NGROK_URL>
+# Example: ./scripts/register-webhook.sh https://abc123.ngrok-free.dev
 
 set -e
 
@@ -40,8 +40,8 @@ if [ -z "$1" ]; then
     echo ""
     echo "❌ Manca URL ngrok!"
     echo ""
-    echo "Usage: ./register-webhook.sh <NGROK_URL>"
-    echo "Example: ./register-webhook.sh https://abc123.ngrok-free.dev"
+    echo "Usage: ./scripts/register-webhook.sh <NGROK_URL>"
+    echo "Example: ./scripts/register-webhook.sh https://abc123.ngrok-free.dev"
     echo ""
     exit 1
 fi
